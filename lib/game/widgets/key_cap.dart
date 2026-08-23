@@ -40,9 +40,8 @@ class _KeyCapState extends State<KeyCap> {
   Widget build(BuildContext context) {
     final colors = context.kalimatColors;
     final state = widget.state;
-    final isStated = state != null &&
-        state != TileState.empty &&
-        state != TileState.filled;
+    final isStated =
+        state != null && state != TileState.empty && state != TileState.filled;
 
     final bg = isStated
         ? switch (state) {
@@ -105,8 +104,7 @@ class _KeyCapState extends State<KeyCap> {
       behavior: HitTestBehavior.opaque,
       onTapDown: widget.disabled ? null : (_) => setState(() => _held = true),
       onTapUp: widget.disabled ? null : (_) => setState(() => _held = false),
-      onTapCancel:
-          widget.disabled ? null : () => setState(() => _held = false),
+      onTapCancel: widget.disabled ? null : () => setState(() => _held = false),
       onTap: widget.disabled ? null : widget.onPress,
       child: cap,
     );

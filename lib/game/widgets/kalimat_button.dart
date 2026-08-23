@@ -40,15 +40,15 @@ class _KalimatButtonState extends State<KalimatButton> {
     final (Color bg, Color fg, Color border) = switch (widget.variant) {
       KalimatButtonVariant.primary => (c.accent, c.textOnAccent, c.accent),
       KalimatButtonVariant.secondary => (
-          _hover ? c.surfaceSunken : c.surfaceCard,
-          c.textBody,
-          c.line,
-        ),
+        _hover ? c.surfaceSunken : c.surfaceCard,
+        c.textBody,
+        c.line,
+      ),
       KalimatButtonVariant.ghost => (
-          _hover ? c.surfaceSunken : Colors.transparent,
-          c.textMuted,
-          Colors.transparent,
-        ),
+        _hover ? c.surfaceSunken : Colors.transparent,
+        c.textMuted,
+        Colors.transparent,
+      ),
     };
     // Primary hover darkens (filter brightness .93 equivalent).
     final effBg = widget.variant == KalimatButtonVariant.primary && _hover
@@ -61,8 +61,9 @@ class _KalimatButtonState extends State<KalimatButton> {
       child: GestureDetector(
         onTapDown: widget.disabled ? null : (_) => setState(() => _held = true),
         onTapUp: widget.disabled ? null : (_) => setState(() => _held = false),
-        onTapCancel:
-            widget.disabled ? null : () => setState(() => _held = false),
+        onTapCancel: widget.disabled
+            ? null
+            : () => setState(() => _held = false),
         onTap: widget.disabled ? null : widget.onPressed,
         child: AnimatedScale(
           scale: _held && !widget.disabled ? .97 : 1,

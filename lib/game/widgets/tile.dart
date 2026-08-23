@@ -80,34 +80,33 @@ class _TileState extends State<Tile> with TickerProviderStateMixin {
   ({Color bg, Color border, Color text}) _faceColors(
     KalimatColors c,
     TileState state,
-  ) =>
-      switch (state) {
-        TileState.empty => (
-            bg: Colors.transparent,
-            border: c.tileEmptyBorder,
-            text: c.textBody,
-          ),
-        TileState.filled => (
-            bg: Colors.transparent,
-            border: c.tileFilledBorder,
-            text: c.textBody,
-          ),
-        TileState.correct => (
-            bg: c.tileCorrect,
-            border: c.tileCorrect,
-            text: c.tileTextOnState,
-          ),
-        TileState.present => (
-            bg: c.tilePresent,
-            border: c.tilePresent,
-            text: c.tileTextOnState,
-          ),
-        TileState.absent => (
-            bg: c.tileAbsent,
-            border: c.tileAbsent,
-            text: c.tileTextOnState,
-          ),
-      };
+  ) => switch (state) {
+    TileState.empty => (
+      bg: Colors.transparent,
+      border: c.tileEmptyBorder,
+      text: c.textBody,
+    ),
+    TileState.filled => (
+      bg: Colors.transparent,
+      border: c.tileFilledBorder,
+      text: c.textBody,
+    ),
+    TileState.correct => (
+      bg: c.tileCorrect,
+      border: c.tileCorrect,
+      text: c.tileTextOnState,
+    ),
+    TileState.present => (
+      bg: c.tilePresent,
+      border: c.tilePresent,
+      text: c.tileTextOnState,
+    ),
+    TileState.absent => (
+      bg: c.tileAbsent,
+      border: c.tileAbsent,
+      text: c.tileTextOnState,
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {

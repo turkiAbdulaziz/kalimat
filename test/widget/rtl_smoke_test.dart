@@ -26,12 +26,14 @@ Future<Widget> _app(
     overrides: [
       localStoreProvider.overrideWithValue(store),
       dictionaryProvider.overrideWithValue(_dictionary),
-      initialWordProvider.overrideWithValue(DailyWord(
-        date: DateTime(2026, 9, 1),
-        puzzleNo: 1,
-        word: 'مدرسة',
-        fromServer: false,
-      )),
+      initialWordProvider.overrideWithValue(
+        DailyWord(
+          date: DateTime(2026, 9, 1),
+          puzzleNo: 1,
+          word: 'مدرسة',
+          fromServer: false,
+        ),
+      ),
     ],
     child: const KalimatApp(),
   );
@@ -45,8 +47,9 @@ void main() {
     await _dictionary.ensureLoaded();
   });
 
-  testWidgets('app boots RTL with header, badge, board, keyboard',
-      (tester) async {
+  testWidgets('app boots RTL with header, badge, board, keyboard', (
+    tester,
+  ) async {
     await tester.pumpWidget(await _app(tester, prefs: {'help_seen': true}));
     await tester.pump();
 
@@ -68,15 +71,15 @@ void main() {
     expect(find.text(S.helpBody), findsNothing);
   });
 
-  testWidgets('typing fills tiles; too-short enter shakes with toast',
-      (tester) async {
+  testWidgets('typing fills tiles; too-short enter shakes with toast', (
+    tester,
+  ) async {
     await tester.pumpWidget(await _app(tester, prefs: {'help_seen': true}));
     await tester.pump();
 
-    await tester.tap(find.descendant(
-      of: find.byType(Scaffold),
-      matching: find.text('م'),
-    ));
+    await tester.tap(
+      find.descendant(of: find.byType(Scaffold), matching: find.text('م')),
+    );
     await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.text(S.enterKey));
@@ -88,19 +91,22 @@ void main() {
     expect(find.text(S.tooShort), findsNothing);
   });
 
-  testWidgets('full winning game: reveal, toast, stats dialog',
-      (tester) async {
-    await tester.pumpWidget(await _app(tester, prefs: {
-      'help_seen': true,
-      'settings': '{"dark":false,"hints":true,"motion":false}',
-    }));
+  testWidgets('full winning game: reveal, toast, stats dialog', (tester) async {
+    await tester.pumpWidget(
+      await _app(
+        tester,
+        prefs: {
+          'help_seen': true,
+          'settings': '{"dark":false,"hints":true,"motion":false}',
+        },
+      ),
+    );
     await tester.pump();
 
     for (final letter in ['م', 'د', 'ر', 'س', 'ة']) {
-      await tester.tap(find.descendant(
-        of: find.byType(Scaffold),
-        matching: find.text(letter),
-      ));
+      await tester.tap(
+        find.descendant(of: find.byType(Scaffold), matching: find.text(letter)),
+      );
       await tester.pump(const Duration(milliseconds: 50));
     }
     await tester.tap(find.text(S.enterKey));

@@ -34,8 +34,9 @@ final dictionaryProvider = Provider<GuessDictionary>(
   (ref) => throw UnimplementedError('dictionaryProvider must be overridden'),
 );
 
-final gameProvider =
-    NotifierProvider<GameController, GameState>(GameController.new);
+final gameProvider = NotifierProvider<GameController, GameState>(
+  GameController.new,
+);
 
 class GameState {
   const GameState({
@@ -98,32 +99,35 @@ class GameState {
     int? revealRow,
     bool? revealAnswer,
     int? statsDialogTick,
-  }) =>
-      GameState(
-        word: word,
-        guesses: guesses ?? this.guesses,
-        rowStates: rowStates ?? this.rowStates,
-        current: current ?? this.current,
-        keyStates: keyStates ?? this.keyStates,
-        status: status ?? this.status,
-        toast: clearToast ? null : (toast ?? this.toast),
-        toastIsWin: toastIsWin ?? this.toastIsWin,
-        shakeRow: shakeRow ?? this.shakeRow,
-        revealRow: revealRow ?? this.revealRow,
-        revealAnswer: revealAnswer ?? this.revealAnswer,
-        statsDialogTick: statsDialogTick ?? this.statsDialogTick,
-      );
+  }) => GameState(
+    word: word,
+    guesses: guesses ?? this.guesses,
+    rowStates: rowStates ?? this.rowStates,
+    current: current ?? this.current,
+    keyStates: keyStates ?? this.keyStates,
+    status: status ?? this.status,
+    toast: clearToast ? null : (toast ?? this.toast),
+    toastIsWin: toastIsWin ?? this.toastIsWin,
+    shakeRow: shakeRow ?? this.shakeRow,
+    revealRow: revealRow ?? this.revealRow,
+    revealAnswer: revealAnswer ?? this.revealAnswer,
+    statsDialogTick: statsDialogTick ?? this.statsDialogTick,
+  );
 
   /// Server-side grid encoding: 0=absent, 1=present, 2=correct, rows
   /// separated by '|'.
   String get gridString => rowStates
-      .map((row) => row
-          .map((s) => switch (s) {
+      .map(
+        (row) => row
+            .map(
+              (s) => switch (s) {
                 TileState.correct => '2',
                 TileState.present => '1',
                 _ => '0',
-              })
-          .join())
+              },
+            )
+            .join(),
+      )
       .join('|');
 }
 
@@ -170,8 +174,8 @@ class GameController extends Notifier<GameState> {
   /// A game in progress is never interrupted — the new word is already
   /// cached and picked up on the next launch/rollover.
   void applyServerWord(DailyWord next) {
-    final same = _sameDate(state.word.date, next.date) &&
-        state.word.word == next.word;
+    final same =
+        _sameDate(state.word.date, next.date) && state.word.word == next.word;
     if (same) return;
     final untouched = state.guesses.isEmpty && state.current.isEmpty;
     if (untouched || state.finished) {

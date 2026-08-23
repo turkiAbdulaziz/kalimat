@@ -7,16 +7,17 @@ import 'package:kalimat/game/engine/models.dart';
 import 'package:kalimat/game/widgets/keyboard.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: kalimatTheme(Brightness.light),
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(body: child),
-      ),
-    );
+  theme: kalimatTheme(Brightness.light),
+  home: Directionality(
+    textDirection: TextDirection.rtl,
+    child: Scaffold(body: child),
+  ),
+);
 
 void main() {
-  testWidgets('keyboard renders all 33 letters plus enter/delete',
-      (tester) async {
+  testWidgets('keyboard renders all 33 letters plus enter/delete', (
+    tester,
+  ) async {
     await tester.pumpWidget(_wrap(const GameKeyboard()));
     for (final row in kKeyboardRows) {
       for (final letter in row) {
@@ -36,8 +37,9 @@ void main() {
     expect(ba.dx, greaterThan(zay.dx), reason: 'row runs toward the left');
   });
 
-  testWidgets('enter key sits at the right edge of row 3 (RTL start)',
-      (tester) async {
+  testWidgets('enter key sits at the right edge of row 3 (RTL start)', (
+    tester,
+  ) async {
     await tester.pumpWidget(_wrap(const GameKeyboard()));
     final enter = tester.getCenter(find.text(S.enterKey));
     final delete = tester.getCenter(find.text(S.deleteKey));
@@ -49,11 +51,15 @@ void main() {
   testWidgets('key presses reach callbacks', (tester) async {
     final pressed = <String>[];
     var enters = 0, deletes = 0;
-    await tester.pumpWidget(_wrap(GameKeyboard(
-      onKey: pressed.add,
-      onEnter: () => enters++,
-      onDelete: () => deletes++,
-    )));
+    await tester.pumpWidget(
+      _wrap(
+        GameKeyboard(
+          onKey: pressed.add,
+          onEnter: () => enters++,
+          onDelete: () => deletes++,
+        ),
+      ),
+    );
     await tester.tap(find.text('م'));
     await tester.tap(find.text(S.enterKey));
     await tester.tap(find.text(S.deleteKey));
@@ -62,11 +68,12 @@ void main() {
     expect(deletes, 1);
   });
 
-  testWidgets('hint states color equivalence classes together',
-      (tester) async {
-    await tester.pumpWidget(_wrap(GameKeyboard(
-      letterStates: {normalizeLetter('أ'): TileState.correct},
-    )));
+  testWidgets('hint states color equivalence classes together', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        GameKeyboard(letterStates: {normalizeLetter('أ'): TileState.correct}),
+      ),
+    );
     await tester.pump();
     // Both أ and إ and ا share the canonical ا class — all should resolve
     // the same state through normalizeLetter at lookup time.

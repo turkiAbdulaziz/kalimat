@@ -28,16 +28,16 @@ class DailyWord {
   final bool fromServer;
 
   Map<String, Object?> toJson() => {
-        'date': date.toIso8601String().substring(0, 10),
-        'puzzleNo': puzzleNo,
-        'word': word,
-        'fromServer': fromServer,
-      };
+    'date': date.toIso8601String().substring(0, 10),
+    'puzzleNo': puzzleNo,
+    'word': word,
+    'fromServer': fromServer,
+  };
 
   static DailyWord fromJson(Map<String, Object?> json) => DailyWord(
-        date: DateTime.parse(json['date'] as String),
-        puzzleNo: json['puzzleNo'] as int,
-        word: json['word'] as String,
-        fromServer: json['fromServer'] as bool? ?? false,
-      );
+    date: DateTime.parse(json['date'] as String),
+    puzzleNo: json['puzzleNo'] as int,
+    word: json['word'] as String,
+    fromServer: json['fromServer'] as bool? ?? false,
+  );
 }

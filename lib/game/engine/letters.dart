@@ -18,22 +18,20 @@ const List<List<String>> kKeyboardRows = [
 /// normalization maps them onto keyboard letters.
 const Set<String> kTargetOnlyLetters = {'آ', 'ؤ', 'ئ'};
 
-final Set<String> kKeyboardLetters = {
-  for (final row in kKeyboardRows) ...row,
-};
+final Set<String> kKeyboardLetters = {for (final row in kKeyboardRows) ...row};
 
 /// Folds a letter onto its canonical equivalence class.
 ///
 /// أ إ آ → ا, ة → ه, ى → ي, ؤ → و, ئ → ي; the standalone hamza ء stays its
 /// own letter (it has a dedicated key).
 String normalizeLetter(String c) => switch (c) {
-      'أ' || 'إ' || 'آ' => 'ا',
-      'ة' => 'ه',
-      'ى' => 'ي',
-      'ؤ' => 'و',
-      'ئ' => 'ي',
-      _ => c,
-    };
+  'أ' || 'إ' || 'آ' => 'ا',
+  'ة' => 'ه',
+  'ى' => 'ي',
+  'ؤ' => 'و',
+  'ئ' => 'ي',
+  _ => c,
+};
 
 /// Strips harakat, superscript alef, tatweel, and zero-width/bidi marks,
 /// then folds every letter onto its canonical class.

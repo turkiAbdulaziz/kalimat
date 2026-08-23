@@ -11,8 +11,9 @@ final localStoreProvider = Provider<LocalStore>(
   (ref) => throw UnimplementedError('localStoreProvider must be overridden'),
 );
 
-final settingsProvider =
-    NotifierProvider<SettingsController, GameSettings>(SettingsController.new);
+final settingsProvider = NotifierProvider<SettingsController, GameSettings>(
+  SettingsController.new,
+);
 
 class SettingsController extends Notifier<GameSettings> {
   @override
@@ -22,7 +23,10 @@ class SettingsController extends Notifier<GameSettings> {
     // reduce-animations accessibility setting.
     if (!store.hasStoredSettings &&
         WidgetsBinding
-            .instance.platformDispatcher.accessibilityFeatures.disableAnimations) {
+            .instance
+            .platformDispatcher
+            .accessibilityFeatures
+            .disableAnimations) {
       return const GameSettings(motion: false);
     }
     return store.settings;

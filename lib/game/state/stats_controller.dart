@@ -6,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/local_store.dart';
 import 'settings_controller.dart';
 
-final statsProvider =
-    NotifierProvider<StatsController, GameStats>(StatsController.new);
+final statsProvider = NotifierProvider<StatsController, GameStats>(
+  StatsController.new,
+);
 
 class StatsController extends Notifier<GameStats> {
   @override

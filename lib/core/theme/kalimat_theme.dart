@@ -25,16 +25,19 @@ ThemeData kalimatTheme(Brightness brightness) {
       ? KalimatColors.dark()
       : KalimatColors.light();
 
-  TextStyle ui(double size, FontWeight weight,
-          {Color? color, double height = 1.5}) =>
-      TextStyle(
-        fontFamily: kFontUi,
-        fontSize: size,
-        fontWeight: weight,
-        color: color ?? colors.textBody,
-        letterSpacing: 0,
-        height: height,
-      );
+  TextStyle ui(
+    double size,
+    FontWeight weight, {
+    Color? color,
+    double height = 1.5,
+  }) => TextStyle(
+    fontFamily: kFontUi,
+    fontSize: size,
+    fontWeight: weight,
+    color: color ?? colors.textBody,
+    letterSpacing: 0,
+    height: height,
+  );
 
   TextStyle display(double size, FontWeight weight, {Color? color}) =>
       TextStyle(

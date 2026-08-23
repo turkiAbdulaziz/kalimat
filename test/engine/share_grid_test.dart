@@ -31,7 +31,13 @@ void main() {
   });
 
   test('no extra text beyond header and rows', () {
-    final text = buildShareText(puzzleNo: 1, won: true, rows: [[c, c, c, c, c]]);
+    final text = buildShareText(
+      puzzleNo: 1,
+      won: true,
+      rows: [
+        [c, c, c, c, c],
+      ],
+    );
     expect(text.split('\n').length, 2);
   });
 }

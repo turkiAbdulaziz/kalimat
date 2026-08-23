@@ -10,12 +10,7 @@ import '../../core/theme/metrics.dart';
 import 'kalimat_button.dart';
 
 class AppHeader extends StatelessWidget {
-  const AppHeader({
-    super.key,
-    this.onHelp,
-    this.onStats,
-    this.onSettings,
-  });
+  const AppHeader({super.key, this.onHelp, this.onStats, this.onSettings});
 
   final VoidCallback? onHelp;
   final VoidCallback? onStats;
@@ -42,10 +37,9 @@ class AppHeader extends StatelessWidget {
             child: Text(
               S.appTitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .copyWith(color: BrownRamp.b800),
+              style: Theme.of(
+                context,
+              ).textTheme.displayMedium!.copyWith(color: BrownRamp.b800),
             ),
           ),
           KalimatIconButton(

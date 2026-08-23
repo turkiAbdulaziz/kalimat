@@ -36,44 +36,57 @@ class GameStats {
       streak: newStreak,
       best: newStreak > best ? newStreak : best,
       dist: [
-        for (var i = 0; i < 6; i++)
-          dist[i] + (won && guesses == i + 1 ? 1 : 0),
+        for (var i = 0; i < 6; i++) dist[i] + (won && guesses == i + 1 ? 1 : 0),
       ],
     );
   }
 
-  Map<String, Object?> toJson() =>
-      {'played': played, 'wins': wins, 'streak': streak, 'best': best, 'dist': dist};
+  Map<String, Object?> toJson() => {
+    'played': played,
+    'wins': wins,
+    'streak': streak,
+    'best': best,
+    'dist': dist,
+  };
 
   static GameStats fromJson(Map<String, Object?> j) => GameStats(
-        played: j['played'] as int? ?? 0,
-        wins: j['wins'] as int? ?? 0,
-        streak: j['streak'] as int? ?? 0,
-        best: j['best'] as int? ?? 0,
-        dist: (j['dist'] as List?)?.cast<int>() ?? const [0, 0, 0, 0, 0, 0],
-      );
+    played: j['played'] as int? ?? 0,
+    wins: j['wins'] as int? ?? 0,
+    streak: j['streak'] as int? ?? 0,
+    best: j['best'] as int? ?? 0,
+    dist: (j['dist'] as List?)?.cast<int>() ?? const [0, 0, 0, 0, 0, 0],
+  );
 }
 
 class GameSettings {
-  const GameSettings({this.dark = false, this.hints = true, this.motion = true});
+  const GameSettings({
+    this.dark = false,
+    this.hints = true,
+    this.motion = true,
+  });
 
   final bool dark;
   final bool hints;
   final bool motion;
 
-  GameSettings copyWith({bool? dark, bool? hints, bool? motion}) => GameSettings(
+  GameSettings copyWith({bool? dark, bool? hints, bool? motion}) =>
+      GameSettings(
         dark: dark ?? this.dark,
         hints: hints ?? this.hints,
         motion: motion ?? this.motion,
       );
 
-  Map<String, Object?> toJson() => {'dark': dark, 'hints': hints, 'motion': motion};
+  Map<String, Object?> toJson() => {
+    'dark': dark,
+    'hints': hints,
+    'motion': motion,
+  };
 
   static GameSettings fromJson(Map<String, Object?> j) => GameSettings(
-        dark: j['dark'] as bool? ?? false,
-        hints: j['hints'] as bool? ?? true,
-        motion: j['motion'] as bool? ?? true,
-      );
+    dark: j['dark'] as bool? ?? false,
+    hints: j['hints'] as bool? ?? true,
+    motion: j['motion'] as bool? ?? true,
+  );
 }
 
 /// A finished game's board: typed guesses for one calendar date.
@@ -84,13 +97,15 @@ class BoardSave {
   final DateTime date;
   final List<String> guesses;
 
-  Map<String, Object?> toJson() =>
-      {'date': date.toIso8601String().substring(0, 10), 'guesses': guesses};
+  Map<String, Object?> toJson() => {
+    'date': date.toIso8601String().substring(0, 10),
+    'guesses': guesses,
+  };
 
   static BoardSave fromJson(Map<String, Object?> j) => BoardSave(
-        date: DateTime.parse(j['date'] as String),
-        guesses: (j['guesses'] as List).cast<String>(),
-      );
+    date: DateTime.parse(j['date'] as String),
+    guesses: (j['guesses'] as List).cast<String>(),
+  );
 }
 
 /// A finished result queued for upload to Supabase.
@@ -110,20 +125,20 @@ class PendingResult {
   final int? durationMs;
 
   Map<String, Object?> toJson() => {
-        'date': date.toIso8601String().substring(0, 10),
-        'won': won,
-        'guesses': guesses,
-        'grid': grid,
-        'durationMs': durationMs,
-      };
+    'date': date.toIso8601String().substring(0, 10),
+    'won': won,
+    'guesses': guesses,
+    'grid': grid,
+    'durationMs': durationMs,
+  };
 
   static PendingResult fromJson(Map<String, Object?> j) => PendingResult(
-        date: DateTime.parse(j['date'] as String),
-        won: j['won'] as bool,
-        guesses: j['guesses'] as int?,
-        grid: j['grid'] as String,
-        durationMs: j['durationMs'] as int?,
-      );
+    date: DateTime.parse(j['date'] as String),
+    won: j['won'] as bool,
+    guesses: j['guesses'] as int?,
+    grid: j['grid'] as String,
+    durationMs: j['durationMs'] as int?,
+  );
 }
 
 class LocalStore {
@@ -139,10 +154,10 @@ class LocalStore {
   static const _kHelpSeen = 'help_seen';
 
   static Future<LocalStore> create() async => LocalStore(
-        await SharedPreferencesWithCache.create(
-          cacheOptions: const SharedPreferencesWithCacheOptions(),
-        ),
-      );
+    await SharedPreferencesWithCache.create(
+      cacheOptions: const SharedPreferencesWithCacheOptions(),
+    ),
+  );
 
   Map<String, Object?>? _json(String key) {
     final raw = _prefs.getString(key);

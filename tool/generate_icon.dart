@@ -19,12 +19,10 @@ const _accent = Color(0xFF8A6544); // brown-600
 const _textColor = Color(0xFFFFFDFA); // brown-0
 
 Future<void> _loadFont() async {
-  final data = File('assets/fonts/NotoKufiArabic-ExtraBold.ttf')
-      .readAsBytesSync()
-      .buffer
-      .asByteData();
-  final loader = FontLoader('NotoKufiArabic')
-    ..addFont(Future.value(data));
+  final data = File(
+    'assets/fonts/NotoKufiArabic-ExtraBold.ttf',
+  ).readAsBytesSync().buffer.asByteData();
+  final loader = FontLoader('NotoKufiArabic')..addFont(Future.value(data));
   await loader.load();
 }
 
@@ -63,8 +61,10 @@ Future<void> _render({
     Offset((size - painter.width) / 2, (size - painter.height) / 2),
   );
 
-  final image =
-      await recorder.endRecording().toImage(size.toInt(), size.toInt());
+  final image = await recorder.endRecording().toImage(
+    size.toInt(),
+    size.toInt(),
+  );
   final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
   File(path)
     ..createSync(recursive: true)

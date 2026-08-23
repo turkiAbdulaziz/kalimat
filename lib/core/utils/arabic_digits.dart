@@ -8,10 +8,9 @@ const List<String> _digits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '�
 const String arabicPercent = '٪';
 
 /// Replaces every Western digit in [value] with its Arabic-Indic equivalent.
-String toArabicDigits(String value) => value.replaceAllMapped(
-      RegExp('[0-9]'),
-      (m) => _digits[int.parse(m[0]!)],
-    );
+String toArabicDigits(String value) =>
+    value.replaceAllMapped(RegExp('[0-9]'), (m) => _digits[int.parse(m[0]!)]);
 
 /// Formats [value] as an Arabic-Indic percentage, e.g. 64 → «٦٤٪».
-String toArabicPercent(int value) => '${toArabicDigits('$value')}$arabicPercent';
+String toArabicPercent(int value) =>
+    '${toArabicDigits('$value')}$arabicPercent';

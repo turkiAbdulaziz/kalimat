@@ -19,10 +19,10 @@ const String _squarePresent = '🟨';
 const String _squareAbsent = '⬜';
 
 String _square(TileState s) => switch (s) {
-      TileState.correct => _squareCorrect,
-      TileState.present => _squarePresent,
-      _ => _squareAbsent,
-    };
+  TileState.correct => _squareCorrect,
+  TileState.present => _squarePresent,
+  _ => _squareAbsent,
+};
 
 /// Builds the complete share text for a finished game.
 ///

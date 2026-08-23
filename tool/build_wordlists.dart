@@ -31,17 +31,20 @@ const Set<String> kKeyboardLetters = {
 /// (normalization maps them onto keyboard letters).
 const Set<String> kTargetOnlyLetters = {'آ', 'ؤ', 'ئ'};
 
-final Set<String> kAllowedLetters = {...kKeyboardLetters, ...kTargetOnlyLetters};
+final Set<String> kAllowedLetters = {
+  ...kKeyboardLetters,
+  ...kTargetOnlyLetters,
+};
 
 /// Must mirror normalizeLetter in lib/game/engine/letters.dart exactly.
 String normalizeLetter(String c) => switch (c) {
-      'أ' || 'إ' || 'آ' => 'ا',
-      'ة' => 'ه',
-      'ى' => 'ي',
-      'ؤ' => 'و',
-      'ئ' => 'ي',
-      _ => c,
-    };
+  'أ' || 'إ' || 'آ' => 'ا',
+  'ة' => 'ه',
+  'ى' => 'ي',
+  'ؤ' => 'و',
+  'ئ' => 'ي',
+  _ => c,
+};
 
 String normalizeWord(String w) => w.split('').map(normalizeLetter).join();
 
@@ -71,14 +74,17 @@ String? clean(String raw) {
 void main() {
   final rawDir = Directory('tool/raw');
   if (!rawDir.existsSync()) {
-    stderr.writeln('tool/raw/ missing - download the raw sources first (see header).');
+    stderr.writeln(
+      'tool/raw/ missing - download the raw sources first (see header).',
+    );
     exit(1);
   }
 
   // --- Load frequency list: rank + count per surface form -------------------
   final freqCount = <String, int>{}; // raw surface form -> count
   final freqRankNorm = <String, int>{}; // normalized form -> best rank
-  final freqDisplay = <String, String>{}; // normalized form -> highest-count spelling
+  final freqDisplay =
+      <String, String>{}; // normalized form -> highest-count spelling
   var rank = 0;
   for (final line in File('tool/raw/freq_ar_50k.txt').readAsLinesSync()) {
     final parts = line.trim().split(' ');
@@ -123,7 +129,9 @@ void main() {
 
   final sortedDict = dictionary.toList()..sort();
   Directory('assets/words').createSync(recursive: true);
-  File('assets/words/dictionary.txt').writeAsStringSync('${sortedDict.join('\n')}\n');
+  File(
+    'assets/words/dictionary.txt',
+  ).writeAsStringSync('${sortedDict.join('\n')}\n');
 
   // --- Answers candidates (frequency-ranked, flagged for curation) ----------
   // Flags: AL = starts with ال (definite article); W/F/B/L = clitic prefix with a
@@ -133,7 +141,9 @@ void main() {
     final f = <String>[];
     if (w.startsWith('ال')) f.add('AL');
     for (final p in ['و', 'ف', 'ب', 'ل']) {
-      if (w.startsWith(p) && known(w.substring(1))) f.add({'و': 'W', 'ف': 'F', 'ب': 'B', 'ل': 'L'}[p]!);
+      if (w.startsWith(p) && known(w.substring(1))) {
+        f.add({'و': 'W', 'ف': 'F', 'ب': 'B', 'ل': 'L'}[p]!);
+      }
     }
     for (final s in ['ها', 'هم', 'كم', 'نا', 'ني', 'ته', 'تم']) {
       if (w.endsWith(s) && known(w.substring(0, w.length - 2))) f.add('SUF');
@@ -146,8 +156,12 @@ void main() {
 
   Directory('tool/out').createSync(recursive: true);
   final candidates = StringBuffer()
-    ..writeln('# word<TAB>freq_rank<TAB>flags   (flags: AL=ال prefix, W/F/B/L=clitic prefix, SUF=pronoun suffix)')
-    ..writeln('# Curate into assets/words/answers.txt: one display-spelling word per line, order = puzzle order.');
+    ..writeln(
+      '# word<TAB>freq_rank<TAB>flags   (flags: AL=ال prefix, W/F/B/L=clitic prefix, SUF=pronoun suffix)',
+    )
+    ..writeln(
+      '# Curate into assets/words/answers.txt: one display-spelling word per line, order = puzzle order.',
+    );
   final unflagged = <String>[];
   for (final n in rankedNorms) {
     final display = freqDisplay[n]!;
@@ -155,7 +169,9 @@ void main() {
     candidates.writeln('$display\t${freqRankNorm[n]}\t$flags');
     if (flags == '-') unflagged.add(display);
   }
-  File('tool/out/answers_candidates.txt').writeAsStringSync(candidates.toString());
+  File(
+    'tool/out/answers_candidates.txt',
+  ).writeAsStringSync(candidates.toString());
 
   // --- Provisional answers (only when no curated file exists) ---------------
   final answersFile = File('assets/words/answers.txt');
@@ -165,7 +181,9 @@ void main() {
       '# PROVISIONAL - auto-generated top-frequency words; replace with curated list.\n'
       '${provisional.join('\n')}\n',
     );
-    stdout.writeln('Wrote PROVISIONAL assets/words/answers.txt (${provisional.length} words).');
+    stdout.writeln(
+      'Wrote PROVISIONAL assets/words/answers.txt (${provisional.length} words).',
+    );
   }
 
   // --- Validate answers + emit Supabase seed --------------------------------
@@ -177,30 +195,54 @@ void main() {
   final seenNorm = <String>{};
   for (final (i, a) in answers.indexed) {
     final w = clean(a);
-    if (w == null) throw StateError('answers.txt line ${i + 1}: "$a" is not a valid 5-letter word');
+    if (w == null) {
+      throw StateError(
+        'answers.txt line ${i + 1}: "$a" is not a valid 5-letter word',
+      );
+    }
     final n = normalizeWord(w);
-    if (!dictionary.contains(n)) throw StateError('answers.txt line ${i + 1}: "$a" not in dictionary');
-    if (!seenNorm.add(n)) throw StateError('answers.txt line ${i + 1}: "$a" duplicates an earlier answer');
+    if (!dictionary.contains(n)) {
+      throw StateError('answers.txt line ${i + 1}: "$a" not in dictionary');
+    }
+    if (!seenNorm.add(n)) {
+      throw StateError(
+        'answers.txt line ${i + 1}: "$a" duplicates an earlier answer',
+      );
+    }
   }
 
   final epoch = DateTime.parse(kEpochDate);
   final seed = StringBuffer()
-    ..writeln('-- Generated by tool/build_wordlists.dart - do not edit by hand.')
-    ..writeln('-- Epoch $kEpochDate = puzzle 1. Regenerate after curating answers.txt.')
-    ..writeln('insert into public.daily_words (word_date, puzzle_no, word) values');
+    ..writeln(
+      '-- Generated by tool/build_wordlists.dart - do not edit by hand.',
+    )
+    ..writeln(
+      '-- Epoch $kEpochDate = puzzle 1. Regenerate after curating answers.txt.',
+    )
+    ..writeln(
+      'insert into public.daily_words (word_date, puzzle_no, word) values',
+    );
   for (final (i, a) in answers.indexed) {
     final d = epoch.add(Duration(days: i));
     final date = d.toIso8601String().substring(0, 10);
     seed.write("('$date', ${i + 1}, '$a')");
     seed.writeln(i == answers.length - 1 ? '' : ',');
   }
-  seed.writeln('on conflict (word_date) do update set word = excluded.word, puzzle_no = excluded.puzzle_no;');
+  seed.writeln(
+    'on conflict (word_date) do update set word = excluded.word, puzzle_no = excluded.puzzle_no;',
+  );
   Directory('supabase/seed').createSync(recursive: true);
   File('supabase/seed/daily_words_seed.sql').writeAsStringSync(seed.toString());
 
   stdout
-    ..writeln('dictionary.txt: ${sortedDict.length} normalized words '
-        '(new per source: ${sourceCounts.entries.map((e) => '${e.key}=${e.value}').join(', ')})')
-    ..writeln('answers_candidates.txt: ${rankedNorms.length} ranked (${unflagged.length} unflagged)')
-    ..writeln('answers.txt: ${answers.length} answers validated; seed SQL written.');
+    ..writeln(
+      'dictionary.txt: ${sortedDict.length} normalized words '
+      '(new per source: ${sourceCounts.entries.map((e) => '${e.key}=${e.value}').join(', ')})',
+    )
+    ..writeln(
+      'answers_candidates.txt: ${rankedNorms.length} ranked (${unflagged.length} unflagged)',
+    )
+    ..writeln(
+      'answers.txt: ${answers.length} answers validated; seed SQL written.',
+    );
 }

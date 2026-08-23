@@ -12,9 +12,9 @@ import '../widgets/kalimat_dialog.dart';
 import '../widgets/tile.dart';
 
 Future<void> showHelpDialog(BuildContext context) => showKalimatDialog(
-      context: context,
-      builder: (context) => const _HelpDialog(),
-    );
+  context: context,
+  builder: (context) => const _HelpDialog(),
+);
 
 class _HelpDialog extends StatelessWidget {
   const _HelpDialog();
@@ -30,10 +30,9 @@ class _HelpDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.kalimatColors;
-    final bodyStyle = Theme.of(context)
-        .textTheme
-        .bodyMedium!
-        .copyWith(color: c.textMuted);
+    final bodyStyle = Theme.of(
+      context,
+    ).textTheme.bodyMedium!.copyWith(color: c.textMuted);
 
     return KalimatDialogCard(
       title: S.help,

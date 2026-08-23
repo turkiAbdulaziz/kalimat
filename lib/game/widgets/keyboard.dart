@@ -63,12 +63,12 @@ class GameKeyboard extends StatelessWidget {
   }
 
   Widget _wide(String label, VoidCallback? onPress) => SizedBox(
-        width: 62,
-        child: KeyCap(
-          label: label,
-          wide: true,
-          disabled: disabled,
-          onPress: onPress,
-        ),
-      );
+    width: 62,
+    child: KeyCap(
+      label: label,
+      wide: true,
+      disabled: disabled,
+      onPress: onPress,
+    ),
+  );
 }

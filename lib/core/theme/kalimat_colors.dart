@@ -96,69 +96,69 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
 
   /// Exact mapping of the CSS semantic variables.
   factory KalimatColors.light() => const KalimatColors(
-        surfacePage: BrownRamp.b50,
-        surfaceCard: BrownRamp.b0,
-        surfaceSunken: BrownRamp.b100,
-        surfaceInverse: BrownRamp.b900,
-        surfaceOverlay: Color(0x8C2E211A), // rgba(46,33,26,.55)
-        textBody: BrownRamp.b900,
-        textMuted: BrownRamp.b700,
-        textSubtle: BrownRamp.t600,
-        textInverse: BrownRamp.b50,
-        textOnAccent: BrownRamp.b0,
-        lineStrong: BrownRamp.b400,
-        line: BrownRamp.b300,
-        lineSoft: BrownRamp.b200,
-        accent: BrownRamp.b600,
-        accentHover: BrownRamp.b700,
-        accentPress: BrownRamp.b800,
-        accentSoft: BrownRamp.b200,
-        tileEmptyBorder: BrownRamp.b300,
-        tileFilledBorder: BrownRamp.b500,
-        tileCorrect: BrownRamp.b700,
-        tilePresent: BrownRamp.b400,
-        tileAbsent: BrownRamp.t500,
-        tileTextOnState: BrownRamp.b0,
-        keyBg: BrownRamp.b200,
-        keyBgHover: BrownRamp.b300,
-        keyText: BrownRamp.b900,
-        keyWideBg: BrownRamp.b300,
-        focusRing: Color(0x598A6544), // rgba(138,101,68,.35)
-      );
+    surfacePage: BrownRamp.b50,
+    surfaceCard: BrownRamp.b0,
+    surfaceSunken: BrownRamp.b100,
+    surfaceInverse: BrownRamp.b900,
+    surfaceOverlay: Color(0x8C2E211A), // rgba(46,33,26,.55)
+    textBody: BrownRamp.b900,
+    textMuted: BrownRamp.b700,
+    textSubtle: BrownRamp.t600,
+    textInverse: BrownRamp.b50,
+    textOnAccent: BrownRamp.b0,
+    lineStrong: BrownRamp.b400,
+    line: BrownRamp.b300,
+    lineSoft: BrownRamp.b200,
+    accent: BrownRamp.b600,
+    accentHover: BrownRamp.b700,
+    accentPress: BrownRamp.b800,
+    accentSoft: BrownRamp.b200,
+    tileEmptyBorder: BrownRamp.b300,
+    tileFilledBorder: BrownRamp.b500,
+    tileCorrect: BrownRamp.b700,
+    tilePresent: BrownRamp.b400,
+    tileAbsent: BrownRamp.t500,
+    tileTextOnState: BrownRamp.b0,
+    keyBg: BrownRamp.b200,
+    keyBgHover: BrownRamp.b300,
+    keyText: BrownRamp.b900,
+    keyWideBg: BrownRamp.b300,
+    focusRing: Color(0x598A6544), // rgba(138,101,68,.35)
+  );
 
   /// Dark mode («خلفية بنية غامقة»). The design only specifies brown-900
   /// surfaces; this full mapping is a proposal (game-state colors unchanged,
   /// as in the reference App.jsx dark mode).
   factory KalimatColors.dark() => const KalimatColors(
-        surfacePage: BrownRamp.b900,
-        surfaceCard: BrownRamp.b800,
-        surfaceSunken: BrownRamp.b950,
-        surfaceInverse: BrownRamp.b50,
-        surfaceOverlay: Color(0xB3231911), // deeper wash over dark
-        textBody: BrownRamp.b50,
-        textMuted: BrownRamp.b300,
-        textSubtle: BrownRamp.t300,
-        textInverse: BrownRamp.b900,
-        textOnAccent: BrownRamp.b0,
-        lineStrong: BrownRamp.b600,
-        line: BrownRamp.b700,
-        lineSoft: BrownRamp.b800,
-        accent: BrownRamp.b500,
-        accentHover: BrownRamp.b400,
-        accentPress: BrownRamp.b600,
-        accentSoft: BrownRamp.b800,
-        tileEmptyBorder: BrownRamp.b700,
-        tileFilledBorder: BrownRamp.b500,
-        tileCorrect: BrownRamp.b700,
-        tilePresent: BrownRamp.b400,
-        tileAbsent: BrownRamp.t500,
-        tileTextOnState: BrownRamp.b0,
-        keyBg: BrownRamp.b800,
-        keyBgHover: BrownRamp.b700,
-        keyText: BrownRamp.b100,
-        keyWideBg: BrownRamp.b700,
-        focusRing: Color(0x59A97F55),
-      );
+    surfacePage: BrownRamp.b900,
+    surfaceCard: BrownRamp.b800,
+    surfaceSunken: BrownRamp.b950,
+    surfaceInverse: BrownRamp.b50,
+    surfaceOverlay: Color(0xB3231911), // deeper wash over dark
+    textBody: BrownRamp.b50,
+    textMuted: BrownRamp.b300,
+    textSubtle: BrownRamp.t300,
+    textInverse: BrownRamp.b900,
+    textOnAccent: BrownRamp.b0,
+    lineStrong: BrownRamp.b600,
+    line: BrownRamp.b700,
+    lineSoft: BrownRamp.b800,
+    accent: BrownRamp.b500,
+    accentHover: BrownRamp.b400,
+    accentPress: BrownRamp.b600,
+    accentSoft: BrownRamp.b800,
+    tileEmptyBorder: BrownRamp.b700,
+    tileFilledBorder: BrownRamp.b500,
+    tileCorrect: BrownRamp.b700,
+    tilePresent: BrownRamp.b400,
+    tileAbsent: BrownRamp.t500,
+    tileTextOnState: BrownRamp.b0,
+    keyBg: BrownRamp.b800,
+    keyBgHover: BrownRamp.b700,
+    keyText: BrownRamp.b100,
+    keyWideBg: BrownRamp.b700,
+    focusRing: Color(0x59A97F55),
+  );
 
   /// Warm shadow levels (never neutral black).
   static const List<BoxShadow> shadowSm = [
@@ -213,6 +213,5 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
 
 /// Convenience accessor: `context.kalimatColors`.
 extension KalimatColorsX on BuildContext {
-  KalimatColors get kalimatColors =>
-      Theme.of(this).extension<KalimatColors>()!;
+  KalimatColors get kalimatColors => Theme.of(this).extension<KalimatColors>()!;
 }

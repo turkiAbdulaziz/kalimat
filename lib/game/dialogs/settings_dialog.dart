@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../backend/supabase_config.dart';
 import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
@@ -13,11 +14,12 @@ import '../state/game_controller.dart';
 import '../state/settings_controller.dart';
 import '../widgets/kalimat_dialog.dart';
 import '../widgets/kalimat_switch.dart';
+import 'account_section.dart';
 
 Future<void> showSettingsDialog(BuildContext context) => showKalimatDialog(
-      context: context,
-      builder: (context) => const _SettingsDialog(),
-    );
+  context: context,
+  builder: (context) => const _SettingsDialog(),
+);
 
 class _SettingsDialog extends ConsumerWidget {
   const _SettingsDialog();
@@ -52,6 +54,7 @@ class _SettingsDialog extends ConsumerWidget {
             checked: settings.motion,
             onChanged: controller.setMotion,
           ),
+          if (isSupabaseConfigured) const AccountSection(),
           Padding(
             padding: const EdgeInsets.only(top: Metrics.s4),
             child: Text(

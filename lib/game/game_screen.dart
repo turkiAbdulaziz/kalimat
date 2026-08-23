@@ -173,8 +173,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// Tiles shrink before anything else on small screens (keyboard height
   /// stays fixed).
   double _tileSize(BoxConstraints c) {
-    final wFit = (c.maxWidth - (kWordLength - 1) * Metrics.tileGap) / kWordLength;
-    final gridH = c.maxHeight -
+    final wFit =
+        (c.maxWidth - (kWordLength - 1) * Metrics.tileGap) / kWordLength;
+    final gridH =
+        c.maxHeight -
         Metrics.toastSlotHeight -
         Metrics.s4 -
         (kMaxGuesses - 1) * Metrics.gridGap;

@@ -31,7 +31,8 @@ abstract final class S {
   static const helpBody =
       'خمّن كلمة اليوم في ست محاولات. كل محاولة يجب أن تكون كلمة عربية من خمسة حروف.';
   static const helpRuleCorrect = 'الحرف بالبني الغامق في مكانه الصحيح.';
-  static const helpRulePresent = 'الحرف بالبني الفاتح موجود في الكلمة لكن في مكان آخر.';
+  static const helpRulePresent =
+      'الحرف بالبني الفاتح موجود في الكلمة لكن في مكان آخر.';
   static const helpRuleAbsent = 'الحرف الرمادي غير موجود في الكلمة.';
   static const helpStart = 'ابدأ';
 
@@ -49,4 +50,27 @@ abstract final class S {
   static const settingHints = 'تلميحات الحروف';
   static const settingHintsHint = 'إظهار الحروف المستبعدة على لوحة المفاتيح';
   static const settingMotion = 'حركة المربعات';
+
+  // Account section (settings)
+  static const accountSection = 'حفظ التقدم';
+  static const accountHint = 'اربط حسابك ليبقى تقدمك محفوظًا عبر الأجهزة';
+  static const continueWithGoogle = 'المتابعة عبر جوجل';
+  static const continueWithApple = 'المتابعة عبر آبل';
+  static const accountLinked = 'الحساب مرتبط';
+  static const displayNameLabel = 'الاسم في المتصدرين';
+  static const save = 'حفظ';
+  static const switchAccountTitle = 'حساب محفوظ موجود';
+  static const switchAccountBody =
+      'هذا الحساب مرتبط بتقدم سابق. سيتم التبديل إليه وفقدان تقدم هذا الجهاز.';
+  static const switchConfirm = 'التبديل';
+  static const cancel = 'إلغاء';
+  static const linkFailed = 'تعذّر ربط الحساب';
+
+  // Leaderboard
+  static const leaderboard = 'المتصدرون';
+  static const leaderboardDaily = 'اليوم';
+  static const leaderboardGlobal = 'الإجمالي';
+  static const leaderboardEmpty = 'لا نتائج بعد';
+  static const leaderboardError = 'تعذّر التحميل';
+  static const winsLabel = 'فوز';
 }

@@ -6,18 +6,17 @@ import 'package:kalimat/game/engine/models.dart';
 import 'package:kalimat/game/widgets/tile.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: kalimatTheme(Brightness.light),
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(body: Center(child: child)),
-      ),
-    );
+  theme: kalimatTheme(Brightness.light),
+  home: Directionality(
+    textDirection: TextDirection.rtl,
+    child: Scaffold(body: Center(child: child)),
+  ),
+);
 
 BoxDecoration _decorationOf(WidgetTester tester) {
-  final container = tester.widget<Container>(find.descendant(
-    of: find.byType(Tile),
-    matching: find.byType(Container),
-  ));
+  final container = tester.widget<Container>(
+    find.descendant(of: find.byType(Tile), matching: find.byType(Container)),
+  );
   return container.decoration! as BoxDecoration;
 }
 
@@ -48,8 +47,7 @@ void main() {
     expect(_decorationOf(tester).color, colors.tileAbsent);
   });
 
-  testWidgets('empty tile: transparent with brown-300 border',
-      (tester) async {
+  testWidgets('empty tile: transparent with brown-300 border', (tester) async {
     await tester.pumpWidget(_wrap(const Tile()));
     final deco = _decorationOf(tester);
     expect(deco.color, Colors.transparent);
@@ -66,13 +64,12 @@ void main() {
     expect((deco.border! as Border).top.color, colors.tileFilledBorder);
   });
 
-  testWidgets('reveal shows filled face until the flip midpoint',
-      (tester) async {
-    await tester.pumpWidget(_wrap(const Tile(
-      letter: 'م',
-      state: TileState.correct,
-      reveal: true,
-    )));
+  testWidgets('reveal shows filled face until the flip midpoint', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(const Tile(letter: 'م', state: TileState.correct, reveal: true)),
+    );
     // Immediately after mount (flip not yet past midpoint): filled face.
     expect(_decorationOf(tester).color, Colors.transparent);
     // After the full flip: state face.

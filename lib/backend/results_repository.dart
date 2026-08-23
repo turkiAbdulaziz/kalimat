@@ -27,13 +27,18 @@ class ResultsRepository {
       final remaining = [...queue];
       for (final r in queue) {
         try {
-          await SupabaseService.client.rpc<void>('submit_result', params: {
-            'p_word_date': r.date.toIso8601String().substring(0, 10),
-            'p_won': r.won,
-            'p_guesses': r.guesses,
-            'p_grid': r.grid,
-            'p_duration_ms': r.durationMs,
-          }).timeout(const Duration(seconds: 8));
+          await SupabaseService.client
+              .rpc<void>(
+                'submit_result',
+                params: {
+                  'p_word_date': r.date.toIso8601String().substring(0, 10),
+                  'p_won': r.won,
+                  'p_guesses': r.guesses,
+                  'p_grid': r.grid,
+                  'p_duration_ms': r.durationMs,
+                },
+              )
+              .timeout(const Duration(seconds: 8));
           remaining.remove(r);
         } catch (e) {
           // 'date out of range' means it can never succeed — drop it.
