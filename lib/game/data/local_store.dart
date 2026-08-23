@@ -178,6 +178,10 @@ class LocalStore {
 
   Future<void> setStats(GameStats s) => _setJson(_kStats, s.toJson());
 
+  /// Whether the user has ever explicitly saved settings (used to decide
+  /// accessibility-driven defaults).
+  bool get hasStoredSettings => _prefs.getString(_kSettings) != null;
+
   GameSettings get settings {
     final j = _json(_kSettings);
     return j == null ? const GameSettings() : GameSettings.fromJson(j);

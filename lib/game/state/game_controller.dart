@@ -166,6 +166,20 @@ class GameController extends Notifier<GameState> {
 
   bool get _motion => ref.read(settingsProvider).motion;
 
+  /// Adopts a new word of the day (server authority or offline rollover).
+  /// A game in progress is never interrupted — the new word is already
+  /// cached and picked up on the next launch/rollover.
+  void applyServerWord(DailyWord next) {
+    final same = _sameDate(state.word.date, next.date) &&
+        state.word.word == next.word;
+    if (same) return;
+    final untouched = state.guesses.isEmpty && state.current.isEmpty;
+    if (untouched || state.finished) {
+      _cancelTimers();
+      state = GameState(word: next);
+    }
+  }
+
   void onKey(String letter) {
     if (state.finished || state.current.length >= kWordLength) return;
     state = state.copyWith(current: [...state.current, letter]);
@@ -259,7 +273,6 @@ class GameController extends Notifier<GameState> {
       ),
     ];
     store.setPendingResults(queue);
-    // M3: results_repository flushes this queue to Supabase.
   }
 
   void _flash(String message, {bool isWin = false}) {

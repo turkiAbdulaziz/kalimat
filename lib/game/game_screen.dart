@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../backend/sync_service.dart';
 import '../core/theme/metrics.dart';
 import 'dialogs/help_dialog.dart';
 import 'dialogs/settings_dialog.dart';
@@ -28,23 +29,35 @@ class GameScreen extends ConsumerStatefulWidget {
   ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends ConsumerState<GameScreen> {
+class _GameScreenState extends ConsumerState<GameScreen>
+    with WidgetsBindingObserver {
   final FocusNode _focus = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final store = ref.read(localStoreProvider);
       if (!store.helpSeen) {
         store.setHelpSeen();
         showHelpDialog(context);
       }
+      ref.read(syncServiceProvider).sync();
     });
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh the word (day may have rolled over) and retry queued uploads.
+    if (state == AppLifecycleState.resumed) {
+      ref.read(syncServiceProvider).sync();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _focus.dispose();
     super.dispose();
   }
@@ -71,6 +84,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     ref.listen(gameProvider.select((s) => s.statsDialogTick), (prev, next) {
       if (prev != null && next > prev) showStatsDialog(context);
+    });
+    // Upload the result as soon as a game finishes.
+    ref.listen(gameProvider.select((s) => s.finished), (prev, next) {
+      if (prev == false && next) {
+        ref.read(resultsRepositoryProvider).flushQueue();
+      }
     });
 
     return Scaffold(

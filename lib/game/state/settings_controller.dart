@@ -1,6 +1,7 @@
 /// Settings state (dark / hints / motion), persisted to LocalStore.
 library;
 
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/local_store.dart';
@@ -15,7 +16,17 @@ final settingsProvider =
 
 class SettingsController extends Notifier<GameSettings> {
   @override
-  GameSettings build() => ref.read(localStoreProvider).settings;
+  GameSettings build() {
+    final store = ref.read(localStoreProvider);
+    // Until the user saves a preference, honor the platform's
+    // reduce-animations accessibility setting.
+    if (!store.hasStoredSettings &&
+        WidgetsBinding
+            .instance.platformDispatcher.accessibilityFeatures.disableAnimations) {
+      return const GameSettings(motion: false);
+    }
+    return store.settings;
+  }
 
   void setDark(bool v) => _update(state.copyWith(dark: v));
 
