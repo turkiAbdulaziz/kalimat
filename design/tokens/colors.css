@@ -1,0 +1,64 @@
+:root{
+/* --- base ramp: brown -> light brown (the only hue in the system) --- */
+--brown-950:#231911;
+--brown-900:#2E211A;
+--brown-800:#4A3728;
+--brown-700:#6B4F3A;
+--brown-600:#8A6544;
+--brown-500:#A97F55;
+--brown-400:#C69C6D;
+--brown-300:#DDBD97;
+--brown-200:#EBD9C0;
+--brown-100:#F5EADC;
+--brown-50:#FBF6EF;
+--brown-0:#FFFDFA;
+
+/* --- taupe: desaturated companion, used only for "not in word" --- */
+--taupe-600:#7C7168;
+--taupe-500:#988D83;
+--taupe-300:#C3BAB1;
+--taupe-100:#E4DED8;
+
+/* --- semantic surfaces --- */
+--surface-page:var(--brown-50);
+--surface-card:var(--brown-0);
+--surface-sunken:var(--brown-100);
+--surface-inverse:var(--brown-900);
+--surface-overlay:rgba(46,33,26,.55);
+
+/* --- semantic text --- */
+--text-body:var(--brown-900);
+--text-muted:var(--brown-700);
+--text-subtle:var(--taupe-600);
+--text-inverse:var(--brown-50);
+--text-on-accent:#FFFDFA;
+
+/* --- semantic lines --- */
+--line-strong:var(--brown-400);
+--line:var(--brown-300);
+--line-soft:var(--brown-200);
+
+/* --- accents / actions --- */
+--accent:var(--brown-600);
+--accent-hover:var(--brown-700);
+--accent-press:var(--brown-800);
+--accent-soft:var(--brown-200);
+
+/* --- game state colors (the heart of the palette) --- */
+--tile-empty-bg:transparent;
+--tile-empty-border:var(--brown-300);
+--tile-filled-border:var(--brown-500);
+--tile-correct-bg:var(--brown-700);
+--tile-correct-border:var(--brown-700);
+--tile-present-bg:var(--brown-400);
+--tile-present-border:var(--brown-400);
+--tile-absent-bg:var(--taupe-500);
+--tile-absent-border:var(--taupe-500);
+--tile-text-on-state:#FFFDFA;
+
+/* --- keyboard --- */
+--key-bg:var(--brown-200);
+--key-bg-hover:var(--brown-300);
+--key-text:var(--brown-900);
+--key-wide-bg:var(--brown-300);
+}

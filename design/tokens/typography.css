@@ -1,0 +1,35 @@
+:root{
+/* families */
+--font-display:"Noto Kufi Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;
+--font-ui:"IBM Plex Sans Arabic","Noto Kufi Arabic",system-ui,sans-serif;
+--font-mono:"IBM Plex Mono",ui-monospace,monospace;
+
+/* sizes — Arabic glyphs sit lower and need more leading than Latin */
+--text-2xs:11px;
+--text-xs:13px;
+--text-sm:15px;
+--text-md:17px;
+--text-lg:20px;
+--text-xl:24px;
+--text-2xl:30px;
+--text-3xl:38px;
+--text-4xl:52px;
+--text-tile:30px;
+
+/* weights */
+--weight-regular:400;
+--weight-medium:500;
+--weight-semibold:600;
+--weight-bold:700;
+--weight-black:800;
+
+/* leading — generous, Arabic needs it */
+--leading-tight:1.3;
+--leading-snug:1.5;
+--leading-body:1.75;
+
+/* tracking — Arabic is cursive: NEVER letter-space Arabic text */
+--tracking-arabic:0;
+--tracking-latin:.02em;
+--tracking-caps:.08em;
+}

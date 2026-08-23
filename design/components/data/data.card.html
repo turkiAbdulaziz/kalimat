@@ -1,0 +1,22 @@
+<!-- @dsCard group="Components" viewport="700x250" name="Data — stats & distribution" subtitle="Stat numbers and guess distribution" -->
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:16px;background:var(--surface-page);font-family:var(--font-ui)}.lbl{font-size:var(--text-2xs);color:var(--text-subtle);margin:0 0 10px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { StatCard, DistributionBar } = window.KalimatDesignSystem_9392cf;
+const d=[["١",1],["٢",4],["٣",9],["٤",14],["٥",6],["٦",2]];
+ReactDOM.createRoot(document.getElementById("root")).render(
+ <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:30,alignItems:"start"}}>
+  <div><p className="lbl">الإحصائيات</p>
+   <div style={{display:"flex",justifyContent:"space-between"}}>
+    <StatCard value="٨٦" label="لُعبت"/><StatCard value="٦٤٪" label="نسبة الفوز" emphasis/><StatCard value="١٢" label="السلسلة"/><StatCard value="٢١" label="الأفضل"/>
+   </div></div>
+  <div><p className="lbl">توزيع المحاولات</p>
+   <div style={{display:"grid",gap:6}}>{d.map(([g,c])=><DistributionBar key={g} guess={g} count={c} max={14} highlight={g==="٤"}/>)}</div>
+  </div>
+ </div>);
+</script></body></html>
