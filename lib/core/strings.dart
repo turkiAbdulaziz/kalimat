@@ -73,4 +73,59 @@ abstract final class S {
   static const leaderboardEmpty = 'لا نتائج بعد';
   static const leaderboardError = 'تعذّر التحميل';
   static const winsLabel = 'فوز';
+
+  // Onboarding: sign-in screen
+  static const signInPitch =
+      'خمّن كلمة اليوم في ست محاولات. كلمة جديدة كل يوم.';
+  static const continueAsGuest = 'المتابعة كزائر';
+  static const legalLine = 'بالمتابعة أنت توافق على الشروط وسياسة الخصوصية.';
+  static const connectionFailed = 'تعذّر الاتصال';
+
+  // Onboarding: name screen
+  static const nameTitle = 'ما اسمك؟';
+  static const nameExplainer = 'يظهر هذا الاسم في صفحتك وعند مشاركة نتيجتك.';
+  static const nameFieldLabel = 'الاسم الظاهر';
+  static const namePlaceholder = 'ليلى';
+  static const startPlaying = 'ابدأ اللعب';
+  static const skip = 'تخطّي';
+  static const guestName = 'زائر';
+  static const helloPrefix = 'أهلاً ';
+
+  // Profile screen
+  static const profileTitle = 'حسابي';
+  static const back = 'رجوع';
+  static const viewProfile = 'عرض حسابي';
+  static const backToGame = 'العودة إلى اللعبة';
+  static const preferences = 'التفضيلات';
+  static const signOut = 'تسجيل الخروج';
+  static const editName = 'تعديل الاسم';
+  static const shareLastResult = 'مشاركة النتيجة الأخيرة';
+  static const streakBadgePrefix = 'سلسلة ';
+  static const memberSincePrefix = 'عضو منذ ';
+  static const versionPrefix = 'نسخة ';
+  static const versionValue = '١٫٠'; // bump alongside pubspec version
+  static const months = [
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ];
+
+  // Daily reminder
+  static const dailyReminder = 'التنبيه اليومي';
+  static const reminderEnable = 'تفعيل';
+  static const reminderOff = 'معطّل';
+  static const am = 'ص';
+  static const pm = 'م';
+  static const increase = 'زيادة'; // a11y label on the time steppers
+  static const decrease = 'إنقاص';
+  static const notificationBody = 'كلمة اليوم بانتظارك.';
 }

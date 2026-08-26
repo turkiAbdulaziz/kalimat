@@ -19,6 +19,7 @@ abstract final class Metrics {
   // Radii
   static const double rTile = 6;
   static const double rKey = 6;
+  static const double rLg = 10;
   static const double rCard = 12;
   static const double rPill = 999;
 

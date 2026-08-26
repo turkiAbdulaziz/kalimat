@@ -2,7 +2,7 @@ import React from "react";
 
 const BADGE_TONES = {
   neutral: { background: "var(--surface-sunken)", color: "var(--text-muted)" },
-  accent: { background: "var(--accent-soft)", color: "var(--brown-800)" },
+  accent: { background: "var(--accent-soft)", color: "var(--text-on-soft)" },
   solid: { background: "var(--accent)", color: "var(--text-on-accent)" }
 };
 

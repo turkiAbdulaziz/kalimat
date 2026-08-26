@@ -64,7 +64,9 @@ class AuthRepository {
   String? _pendingIdToken;
   String? _pendingNonce;
 
-  User? get currentUser => SupabaseService.client.auth.currentUser;
+  /// Null when Supabase isn't configured (Supabase.instance would throw).
+  User? get currentUser =>
+      isSupabaseConfigured ? SupabaseService.client.auth.currentUser : null;
 
   bool get isAnonymous => currentUser?.isAnonymous ?? true;
 
@@ -187,6 +189,22 @@ class AuthRepository {
       _pendingProvider = null;
       _pendingIdToken = null;
       _pendingNonce = null;
+    }
+  }
+
+  /// Signs out of the linked account. The next [SupabaseService.ensureSession]
+  /// (sync, or the next sign-in attempt) creates a fresh anonymous session.
+  Future<void> signOut() async {
+    if (!isSupabaseConfigured) return;
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {
+      // Google may never have been initialized on this device.
+    }
+    try {
+      await SupabaseService.client.auth.signOut();
+    } catch (e) {
+      debugPrint('kalimat: sign-out failed: $e');
     }
   }
 

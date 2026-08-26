@@ -10,8 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../backend/sync_service.dart';
 import '../core/theme/metrics.dart';
+import '../flow/flow_controller.dart';
+import '../profile/profile_screen.dart';
 import 'dialogs/help_dialog.dart';
-import 'dialogs/settings_dialog.dart';
 import 'dialogs/stats_dialog.dart';
 import 'engine/letters.dart';
 import 'engine/models.dart';
@@ -41,7 +42,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
       final store = ref.read(localStoreProvider);
       if (!store.helpSeen) {
         store.setHelpSeen();
-        showHelpDialog(context);
+        // First arrival: greet by name — the only time the product does.
+        showHelpDialog(context, greetName: ref.read(displayNameProvider));
       }
       ref.read(syncServiceProvider).sync();
     });
@@ -60,6 +62,17 @@ class _GameScreenState extends ConsumerState<GameScreen>
     WidgetsBinding.instance.removeObserver(this);
     _focus.dispose();
     super.dispose();
+  }
+
+  /// Instant swap, matching the prototype — screen motion is dialogs-only.
+  void _openProfile() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (_, _, _) => const ProfileScreen(),
+      ),
+    );
   }
 
   /// Hardware keyboard (dev convenience on desktop/web + external keyboards).
@@ -106,7 +119,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   AppHeader(
                     onHelp: () => showHelpDialog(context),
                     onStats: () => showStatsDialog(context),
-                    onSettings: () => showSettingsDialog(context),
+                    onProfile: _openProfile,
+                    avatarName: ref.watch(displayNameProvider),
                   ),
                   Expanded(
                     child: Padding(

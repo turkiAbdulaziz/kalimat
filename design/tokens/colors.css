@@ -32,6 +32,9 @@
 --text-subtle:var(--taupe-600);
 --text-inverse:var(--brown-50);
 --text-on-accent:#FFFDFA;
+--text-on-soft:var(--brown-800);
+--text-wordmark:var(--brown-800);
+--text-danger:var(--taupe-600);
 
 /* --- semantic lines --- */
 --line-strong:var(--brown-400);
@@ -61,4 +64,51 @@
 --key-bg-hover:var(--brown-300);
 --key-text:var(--brown-900);
 --key-wide-bg:var(--brown-300);
+}
+
+/* Dark surface. Applied by setting data-theme="dark" on the app root; every
+   token below is a remap of an existing semantic name, so components need no
+   dark-specific branches. */
+[data-theme="dark"]{
+--surface-page:var(--brown-950);
+--surface-card:var(--brown-900);
+--surface-sunken:var(--brown-800);
+--surface-inverse:var(--brown-100);
+--surface-overlay:rgba(15,10,6,.7);
+
+--text-body:var(--brown-100);
+--text-muted:var(--brown-300);
+--text-subtle:var(--brown-400);
+--text-inverse:var(--brown-950);
+--text-on-soft:var(--brown-200);
+--text-wordmark:var(--brown-100);
+--text-danger:var(--taupe-300);
+
+--line-strong:var(--brown-600);
+--line:var(--brown-800);
+--line-soft:var(--brown-800);
+
+--accent:var(--brown-500);
+--accent-hover:var(--brown-400);
+--accent-press:var(--brown-300);
+--accent-soft:var(--brown-800);
+
+--tile-empty-border:var(--brown-800);
+--tile-filled-border:var(--brown-600);
+--tile-correct-bg:var(--brown-500);
+--tile-correct-border:var(--brown-500);
+--tile-present-bg:var(--brown-700);
+--tile-present-border:var(--brown-700);
+--tile-absent-bg:var(--taupe-600);
+--tile-absent-border:var(--taupe-600);
+
+--key-bg:var(--brown-800);
+--key-bg-hover:var(--brown-700);
+--key-wide-bg:var(--brown-700);
+--key-text:var(--brown-100);
+
+--shadow-sm:0 1px 2px rgba(0,0,0,.3);
+--shadow-md:0 2px 8px rgba(0,0,0,.35);
+--shadow-lg:0 12px 32px rgba(0,0,0,.5);
+--focus-ring:0 0 0 3px rgba(198,156,109,.4);
 }

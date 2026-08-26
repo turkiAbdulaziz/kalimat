@@ -11,6 +11,7 @@ import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
 import '../../core/theme/metrics.dart';
 import '../../core/utils/arabic_digits.dart';
+import '../../profile/profile_screen.dart';
 import '../engine/models.dart';
 import '../engine/share_grid.dart';
 import '../state/game_controller.dart';
@@ -46,22 +47,43 @@ class _StatsDialogState extends ConsumerState<_StatsDialog> {
     return KalimatDialogCard(
       title: won ? S.win : S.stats,
       footer: _tab == 0
-          ? KalimatButton(
-              label: S.shareResult,
-              variant: KalimatButtonVariant.secondary,
-              block: true,
-              disabled: !finished,
-              onPressed: finished
-                  ? () => SharePlus.instance.share(
-                      ShareParams(
-                        text: buildShareText(
-                          puzzleNo: game.word.puzzleNo,
-                          won: won,
-                          rows: game.rowStates,
-                        ),
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KalimatButton(
+                  label: S.shareResult,
+                  block: true,
+                  disabled: !finished,
+                  onPressed: finished
+                      ? () => SharePlus.instance.share(
+                          ShareParams(
+                            text: buildShareText(
+                              puzzleNo: game.word.puzzleNo,
+                              won: won,
+                              rows: game.rowStates,
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(height: Metrics.s2),
+                KalimatButton(
+                  label: S.viewProfile,
+                  variant: KalimatButtonVariant.ghost,
+                  block: true,
+                  onPressed: () {
+                    final navigator = Navigator.of(context);
+                    navigator.pop();
+                    navigator.push(
+                      PageRouteBuilder(
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                        pageBuilder: (_, _, _) => const ProfileScreen(),
                       ),
-                    )
-                  : null,
+                    );
+                  },
+                ),
+              ],
             )
           : null,
       child: Column(
@@ -121,7 +143,7 @@ class _StatsContent extends ConsumerWidget {
                     fontFamily: kFontUi,
                     fontSize: TypeScale.xs2,
                     fontWeight: FontWeight.w600,
-                    color: BrownRamp.b800,
+                    color: c.textOnSoft,
                     letterSpacing: 0,
                   ),
                 ),

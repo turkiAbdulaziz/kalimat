@@ -44,7 +44,7 @@ class SegmentToggle extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: i == selected ? c.surfaceCard : Colors.transparent,
                   borderRadius: BorderRadius.circular(999),
-                  boxShadow: i == selected ? KalimatColors.shadowSm : null,
+                  boxShadow: i == selected ? c.shadowSm : null,
                 ),
                 child: Text(
                   label,

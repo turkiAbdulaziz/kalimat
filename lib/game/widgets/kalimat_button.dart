@@ -15,6 +15,7 @@ class KalimatButton extends StatefulWidget {
     required this.label,
     this.variant = KalimatButtonVariant.primary,
     this.block = false,
+    this.large = false,
     this.disabled = false,
     this.onPressed,
   });
@@ -22,6 +23,9 @@ class KalimatButton extends StatefulWidget {
   final String label;
   final KalimatButtonVariant variant;
   final bool block;
+
+  /// Design `size="lg"`: 52px tall, 17px label.
+  final bool large;
   final bool disabled;
   final VoidCallback? onPressed;
 
@@ -73,7 +77,7 @@ class _KalimatButtonState extends State<KalimatButton> {
             child: AnimatedContainer(
               duration: Motion.fast,
               curve: Motion.easeOut,
-              height: 44,
+              height: widget.large ? 52 : 44,
               width: widget.block ? double.infinity : null,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               alignment: Alignment.center,
@@ -86,7 +90,7 @@ class _KalimatButtonState extends State<KalimatButton> {
                 widget.label,
                 style: TextStyle(
                   fontFamily: kFontUi,
-                  fontSize: TypeScale.sm,
+                  fontSize: widget.large ? TypeScale.md : TypeScale.sm,
                   fontWeight: FontWeight.w600,
                   color: fg,
                   letterSpacing: 0,

@@ -7,11 +7,11 @@
 - **No codebase, no Figma file, no decks, no logo, and no font files were provided.** Everything below is authored from that description. All values are proposals to confirm, not recreations of an existing product.
 
 ## Products / surfaces
-One surface: the mobile-web daily puzzle (`ui_kits/kalimat_app/`). No marketing site, desktop app, or docs site exists in this system because none was supplied.
+One surface: the mobile-web daily puzzle (`ui_kits/kalimat_app/`) — sign-in, one-time code, display name, board, and account screen. No marketing site, desktop app, or docs site exists in this system because none was supplied.
 
 ## CONTENT FUNDAMENTALS
 - **Language.** Arabic (MSA), no diacritics in UI copy. Latin text appears only in developer-facing material. Never mix a Latin word into a sentence where an Arabic one exists.
-- **Voice.** Second person, imperative, unadorned: *خمّن كلمة اليوم في ست محاولات.* / *ابدأ اللعب* / *مشاركة النتيجة*. The product instructs and confirms; it never chats.
+- **Voice.** Second person, imperative, unadorned: *خمّن كلمة اليوم في ست محاولات.* / *ابدأ اللعب* / *مشاركة النتيجة*. The product instructs and confirms; it never chats. Onboarding is the one place it addresses the player directly — *ما اسمك؟*, then *أهلاً ليلى* once — and never again.
 - **Length.** Buttons 1–2 words. Toasts 2–4 words (*الكلمة غير موجودة*, *الكلمة قصيرة*, *أحسنت!*). Help text: three short rules, one line each.
 - **Praise is restrained.** A single word on a win (*أحسنت!*). No streak celebration copy, no exclamation stacking, no "you're on fire".
 - **No casing system.** Arabic has no case, so hierarchy is carried by size and weight only — never by all-caps or small caps (and never by letter-spacing, which breaks Arabic joins).
@@ -21,6 +21,7 @@ One surface: the mobile-web daily puzzle (`ui_kits/kalimat_app/`). No marketing 
 
 ## VISUAL FOUNDATIONS
 - **Colour.** One hue. `--brown-950 → --brown-50` carries text, surfaces, accents and the "correct" state; `--taupe-500` is the only off-hue and exists solely for eliminated letters. Page is warm off-white `#FBF6EF`; cards a shade lighter `#FFFDFA`. No second brand colour, no red/green success-error pair — state is communicated by brown value, dark = correct.
+- **Dark surface.** `[data-theme="dark"]` in `tokens/colors.css` remaps the same semantic names (surfaces to `--brown-950/900/800`, text to `--brown-100/300/400`, tile states one rung lighter so they read against a dark page). Components never branch on theme — set `data-theme="dark"` on one root element and everything below follows. Two rules make that work: **never hardcode a hex or a base-ramp token (`--brown-800`) where a semantic one exists** — use `--text-on-soft` for text on `--accent-soft` and `--text-wordmark` for the brand mark — and **set `color` on the same element that carries `data-theme`**, because inherited colour is a resolved literal: a `body { color: var(--text-body) }` outside the wrapper stays light forever.
 - **Type.** Display: Noto Kufi Arabic 700/800 (wordmark, tiles, dialog titles) — geometric, high-contrast letterforms that stay legible at tile size. UI: IBM Plex Sans Arabic 400–600 (body, labels, keys). Mono: IBM Plex Mono for tokens and code only. Leading is generous (`--leading-body: 1.75`); tracking is always 0 for Arabic.
 - **Layout.** Single column capped at `--app-max-width: 500px`, centred, full viewport height. Header is 56px and static (not sticky — the app never scrolls). Board centred in the free space, keyboard pinned to the bottom with a 16px gutter. Keys stretch to fill width; tiles never do.
 - **Backgrounds.** Flat warm off-white. No gradients, no photography, no illustration, no repeating pattern, no texture or grain. Emptiness is intentional: the board is the only figure on the page.
@@ -54,15 +55,17 @@ One surface: the mobile-web daily puzzle (`ui_kits/kalimat_app/`). No marketing 
 
 ## Intentional additions
 - `IconButton` — an icon wrapper was needed to render the substituted Lucide glyphs at a consistent 40px hit area.
+- `Input`, `CodeInput`, `Avatar`, `ListRow` — added for the sign-in and account screens, which had no supplied source. `CodeInput` is deliberately built on `Tile` so authentication carries the board's visual language; `Avatar` is a monogram because the product has no photo uploads.
 
 ## Index
 - `styles.css` — the single entry point consumers link (`@import` list only)
 - `tokens/` — `fonts.css`, `colors.css`, `typography.css`, `spacing.css`, `radii.css`, `elevation.css`, `motion.css`
-- `guidelines/` — 17 specimen cards: Colors (brown ramp, taupe, game states, surfaces, text & lines), Type (display, UI, scale, numerals, RTL rules), Spacing (scale, game metrics, radii, shadows, motion), Brand (wordmark, share grid)
+- `guidelines/` — 18 specimen cards: Colors (brown ramp, taupe, game states, surfaces, text & lines, dark surface), Type (display, UI, scale, numerals, RTL rules), Spacing (scale, game metrics, radii, shadows, motion), Brand (wordmark, share grid)
 - `components/game/` — Tile, GuessGrid, KeyCap, Keyboard
-- `components/core/` — Button, IconButton, Dialog, Toast, Badge, Switch
+- `components/core/` — Button, IconButton, Dialog, Toast, Badge, Switch, Avatar, ListRow
+- `components/forms/` — Input, CodeInput
 - `components/data/` — StatCard, DistributionBar
-- `ui_kits/kalimat_app/` — playable daily-puzzle recreation (`index.html`, `App.jsx`, `README.md`)
+- `ui_kits/kalimat_app/` — full flow, sign-in through gameplay (`index.html`, `signin.html`, `game.html`, `profile.html`, `App.jsx`, `SignIn.jsx`, `Game.jsx`, `Profile.jsx`, `README.md`)
 - `thumbnail.html` — homepage tile
 - `SKILL.md` — Agent Skills entry point
 - No slide templates: no deck was supplied.

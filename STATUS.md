@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-08-23. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-08-25. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -33,7 +33,15 @@ _Last updated: 2026-08-23. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - [x] "Account already used elsewhere" → explicit confirm dialog before switching
 - [x] «المتصدرون» tab in the stats dialog (اليوم / الإجمالي) + «حفظ التقدم» section in settings with display-name editing
 
-**Suite: 55 tests green · `flutter analyze` clean · 5 commits on `main`.**
+### M5 — Designed user flow  *(from the Claude Design handoff in `design/design_handoff_kalimat_user_flow/`; verified on Pixel 6 emulator, unconfigured build)*
+- [x] First-run flow: sign-in screen (wordmark, pitch, flip-in sample row, Google/Apple/«المتابعة كزائر», legal line) → display-name screen → game; gated by `isSupabaseConfigured` + an `onboarded` flag (existing installs migrate silently, dev builds skip straight to the game)
+- [x] Profile screen «حسابي» (header avatar is the only route): identity + streak badge, 4 stat cards, distribution bars, preferences (dark/hints/motion switches moved here — settings dialog and gear deleted), «مشاركة النتيجة الأخيرة», sign-out (linked users; clears board + identity, keeps local stats), «حفظ التقدم» linking section for anonymous users, tap-name editing
+- [x] Design adaptation decisions: email-OTP/code screen dropped in favor of existing Google/Apple auth; leaderboard tab kept in the stats dialog (+ new «عرض حسابي» footer button); first-run help greets «أهلاً {name}»
+- [x] Official dark theme mapping (15 fields corrected from the old proposal) + new tokens `textWordmark`/`textOnSoft`/`textDanger`; theme-aware shadows; wordmark dark-mode bug fixed
+- [x] Daily reminder «التنبيه اليومي»: flutter_local_notifications + timezone (desugaring enabled, boot receiver), Kalimat-style enable/time dialog (١٢-hour steppers + ص/م), Android 13+ permission flow — end-to-end delivery verified on emulator
+- [x] New shared widgets: KalimatAvatar, KalimatInput, KalimatListRow, Wordmark, button `large` variant; `design/` replaced with the new export (handoff README + SignIn/Game/Profile prototypes)
+
+**Suite: 69 tests green · `flutter analyze` clean.**
 
 ---
 
@@ -58,7 +66,9 @@ _Last updated: 2026-08-23. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - **M3 verification**: wire credentials, run migrations/seed, prove: same word on two
   devices, airplane-mode first launch playable, queue flush visible in table editor,
   `daily_words` unreadable via REST.
-- **M4 verification**: link flows on emulator (Google), leaderboard rows live-only,
+- **M4/M5 verification (configured)**: fresh install → sign-in screen → Google → name
+  screen → game with «أهلاً {name}»; guest path; sign-out → sign-in with board cleared,
+  stats kept; returning account skips the name screen; leaderboard rows live-only,
   duplicate submit no-op.
 - **M5 release prep** (no blockers, can start anytime): release keystore + signing config,
   versioning, MSA store listing copy, Play Console internal-testing track; iOS build via
@@ -73,5 +83,9 @@ _Last updated: 2026-08-23. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - Streak-preserving timezone note: daily word flips at Riyadh midnight (≈1–2 h earlier
   in the Maghreb) — confirm that's acceptable before launch.
 - Onboarding polish: animate the help-dialog example row on first open.
+- Launcher label is still Latin "kalimat" (AndroidManifest `android:label`) — the
+  Android 13+ permission dialog shows it; consider «كلمات» before release.
+- Reminder fires via inexact scheduling (no exact-alarm permission) — may land a few
+  minutes late under Doze; accepted for now.
 - Statistics restore from server after account switch (currently local stats stay authoritative).
 - Widget-test coverage for the loss path (answer reveal badge) and the leaderboard tab.

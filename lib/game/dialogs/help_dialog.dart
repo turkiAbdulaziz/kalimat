@@ -11,13 +11,19 @@ import '../widgets/kalimat_button.dart';
 import '../widgets/kalimat_dialog.dart';
 import '../widgets/tile.dart';
 
-Future<void> showHelpDialog(BuildContext context) => showKalimatDialog(
-  context: context,
-  builder: (context) => const _HelpDialog(),
-);
+/// [greetName] swaps the title for «أهلاً {name}» — used exactly once, on
+/// the first-run opening (the only time the product addresses the player
+/// by name).
+Future<void> showHelpDialog(BuildContext context, {String? greetName}) =>
+    showKalimatDialog(
+      context: context,
+      builder: (context) => _HelpDialog(greetName: greetName),
+    );
 
 class _HelpDialog extends StatelessWidget {
-  const _HelpDialog();
+  const _HelpDialog({this.greetName});
+
+  final String? greetName;
 
   static const _example = [
     ('م', TileState.correct),
@@ -35,7 +41,7 @@ class _HelpDialog extends StatelessWidget {
     ).textTheme.bodyMedium!.copyWith(color: c.textMuted);
 
     return KalimatDialogCard(
-      title: S.help,
+      title: greetName == null ? S.help : '${S.helloPrefix}$greetName',
       footer: KalimatButton(
         label: S.helpStart,
         block: true,

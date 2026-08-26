@@ -1,4 +1,4 @@
-<!-- @dsCard group="كلمات App" viewport="500x760" name="Daily puzzle" subtitle="Playable board, keyboard, help / stats / settings" -->
+<!-- @dsCard group="كلمات App" viewport="500x760" name="Full flow — sign in to play" subtitle="Email, code, name, board, account" -->
 <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>كلمات</title>
 <link rel="stylesheet" href="../../styles.css">
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -9,6 +9,9 @@
 <style>*{box-sizing:border-box}body{margin:0;background:var(--surface-page);font-family:var(--font-ui);color:var(--text-body)}a{color:var(--accent)}a:hover{color:var(--accent-hover)}</style>
 </head><body>
 <div id="root"></div>
+<script type="text/babel" src="SignIn.jsx"></script>
+<script type="text/babel" src="Profile.jsx"></script>
+<script type="text/babel" src="Game.jsx"></script>
 <script type="text/babel" src="App.jsx"></script>
-<script type="text/babel">ReactDOM.createRoot(document.getElementById("root")).render(<App/>);</script>
+<script type="text/babel">ReactDOM.createRoot(document.getElementById("root")).render(<App start="signin"/>);</script>
 </body></html>

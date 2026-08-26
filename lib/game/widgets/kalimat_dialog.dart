@@ -75,7 +75,7 @@ class KalimatDialogCard extends StatelessWidget {
                 color: c.surfaceCard,
                 borderRadius: BorderRadius.circular(Metrics.rCard),
                 border: Border.all(color: c.lineSoft),
-                boxShadow: KalimatColors.shadowLg,
+                boxShadow: c.shadowLg,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

@@ -89,6 +89,38 @@ class GameSettings {
   );
 }
 
+/// Daily reminder notification preference. Time is stored in 24h form.
+class ReminderSettings {
+  const ReminderSettings({
+    this.enabled = false,
+    this.hour = 9,
+    this.minute = 0,
+  });
+
+  final bool enabled;
+  final int hour;
+  final int minute;
+
+  ReminderSettings copyWith({bool? enabled, int? hour, int? minute}) =>
+      ReminderSettings(
+        enabled: enabled ?? this.enabled,
+        hour: hour ?? this.hour,
+        minute: minute ?? this.minute,
+      );
+
+  Map<String, Object?> toJson() => {
+    'enabled': enabled,
+    'hour': hour,
+    'minute': minute,
+  };
+
+  static ReminderSettings fromJson(Map<String, Object?> j) => ReminderSettings(
+    enabled: j['enabled'] as bool? ?? false,
+    hour: j['hour'] as int? ?? 9,
+    minute: j['minute'] as int? ?? 0,
+  );
+}
+
 /// A finished game's board: typed guesses for one calendar date.
 /// Row states are recomputed on load, so only typed spellings are stored.
 class BoardSave {
@@ -152,6 +184,9 @@ class LocalStore {
   static const _kSettings = 'settings';
   static const _kQueue = 'pending_results';
   static const _kHelpSeen = 'help_seen';
+  static const _kOnboarded = 'onboarded';
+  static const _kDisplayName = 'display_name';
+  static const _kReminder = 'reminder';
 
   static Future<LocalStore> create() async => LocalStore(
     await SharedPreferencesWithCache.create(
@@ -186,6 +221,8 @@ class LocalStore {
 
   Future<void> setBoard(BoardSave b) => _setJson(_kBoard, b.toJson());
 
+  Future<void> clearBoard() => _prefs.remove(_kBoard);
+
   GameStats get stats {
     final j = _json(_kStats);
     return j == null ? const GameStats() : GameStats.fromJson(j);
@@ -207,6 +244,29 @@ class LocalStore {
   bool get helpSeen => _prefs.getBool(_kHelpSeen) ?? false;
 
   Future<void> setHelpSeen() => _prefs.setBool(_kHelpSeen, true);
+
+  /// Whether the first-run sign-in flow has been completed (or skipped).
+  bool get onboarded => _prefs.getBool(_kOnboarded) ?? false;
+
+  Future<void> setOnboarded() => _prefs.setBool(_kOnboarded, true);
+
+  Future<void> clearOnboarded() => _prefs.remove(_kOnboarded);
+
+  /// Local cache of the display name, so the profile renders offline.
+  String? get displayName => _prefs.getString(_kDisplayName);
+
+  Future<void> setDisplayName(String name) =>
+      _prefs.setString(_kDisplayName, name);
+
+  Future<void> clearDisplayName() => _prefs.remove(_kDisplayName);
+
+  ReminderSettings get reminder {
+    final j = _json(_kReminder);
+    return j == null ? const ReminderSettings() : ReminderSettings.fromJson(j);
+  }
+
+  Future<void> setReminder(ReminderSettings r) =>
+      _setJson(_kReminder, r.toJson());
 
   List<PendingResult> get pendingResults {
     final raw = _prefs.getString(_kQueue);

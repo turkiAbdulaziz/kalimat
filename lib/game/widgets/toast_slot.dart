@@ -38,7 +38,7 @@ class ToastSlot extends StatelessWidget {
         text: toast!,
         bg: toastIsWin ? c.tileCorrect : c.surfaceInverse,
         fg: c.textInverse,
-        shadow: KalimatColors.shadowMd,
+        shadow: c.shadowMd,
         fontSize: TypeScale.xs,
       );
     } else if (revealedAnswer != null) {
@@ -46,7 +46,7 @@ class ToastSlot extends StatelessWidget {
         key: const ValueKey('answer'),
         text: '${S.answerRevealPrefix}$revealedAnswer',
         bg: c.accentSoft,
-        fg: BrownRamp.b800,
+        fg: c.textOnSoft,
         fontSize: TypeScale.xs,
       );
     } else {

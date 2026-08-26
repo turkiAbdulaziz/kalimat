@@ -6,8 +6,8 @@ export function Toast({ message, tone = "neutral", visible = true }) {
     display: "inline-block",
     padding: "10px 18px",
     borderRadius: "var(--radius-pill)",
-    background: tone === "success" ? "var(--tile-correct-bg)" : "var(--surface-inverse)",
-    color: "var(--text-inverse)",
+    background: tone === "success" ? "var(--tile-correct-bg)" : "var(--brown-800)",
+    color: "var(--brown-50)",
     fontFamily: "var(--font-ui)", fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)",
     boxShadow: "var(--shadow-md)", direction: "rtl",
     animation: "kalimat-rise var(--dur-fast) var(--ease-out)"

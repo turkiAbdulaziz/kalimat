@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/strings.dart';
 import 'core/theme/kalimat_theme.dart';
-import 'game/game_screen.dart';
+import 'flow/root_flow.dart';
 import 'game/state/settings_controller.dart';
 
 class KalimatApp extends ConsumerWidget {
@@ -30,7 +30,7 @@ class KalimatApp extends ConsumerWidget {
       theme: kalimatTheme(Brightness.light),
       darkTheme: kalimatTheme(Brightness.dark),
       themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-      home: const GameScreen(),
+      home: const RootFlow(),
     );
   }
 }

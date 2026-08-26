@@ -16,7 +16,7 @@ const String kFontUi = 'IBMPlexSansArabic';
 /// 2xl 30, 3xl 38; tile text 30.
 abstract final class TypeScale {
   static const double xs2 = 11, xs = 13, sm = 15, md = 17;
-  static const double lg = 20, xl = 24, xl2 = 30, xl3 = 38;
+  static const double lg = 20, xl = 24, xl2 = 30, xl3 = 38, xl4 = 52;
   static const double tile = 30;
 }
 

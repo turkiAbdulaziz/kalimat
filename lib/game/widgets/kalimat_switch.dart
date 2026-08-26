@@ -90,7 +90,7 @@ class KalimatSwitch extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: BrownRamp.b0,
                       shape: BoxShape.circle,
-                      boxShadow: KalimatColors.shadowSm,
+                      boxShadow: c.shadowSm,
                     ),
                   ),
                 ),
