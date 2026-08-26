@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-08-25. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-08-26. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -41,6 +41,24 @@ _Last updated: 2026-08-25. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - [x] Daily reminder «التنبيه اليومي»: flutter_local_notifications + timezone (desugaring enabled, boot receiver), Kalimat-style enable/time dialog (١٢-hour steppers + ص/م), Android 13+ permission flow — end-to-end delivery verified on emulator
 - [x] New shared widgets: KalimatAvatar, KalimatInput, KalimatListRow, Wordmark, button `large` variant; `design/` replaced with the new export (handoff README + SignIn/Game/Profile prototypes)
 
+### iOS toolchain — builds and runs on Mac  *(verified on iPhone 17 simulator, iOS 26.5)*
+- [x] Local dev environment stood up: Flutter 3.47.1 / Dart 3.13.1, Xcode 26.6, CocoaPods 1.17.0,
+      Android cmdline-tools. First iOS build of the project — until now iOS was scaffold-only.
+- [x] **iOS minimum raised 13.0 → 15.0** (`project.pbxproj`, all three build configs). This was not a
+      choice: Flutter 3.47 enforces iOS 15.0 as its floor and rewrites the target on first iOS build,
+      so 13.0 was already unbuildable. Consequence for launch: iPhone 6s / 7 / SE (1st gen) and any
+      device that cannot pass iOS 15 are out of scope.
+- [x] **Plugins integrate via Swift Package Manager, not CocoaPods.** Flutter 3.47 added an
+      `XCLocalSwiftPackageReference` pointing at `Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage`
+      (gitignored, regenerated each build) plus a `Runner.xcscheme` pre-action that runs
+      `xcode_backend.sh prepare`. No `Podfile` exists or is needed — don't add one back.
+- [x] `Package.resolved` (committed, in both workspaces) is now the iOS dependency lock, the
+      counterpart to `pubspec.lock`. It pins the transitive Google sign-in native stack:
+      GoogleSignIn-iOS 9.2.0, AppAuth 2.1.0, GTMAppAuth 5.0.0, GoogleUtilities 8.1.2,
+      gtm-session-fetcher 3.5.0, app-check 11.3.1, promises 2.4.1, interop-ios 101.0.0.
+- [x] Boot verified on device: RTL header, 6×5 board, 33-key keyboard and the first-launch help
+      dialog «أهلاً زائر» all render correctly; dark theme confirmed. Xcode build 82s, SPM resolve 81s.
+
 **Suite: 69 tests green · `flutter analyze` clean.**
 
 ---
@@ -71,8 +89,9 @@ _Last updated: 2026-08-25. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
   stats kept; returning account skips the name screen; leaderboard rows live-only,
   duplicate submit no-op.
 - **M5 release prep** (no blockers, can start anytime): release keystore + signing config,
-  versioning, MSA store listing copy, Play Console internal-testing track; iOS build via
-  Mac/CI (e.g. Codemagic) with Sign in with Apple entitlement + Google URL scheme.
+  versioning, MSA store listing copy, Play Console internal-testing track; iOS device/TestFlight
+  build — simulator builds already run locally, so what is left is a paid Apple account for
+  signing plus the Sign in with Apple entitlement + Google URL scheme.
 
 ## 💡 Ideas / backlog (not planned, jot-down list)
 
