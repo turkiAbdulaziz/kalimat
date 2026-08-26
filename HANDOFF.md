@@ -4,6 +4,11 @@ Arabic Wordle-style daily word game. Flutter (Android + iOS ship targets), Supab
 This file orients anyone (or any future session) picking the project up cold.
 For *what's done and what's next*, see [STATUS.md](STATUS.md).
 
+**Repo**: https://github.com/turkiAbdulaziz/kalimat (private). Development happens on
+two machines — a Windows 11 box and a MacBook (iOS) — and **git is the only sync
+channel between them**: commit + push on one side, pull on the other. Never rely on
+OneDrive to carry the repo to the Mac.
+
 ---
 
 ## The product in one paragraph
@@ -22,24 +27,42 @@ only via the header avatar (stats, preferences, daily reminder, sign-out).
 
 ## Environment & toolchain
 
-- Windows 11 dev box, Flutter **3.47.1** stable / Dart 3.13.1, Android SDK present.
+Both machines run Flutter **3.47.1** stable / Dart 3.13.1 — keep them matched so
+`pubspec.lock` and the test suite behave identically.
+
+**Windows 11 box (Android dev)**
 - **No Visual Studio C++ toolchain** → the `windows` target does NOT build here.
   Verify on the Android emulator (AVD `Pixel_6`; address it as `adb -s emulator-5554`,
   a stale `emulator-5562 offline` entry sometimes lingers) or Chrome.
 - Windows Developer Mode must stay ON (Flutter plugin symlinks).
-- App id: `com.kalimat.app` (namespace/MainActivity remain `com.kalimat.kalimat` — fine,
-  applicationId ≠ package). minSdk 24. Core-library desugaring is ON in
-  `android/app/build.gradle.kts` (required by flutter_local_notifications — don't remove).
-- Repo lives inside OneDrive (user accepted build churn; `build/`/`.dart_tool/` are
-  git-ignored but still sync).
+- Working copy lives inside OneDrive (accepted build churn; `build/`/`.dart_tool/` are
+  git-ignored but still sync). The Mac clone must come from GitHub, not OneDrive.
+
+**MacBook (iOS dev)** — first verified 2026-08-26 (iPhone 17 simulator, iOS 26.5)
+- Xcode 26.6; CocoaPods 1.17.0 is installed but **unused** — Flutter 3.47 integrates
+  iOS plugins via **Swift Package Manager**. There is no `Podfile`; do NOT add one back.
+  `Package.resolved` (committed) is the iOS dependency lock, the counterpart to
+  `pubspec.lock`; `Flutter/ephemeral/Packages/...` is gitignored and regenerated per build.
+- **iOS minimum is 15.0** (Flutter 3.47's floor — it rewrites lower targets on build).
+  iPhone 6s / 7 / SE-1st-gen are out of scope for launch.
+- Simulator needs no Apple account; a physical iPhone needs a personal team in Xcode
+  (`ios/Runner.xcworkspace` → Signing) + Developer Mode on the phone.
+
+**App identity (both platforms)**: `com.kalimat.app` (Android namespace/MainActivity
+remain `com.kalimat.kalimat` — fine, applicationId ≠ package). Android minSdk 24;
+core-library desugaring is ON in `android/app/build.gradle.kts` (required by
+flutter_local_notifications — don't remove).
 
 ```powershell
 flutter test                 # 103 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
 flutter analyze              # clean
 flutter run --dart-define-from-file=env/dev.json    # online build (Supabase creds live in env/dev.json)
+# Windows/Android:
 flutter build apk --debug --dart-define-from-file=env/dev.json
 adb -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
 adb -s emulator-5554 shell am start -n com.kalimat.app/com.kalimat.kalimat.MainActivity
+# Mac/iOS:
+#   open -a Simulator && flutter run --dart-define-from-file=env/dev.json
 ```
 
 ## Code map (`lib/`)
@@ -49,6 +72,7 @@ adb -s emulator-5554 shell am start -n com.kalimat.app/com.kalimat.kalimat.MainA
 | `core/strings.dart` | Every piece of MSA copy. Single locale, no i18n framework. |
 | `core/theme/` | `kalimat_colors.dart` (brown ramp + `KalimatColors` ThemeExtension, light + **official** dark mapping from the handoff's colors.css, incl. `textWordmark`/`textOnSoft`/`textDanger` and theme-aware shadows — `c.shadowSm/Md/Lg`, instance fields, not statics), `kalimat_theme.dart` (TextThemes — **letterSpacing is always 0** for Arabic), `metrics.dart` (tile 58 / key 52 / max width 500…), `motion.dart` (durations + cubics). |
 | `core/utils/arabic_digits.dart` | ٠-٩ conversion + ٪. All UI numbers go through this. |
+| `core/rise_route.dart` | The house screen transition (kalimat-rise: fade + 8px rise, `Motion.base`/`easeOut`; pop = sink+fade). Used by `flow/root_flow.dart`'s step switcher and both profile push sites. Gated by the motion setting — off ⇒ `Duration.zero`. |
 | `game/engine/` | **Pure Dart, zero Flutter imports, fully unit-tested.** `letters.dart` (33-key rows + `normalizeLetter/Word`), `evaluate.dart` (duplicate-safe two-pass on normalized forms), `keyboard_state.dart` (upgrade-only hints keyed by canonical class — this is why أ/إ/ا color together), `puzzle_calendar.dart` (**epoch 2026-09-01 = puzzle ١**), `share_grid.dart` (RLM-prefixed 🟫🟨⬜ rows). |
 | `game/data/` | `dictionary.dart` (18.3k normalized guess set), `bundled_word_source.dart` (offline answers, same ordering as the server seed), `local_store.dart` (SharedPreferences JSON: cached word, board, **stats — local is authoritative**, settings, pending-results queue, `onboarded` flag, cached `display_name`, reminder settings). |
 | `game/state/` | Riverpod Notifiers. `game_controller.dart` is the game loop: typing, validation, reveal choreography (flip 900 ms = 420 + 4×120 stagger), win/loss sequencing, persistence, `applyServerWord` (never interrupts a game in progress). |
@@ -74,15 +98,22 @@ The MustafaLinux list was evaluated and **rejected** (morphologically generated 
 would accept nearly anything as "a word"). Sources kept: Hugo0/wordle + hermitdave
 FrequencyWords, both MIT.
 
-## Supabase (code ready, project not yet created)
+## Supabase (LIVE since 2026-08-26)
 
-- Config: project URL + anon (publishable) key live in `env/dev.json`, passed via
-  `--dart-define-from-file=env/dev.json` on run/build. Do NOT hardcode them as
-  defaults in `lib/backend/supabase_config.dart` — the test suite requires
-  `flutter test` (no defines) to stay unconfigured/offline.
+- The project exists and is fully set up: migrations 0001–0003 + the seed ran in the
+  dashboard, **Anonymous sign-ins** and **Manual linking** are enabled. Verified live:
+  anonymous sign-in works, `get_daily_word()` executes (empty pre-epoch = correct,
+  bundled fallback covers it until 2026-09-01), and a direct `daily_words` read returns
+  zero rows (RLS lockdown holds).
+- Config: project URL + anon (publishable) key live in `env/dev.json` (committed —
+  publishable by design), passed via `--dart-define-from-file=env/dev.json` on run/build.
+  Do NOT hardcode them as defaults in `lib/backend/supabase_config.dart` — the test
+  suite requires `flutter test` (no defines) to stay unconfigured/offline; hardcoding
+  broke 9 tests once already. Without the flag the app runs fully offline.
   Everything online-related renders/activates only when `isSupabaseConfigured`.
-- Set up: run `supabase/migrations/0001..0003.sql` then `supabase/seed/daily_words_seed.sql`
-  in the dashboard SQL editor; toggle **Anonymous sign-ins** + **Manual linking** in Auth.
+- Still missing for social sign-in: Google Cloud web+Android client IDs and the Apple
+  Services ID (see Auth below) — the Google/Apple buttons error until then; guest and
+  the leaderboard work with just `env/dev.json`.
 - Design: `daily_words` has RLS on with zero policies (client-unreadable); the only read
   path is `get_daily_word()` (security definer, Riyadh "today", never future words).
   `submit_result()` stamps uid server-side, allows ≤7-day backfill (`live=false`, excluded
@@ -130,10 +161,25 @@ FrequencyWords, both MIT.
 
 ## Plans & docs
 
+Plan files live in `~/.claude/plans/` **on the Windows box only** — they do not travel
+with the repo. Everything needed to continue is in this file + STATUS.md + `design/`.
+
 - Approved plan (M0–M4): `~/.claude/plans/i-want-to-create-velvety-falcon.md`
 - Full architecture detail (SQL rationale, console checklists §11, risks §12):
   `~/.claude/plans/i-want-to-create-velvety-falcon-agent-a12e92ece1086fc6e.md`
 - Approved plan (M5 user flow): `~/.claude/plans/read-the-handoff-file-abundant-crab.md`
+- Approved plan (rise transitions + ui-inspo agent):
+  `~/.claude/plans/now-the-thing-is-hazy-castle.md`
 - Design reference: `design/readme.md`, `design/guidelines/*.card.html`, and the
   user-flow spec `design/design_handoff_kalimat_user_flow/README.md` (exact per-screen
   values; its email-OTP screens are intentionally not implemented)
+
+## Claude Code extras (travel with the repo)
+
+- `.claude/agents/ui-inspo.md` — research-only agent: web-searches UI/motion
+  inspiration for a topic, filters it through the design doctrine, writes a report to
+  `design/inspo/<topic>.md`. Never edits app code. Invoke via "use the ui-inspo agent
+  to research <topic>".
+- `.claude/commands/security-review.md` + `.github/workflows/security.yml` — the
+  Anthropic security reviewer, set up then parked. The workflow only fires on PRs and
+  needs a `CLAUDE_API_KEY` repo secret; both are dormant and safe to ignore or delete.

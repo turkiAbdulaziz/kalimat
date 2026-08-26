@@ -67,10 +67,9 @@ persistence + GameController use cases + rise-transition widget tests + flow)
 
 ## ⏳ Waiting on you
 
-1. **Supabase project** *(unblocks M3 verification — ~10 min)*
-   Create a free project at supabase.com → send the Project URL + anon/publishable key.
-   Then together: run the 3 migrations + word seed in the SQL editor, enable Anonymous
-   sign-ins + Manual linking, and verify online play end-to-end on the emulator.
+1. ~~**Supabase project**~~ **DONE 2026-08-26** — project live, migrations + seed ran,
+   Anonymous sign-ins + Manual linking on, creds in `env/dev.json`, verified end-to-end
+   on the emulator (anon session, `get_daily_word()`, leaderboard tab, RLS lockdown).
 2. **Answer curation** *(launch blocker, not a dev blocker — ~1–2 h)*
    Review `tool/out/answers_candidates.txt` (frequency-ranked, clitic-flagged) and build a
    curated `assets/words/answers.txt` (aim ≥365 words, correct spellings, order = puzzle
@@ -83,9 +82,9 @@ persistence + GameController use cases + rise-transition widget tests + flow)
 
 ## 🔜 Possible next steps (my side, once unblocked)
 
-- **M3 verification**: wire credentials, run migrations/seed, prove: same word on two
-  devices, airplane-mode first launch playable, queue flush visible in table editor,
-  `daily_words` unreadable via REST.
+- **M3 verification, remaining bits**: same word on two devices, airplane-mode first
+  launch playable, queue flush visible in the table editor after a finished game
+  (basic connectivity, RLS lockdown, and the leaderboard path are already verified).
 - **M4/M5 verification (configured)**: fresh install → sign-in screen → Google → name
   screen → game with «أهلاً {name}»; guest path; sign-out → sign-in with board cleared,
   stats kept; returning account skips the name screen; leaderboard rows live-only,
