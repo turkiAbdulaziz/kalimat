@@ -34,7 +34,7 @@ only via the header avatar (stats, preferences, daily reminder, sign-out).
   git-ignored but still sync).
 
 ```powershell
-flutter test                 # 69 tests (engine + widget + flow), all green — MUST run unconfigured
+flutter test                 # 103 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
 flutter analyze              # clean
 flutter run --dart-define-from-file=env/dev.json    # online build (Supabase creds live in env/dev.json)
 flutter build apk --debug --dart-define-from-file=env/dev.json

@@ -60,7 +60,8 @@ _Last updated: 2026-08-26. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - [x] Boot verified on device: RTL header, 6×5 board, 33-key keyboard and the first-launch help
       dialog «أهلاً زائر» all render correctly; dark theme confirmed. Xcode build 82s, SPM resolve 81s.
 
-**Suite: 69 tests green · `flutter analyze` clean.**
+**Suite: 103 tests green · `flutter analyze` clean.** (engine + LocalStore
+persistence + GameController use cases + rise-transition widget tests + flow)
 
 ---
 
