@@ -34,9 +34,10 @@ only via the header avatar (stats, preferences, daily reminder, sign-out).
   git-ignored but still sync).
 
 ```powershell
-flutter test                 # 69 tests (engine + widget + flow), all green
+flutter test                 # 69 tests (engine + widget + flow), all green — MUST run unconfigured
 flutter analyze              # clean
-flutter build apk --debug
+flutter run --dart-define-from-file=env/dev.json    # online build (Supabase creds live in env/dev.json)
+flutter build apk --debug --dart-define-from-file=env/dev.json
 adb -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
 adb -s emulator-5554 shell am start -n com.kalimat.app/com.kalimat.kalimat.MainActivity
 ```
@@ -75,8 +76,10 @@ FrequencyWords, both MIT.
 
 ## Supabase (code ready, project not yet created)
 
-- Config: paste project URL + anon key into `lib/backend/supabase_config.dart`
-  or pass `--dart-define=SUPABASE_URL=… --dart-define=SUPABASE_ANON_KEY=…`.
+- Config: project URL + anon (publishable) key live in `env/dev.json`, passed via
+  `--dart-define-from-file=env/dev.json` on run/build. Do NOT hardcode them as
+  defaults in `lib/backend/supabase_config.dart` — the test suite requires
+  `flutter test` (no defines) to stay unconfigured/offline.
   Everything online-related renders/activates only when `isSupabaseConfigured`.
 - Set up: run `supabase/migrations/0001..0003.sql` then `supabase/seed/daily_words_seed.sql`
   in the dashboard SQL editor; toggle **Anonymous sign-ins** + **Manual linking** in Auth.
