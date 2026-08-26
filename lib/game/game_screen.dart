@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../backend/sync_service.dart';
+import '../core/rise_route.dart';
 import '../core/theme/metrics.dart';
 import '../flow/flow_controller.dart';
 import '../profile/profile_screen.dart';
@@ -64,13 +65,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
     super.dispose();
   }
 
-  /// Instant swap, matching the prototype — screen motion is dialogs-only.
+  /// Opens «حسابي» with the house rise transition (sink + fade on close).
+  /// Board state survives the round trip because it lives in providers.
   void _openProfile() {
     Navigator.of(context).push(
-      PageRouteBuilder(
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (_, _, _) => const ProfileScreen(),
+      riseRoute(
+        motion: ref.read(settingsProvider).motion,
+        builder: (_) => const ProfileScreen(),
       ),
     );
   }

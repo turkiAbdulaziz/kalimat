@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../backend/supabase_config.dart';
+import '../../core/rise_route.dart';
 import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
@@ -15,6 +16,7 @@ import '../../profile/profile_screen.dart';
 import '../engine/models.dart';
 import '../engine/share_grid.dart';
 import '../state/game_controller.dart';
+import '../state/settings_controller.dart';
 import '../state/stats_controller.dart';
 import '../widgets/distribution_bar.dart';
 import '../widgets/kalimat_button.dart';
@@ -72,13 +74,15 @@ class _StatsDialogState extends ConsumerState<_StatsDialog> {
                   variant: KalimatButtonVariant.ghost,
                   block: true,
                   onPressed: () {
+                    // The dialog's 220ms dismissal overlaps the profile's
+                    // 220ms rise — one continuous gesture.
                     final navigator = Navigator.of(context);
+                    final motion = ref.read(settingsProvider).motion;
                     navigator.pop();
                     navigator.push(
-                      PageRouteBuilder(
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                        pageBuilder: (_, _, _) => const ProfileScreen(),
+                      riseRoute(
+                        motion: motion,
+                        builder: (_) => const ProfileScreen(),
                       ),
                     );
                   },

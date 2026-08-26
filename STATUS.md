@@ -40,6 +40,7 @@ _Last updated: 2026-08-26. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - [x] Official dark theme mapping (15 fields corrected from the old proposal) + new tokens `textWordmark`/`textOnSoft`/`textDanger`; theme-aware shadows; wordmark dark-mode bug fixed
 - [x] Daily reminder «التنبيه اليومي»: flutter_local_notifications + timezone (desugaring enabled, boot receiver), Kalimat-style enable/time dialog (١٢-hour steppers + ص/م), Android 13+ permission flow — end-to-end delivery verified on emulator
 - [x] New shared widgets: KalimatAvatar, KalimatInput, KalimatListRow, Wordmark, button `large` variant; `design/` replaced with the new export (handoff README + SignIn/Game/Profile prototypes)
+- [x] kalimat-rise screen transitions: RootFlow step switch + profile route share one 8px fade-rise (`core/rise_route.dart`, `Motion.base`/`easeOut`); profile close sinks, sign-out removes the route instantly; all gated by «حركة المربعات»
 
 ### iOS toolchain — builds and runs on Mac  *(verified on iPhone 17 simulator, iOS 26.5)*
 - [x] Local dev environment stood up: Flutter 3.47.1 / Dart 3.13.1, Xcode 26.6, CocoaPods 1.17.0,

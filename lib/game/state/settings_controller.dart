@@ -1,4 +1,6 @@
 /// Settings state (dark / hints / motion), persisted to LocalStore.
+/// The motion flag («حركة المربعات») gates ALL app motion: board animations
+/// and screen transitions (core/rise_route.dart, flow/root_flow.dart).
 library;
 
 import 'package:flutter/widgets.dart' show WidgetsBinding;

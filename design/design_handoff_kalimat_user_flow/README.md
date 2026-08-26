@@ -178,7 +178,7 @@ Letter keys `flex: 1` (min-width 30px), action keys fixed at min-width 62px. All
 | "تسجيل الخروج" | board cleared, → sign in |
 | "الوضع الليلي" | `data-theme="dark"` on the app root, instantly, on whatever screen you are on |
 
-**Motion** — `--ease-out` cubic-bezier(.2,.8,.3,1) is the default; `--ease-pop` cubic-bezier(.34,1.4,.64,1) is the only springy curve and only for the type pop. Durations: 80ms instant (presses), 140ms fast (hover, colour), 220ms base (pop, dialog rise), 420ms slow (flip, shake, bar growth). Keyframes `kalimat-pop`, `kalimat-flip`, `kalimat-shake`, `kalimat-rise` live in `tokens/motion.css`. No looping motion, no parallax, no bounce elsewhere. Honour `prefers-reduced-motion` by treating it like the "حركة المربعات" preference being off.
+**Motion** — `--ease-out` cubic-bezier(.2,.8,.3,1) is the default; `--ease-pop` cubic-bezier(.34,1.4,.64,1) is the only springy curve and only for the type pop. Durations: 80ms instant (presses), 140ms fast (hover, colour), 220ms base (pop, dialog rise, screen rise), 420ms slow (flip, shake, bar growth). Keyframes `kalimat-pop`, `kalimat-flip`, `kalimat-shake`, `kalimat-rise` live in `tokens/motion.css`. No looping motion, no parallax, no bounce elsewhere. Honour `prefers-reduced-motion` by treating it like the "حركة المربعات" preference being off.
 
 **Hover** — ghost/secondary surfaces fill `--surface-sunken`; primary buttons darken with `filter: brightness(.93)` rather than swapping colour; keys step one rung up the ramp. **Press** — scale only (.97 buttons, .94 keys), never a colour change. **Disabled** — opacity .45 buttons / .5 keys, never a colour swap. **Focus** — `--focus-ring`.
 

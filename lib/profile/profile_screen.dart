@@ -37,10 +37,13 @@ class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
+    final navigator = Navigator.of(context);
+    final route = ModalRoute.of(context)!;
     await ref.read(flowProvider.notifier).signOut();
-    if (context.mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
+    // The flow has already switched to sign-in beneath us — remove the
+    // profile route without its sink transition so only RootFlow's rise
+    // plays (instead of two stacked animations over the new screen).
+    if (context.mounted) navigator.removeRoute(route);
   }
 
   @override
