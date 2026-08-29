@@ -15,12 +15,17 @@ class ToastSlot extends StatelessWidget {
   const ToastSlot({
     super.key,
     required this.puzzleNo,
+    this.badge,
     this.toast,
     this.toastIsWin = false,
     this.revealedAnswer,
   });
 
   final int puzzleNo;
+
+  /// Replaces the day badge («كلمة اليوم …») when non-null — a duel names
+  /// the opponent here, and their live progress, instead.
+  final String? badge;
   final String? toast;
   final bool toastIsWin;
 
@@ -50,9 +55,10 @@ class ToastSlot extends StatelessWidget {
         fontSize: TypeScale.xs,
       );
     } else {
+      final text = badge ?? '${S.dayBadgePrefix}${toArabicDigits('$puzzleNo')}';
       child = _Pill(
-        key: const ValueKey('badge'),
-        text: '${S.dayBadgePrefix}${toArabicDigits('$puzzleNo')}',
+        key: ValueKey('badge-$text'),
+        text: text,
         bg: c.surfaceSunken,
         fg: c.textMuted,
         fontSize: TypeScale.xs2,

@@ -121,23 +121,51 @@ class ReminderSettings {
   );
 }
 
-/// A finished game's board: typed guesses for one calendar date.
+/// A game's board: typed guesses for one calendar date, plus the epoch ms
+/// the solve clock started at (null on saves written before duels existed).
 /// Row states are recomputed on load, so only typed spellings are stored.
 class BoardSave {
-  const BoardSave({required this.date, required this.guesses});
+  const BoardSave({
+    required this.date,
+    required this.guesses,
+    this.startedAtMs,
+  });
 
   final DateTime date;
   final List<String> guesses;
+  final int? startedAtMs;
 
   Map<String, Object?> toJson() => {
     'date': date.toIso8601String().substring(0, 10),
     'guesses': guesses,
+    'startedAtMs': startedAtMs,
   };
 
   static BoardSave fromJson(Map<String, Object?> j) => BoardSave(
     date: DateTime.parse(j['date'] as String),
     guesses: (j['guesses'] as List).cast<String>(),
+    startedAtMs: j['startedAtMs'] as int?,
   );
+}
+
+/// One duel's board, keyed by challenge id. Duels have no calendar date, so
+/// the saves are pruned by count instead ([LocalStore.kChallengeBoardLimit]).
+class ChallengeBoardSave {
+  const ChallengeBoardSave({required this.guesses, this.startedAtMs});
+
+  final List<String> guesses;
+  final int? startedAtMs;
+
+  Map<String, Object?> toJson() => {
+    'guesses': guesses,
+    'startedAtMs': startedAtMs,
+  };
+
+  static ChallengeBoardSave fromJson(Map<String, Object?> j) =>
+      ChallengeBoardSave(
+        guesses: (j['guesses'] as List).cast<String>(),
+        startedAtMs: j['startedAtMs'] as int?,
+      );
 }
 
 /// A finished result queued for upload to Supabase.
@@ -187,6 +215,10 @@ class LocalStore {
   static const _kOnboarded = 'onboarded';
   static const _kDisplayName = 'display_name';
   static const _kReminder = 'reminder';
+  static const _kChallengeBoards = 'challenge_boards';
+
+  /// Duel boards kept on device; the oldest are dropped past this.
+  static const int kChallengeBoardLimit = 10;
 
   static Future<LocalStore> create() async => LocalStore(
     await SharedPreferencesWithCache.create(
@@ -267,6 +299,37 @@ class LocalStore {
 
   Future<void> setReminder(ReminderSettings r) =>
       _setJson(_kReminder, r.toJson());
+
+  /// Duel boards, newest last (insertion order is the prune order).
+  Map<String, ChallengeBoardSave> get challengeBoards {
+    final j = _json(_kChallengeBoards);
+    if (j == null) return const {};
+    final out = <String, ChallengeBoardSave>{};
+    j.forEach((id, value) {
+      if (value is Map) {
+        out[id] = ChallengeBoardSave.fromJson(Map<String, Object?>.from(value));
+      }
+    });
+    return out;
+  }
+
+  ChallengeBoardSave? challengeBoard(String id) => challengeBoards[id];
+
+  Future<void> setChallengeBoard(String id, ChallengeBoardSave board) {
+    final all = {...challengeBoards}..remove(id);
+    all[id] = board;
+    final keys = all.keys.toList();
+    for (final stale in keys.take(
+      (keys.length - kChallengeBoardLimit).clamp(0, keys.length),
+    )) {
+      all.remove(stale);
+    }
+    return _setJson(_kChallengeBoards, {
+      for (final e in all.entries) e.key: e.value.toJson(),
+    });
+  }
+
+  Future<void> clearChallengeBoards() => _prefs.remove(_kChallengeBoards);
 
   List<PendingResult> get pendingResults {
     final raw = _prefs.getString(_kQueue);

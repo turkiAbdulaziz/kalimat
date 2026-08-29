@@ -1,14 +1,15 @@
-/// The single game surface: header / badge+toast slot / board / keyboard.
-/// The app never scrolls — tiles shrink on short screens instead.
+/// The daily puzzle screen: header + the shared game surface. The app never
+/// scrolls — tiles shrink on short screens instead (see GameSurface).
 library;
-
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../backend/backend_providers.dart';
+import '../backend/supabase_config.dart';
 import '../backend/sync_service.dart';
+import '../challenge/challenges_screen.dart';
 import '../core/rise_route.dart';
 import '../core/theme/metrics.dart';
 import '../flow/flow_controller.dart';
@@ -16,13 +17,10 @@ import '../profile/profile_screen.dart';
 import 'dialogs/help_dialog.dart';
 import 'dialogs/stats_dialog.dart';
 import 'engine/letters.dart';
-import 'engine/models.dart';
 import 'state/game_controller.dart';
 import 'state/settings_controller.dart';
 import 'widgets/app_header.dart';
-import 'widgets/guess_grid.dart';
-import 'widgets/keyboard.dart';
-import 'widgets/toast_slot.dart';
+import 'widgets/game_surface.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key});
@@ -55,6 +53,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     // Refresh the word (day may have rolled over) and retry queued uploads.
     if (state == AppLifecycleState.resumed) {
       ref.read(syncServiceProvider).sync();
+      if (isSupabaseConfigured) ref.invalidate(challengeBadgeProvider);
     }
   }
 
@@ -72,6 +71,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
       riseRoute(
         motion: ref.read(settingsProvider).motion,
         builder: (_) => const ProfileScreen(),
+      ),
+    );
+  }
+
+  void _openChallenges() {
+    Navigator.of(context).push(
+      riseRoute(
+        motion: ref.read(settingsProvider).motion,
+        builder: (_) => const ChallengesScreen(),
       ),
     );
   }
@@ -121,59 +129,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     onHelp: () => showHelpDialog(context),
                     onStats: () => showStatsDialog(context),
                     onProfile: _openProfile,
+                    onChallenges: isSupabaseConfigured ? _openChallenges : null,
+                    challengeBadge:
+                        ref.watch(challengeBadgeProvider).value ?? false,
                     avatarName: ref.watch(displayNameProvider),
                   ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Metrics.gutter,
-                        vertical: Metrics.s4,
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final tileSize = _tileSize(constraints);
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ToastSlot(
-                                puzzleNo: game.word.puzzleNo,
-                                toast: game.toast,
-                                toastIsWin: game.toastIsWin,
-                                revealedAnswer: game.revealAnswer
-                                    ? stripMarks(game.word.word)
-                                    : null,
-                              ),
-                              const SizedBox(height: Metrics.s4),
-                              GuessGrid(
-                                guesses: game.guesses,
-                                rowStates: game.rowStates,
-                                current: game.current,
-                                shakeRow: game.shakeRow,
-                                revealRow: game.revealRow,
-                                animatePop: settings.motion,
-                                tileSize: tileSize,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      Metrics.s2,
-                      Metrics.s2,
-                      Metrics.s2,
-                      Metrics.s4,
-                    ),
-                    child: GameKeyboard(
-                      letterStates: settings.hints
-                          ? game.keyStates
-                          : const <String, TileState>{},
-                      disabled: game.finished,
+                    child: GameSurface(
+                      game: game,
+                      motion: settings.motion,
+                      hints: settings.hints,
                       onKey: controller.onKey,
                       onEnter: controller.onEnter,
                       onDelete: controller.onDelete,
+                      revealedAnswer: stripMarks(game.word.word),
                     ),
                   ),
                 ],
@@ -183,19 +152,5 @@ class _GameScreenState extends ConsumerState<GameScreen>
         ),
       ),
     );
-  }
-
-  /// Tiles shrink before anything else on small screens (keyboard height
-  /// stays fixed).
-  double _tileSize(BoxConstraints c) {
-    final wFit =
-        (c.maxWidth - (kWordLength - 1) * Metrics.tileGap) / kWordLength;
-    final gridH =
-        c.maxHeight -
-        Metrics.toastSlotHeight -
-        Metrics.s4 -
-        (kMaxGuesses - 1) * Metrics.gridGap;
-    final hFit = gridH / kMaxGuesses;
-    return math.min(Metrics.tileSize, math.min(wFit, hFit));
   }
 }

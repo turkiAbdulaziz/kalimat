@@ -119,6 +119,54 @@ abstract final class S {
     'ديسمبر',
   ];
 
+  // Duels «التحدّيات»
+  static const challenges = 'التحدّيات';
+  static const myChallenges =
+      'تحدّياتي'; // the tab, so it doesn't echo the title
+  static const friends = 'الأصدقاء';
+  static const challengeFriend = 'تحدَّ صديقًا';
+  static const challengeAction = 'تحدٍّ';
+  static const yourTurn = 'دورك';
+  static const waitingOpponent = 'بانتظار الخصم';
+  static const challengeDone = 'انتهت';
+  static const notStarted = 'لم يبدأ';
+  static const noChallenges = 'لا تحدّيات بعد';
+  static const noChallengesHint = 'تحدَّ صديقًا في كلمة لم يرها أحد منكما.';
+  static const noFriends = 'لا أصدقاء بعد';
+  static const noRequests = 'لا طلبات';
+  static const challengeWon = 'فزت';
+  static const challengeLost = 'خسرت';
+  static const challengeDraw = 'تعادل';
+  static const rematch = 'إعادة التحدي';
+  static const vsPrefix = 'تحدٍّ ضد ';
+  static const inAttempt = ' في المحاولة ';
+  static const challengeExpired = 'انتهت المهلة';
+  static const createChallengeFailed = 'تعذّر إنشاء التحدي';
+  static const openChallengeFailed = 'تعذّر فتح التحدي';
+  static const challengeRecord = 'سجل التحدّيات';
+  static const lossesLabel = 'خسارة';
+
+  // Friends
+  static const myCode = 'رمزي';
+  static const myCodeHint = 'شارك رمزك ليضيفك أصدقاؤك';
+  static const copyCode = 'نسخ الرمز';
+  static const codeCopied = 'تم نسخ الرمز';
+  static const shareMyCode = 'مشاركة رمزي';
+  static const shareCodePrefix = 'أضفني في كلمات — رمزي: ';
+  static const addFriend = 'إضافة صديق';
+  static const friendCodeLabel = 'رمز صديقك';
+  static const requests = 'الطلبات';
+  static const accept = 'قبول';
+  static const decline = 'رفض';
+  static const remove = 'إزالة';
+  static const removeFriendTitle = 'إزالة صديق';
+  static const removeFriendPrefix = 'سيتم إزالة ';
+  static const removeFriendSuffix = ' من قائمة أصدقائك.';
+  static const requestSent = 'تم إرسال الطلب';
+  static const codeNotFound = 'لا يوجد لاعب بهذا الرمز';
+  static const alreadyFriends = 'أنتما صديقان بالفعل';
+  static const friendActionFailed = 'تعذّر إتمام الطلب';
+
   // Daily reminder
   static const dailyReminder = 'التنبيه اليومي';
   static const reminderEnable = 'تفعيل';

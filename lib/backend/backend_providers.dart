@@ -4,7 +4,10 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../challenge/models.dart';
 import 'auth_repository.dart';
+import 'challenge_repository.dart';
+import 'friends_repository.dart';
 import 'leaderboard_repository.dart';
 import 'supabase_config.dart';
 import 'supabase_service.dart';
@@ -39,3 +42,44 @@ final globalLeaderboardProvider =
       await SupabaseService.ensureSession();
       return ref.watch(leaderboardRepositoryProvider).fetchGlobal();
     });
+
+final challengeRepositoryProvider = Provider<ChallengeRepository>(
+  (ref) => ChallengeRepository(),
+);
+
+final friendsRepositoryProvider = Provider<FriendsRepository>(
+  (ref) => FriendsRepository(),
+);
+
+/// The signed-in uid, or null — duel outcomes are relative to it.
+final currentUserIdProvider = Provider<String?>(
+  (ref) => ref.watch(authUserProvider).value?.id,
+);
+
+/// «التحدّيات» list (empty when unconfigured / offline).
+final myChallengesProvider = FutureProvider.autoDispose<List<ChallengeSummary>>(
+  (ref) => ref.watch(challengeRepositoryProvider).fetchMine(),
+);
+
+final friendsProvider = FutureProvider.autoDispose<List<Friend>>(
+  (ref) => ref.watch(friendsRepositoryProvider).fetchFriends(),
+);
+
+final friendRequestsProvider = FutureProvider.autoDispose<List<FriendRequest>>(
+  (ref) => ref.watch(friendsRepositoryProvider).fetchRequests(),
+);
+
+final myPlayerCardProvider = FutureProvider<MyPlayerCard?>(
+  (ref) => ref.watch(friendsRepositoryProvider).fetchMyCard(),
+);
+
+/// The header dot: a duel waiting on you, or a friend request to answer.
+/// Not autoDispose — the game screen watches it for the whole session and
+/// refreshes it on resume (sync_service).
+final challengeBadgeProvider = FutureProvider<bool>((ref) async {
+  if (!isSupabaseConfigured) return false;
+  final challenges = await ref.watch(challengeRepositoryProvider).fetchMine();
+  if (challenges.any((c) => c.turn == ChallengeTurn.yours)) return true;
+  final requests = await ref.watch(friendsRepositoryProvider).fetchRequests();
+  return requests.isNotEmpty;
+});

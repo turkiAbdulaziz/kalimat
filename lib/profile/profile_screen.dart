@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../backend/backend_providers.dart';
@@ -26,6 +27,8 @@ import '../game/widgets/kalimat_avatar.dart';
 import '../game/widgets/kalimat_button.dart';
 import '../game/widgets/kalimat_list_row.dart';
 import '../game/widgets/kalimat_switch.dart';
+import '../game/widgets/screen_header.dart';
+import '../game/widgets/section_card.dart';
 import '../game/widgets/stat_card.dart';
 import '../notifications/notification_service.dart';
 import '../notifications/reminder_controller.dart';
@@ -68,7 +71,10 @@ class ProfileScreen extends ConsumerWidget {
             constraints: const BoxConstraints(maxWidth: Metrics.appMaxWidth),
             child: Column(
               children: [
-                _Header(onBack: () => Navigator.of(context).pop()),
+                ScreenHeader(
+                  title: S.profileTitle,
+                  onBack: () => Navigator.of(context).pop(),
+                ),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
@@ -85,7 +91,7 @@ class ProfileScreen extends ConsumerWidget {
                           onEditName: () => showEditNameDialog(context),
                         ),
                         const SizedBox(height: Metrics.s6),
-                        _Section(
+                        SectionCard(
                           label: S.stats,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,7 +117,7 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: Metrics.s6),
-                        _Section(
+                        SectionCard(
                           label: S.distributionTitle,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -132,8 +138,12 @@ class ProfileScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
+                        if (isSupabaseConfigured) ...[
+                          const SizedBox(height: Metrics.s6),
+                          const _DuelSection(),
+                        ],
                         const SizedBox(height: Metrics.s6),
-                        _Section(
+                        SectionCard(
                           label: S.preferences,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -193,7 +203,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         if (isSupabaseConfigured && !linked) ...[
                           const SizedBox(height: Metrics.s6),
-                          _Section(
+                          SectionCard(
                             label: S.accountSection,
                             child: const SaveProgressSection(),
                           ),
@@ -239,49 +249,6 @@ class ProfileScreen extends ConsumerWidget {
       }
     }
     return version;
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.kalimatColors;
-    return Container(
-      height: Metrics.headerHeight,
-      padding: const EdgeInsets.symmetric(horizontal: Metrics.s3),
-      decoration: BoxDecoration(
-        color: c.surfaceCard,
-        border: Border(bottom: BorderSide(color: c.lineSoft)),
-      ),
-      child: Row(
-        children: [
-          KalimatIconButton(
-            icon: LucideIcons.arrowRight,
-            label: S.back,
-            onPressed: onBack,
-          ),
-          Expanded(
-            child: Text(
-              S.profileTitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: kFontDisplay,
-                fontSize: TypeScale.md,
-                fontWeight: FontWeight.w700,
-                color: c.textBody,
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-          // Optical balance for the leading 40px icon button.
-          const SizedBox(width: 40),
-        ],
-      ),
-    );
   }
 }
 
@@ -371,44 +338,40 @@ class _Identity extends StatelessWidget {
   }
 }
 
-/// Section pattern: 11px subtle label above a bordered surface-card.
-class _Section extends StatelessWidget {
-  const _Section({required this.label, required this.child});
-
-  final String label;
-  final Widget child;
+/// «رمزي» + the lifetime duel record. Loads lazily; the rows simply show a
+/// dash until the card arrives (or stays offline).
+class _DuelSection extends ConsumerWidget {
+  const _DuelSection();
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.kalimatColors;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: Metrics.s2),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontFamily: kFontUi,
-              fontSize: TypeScale.xs2,
-              fontWeight: FontWeight.w600,
-              color: c.textSubtle,
-              letterSpacing: 0,
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final card = ref.watch(myPlayerCardProvider).value;
+    final record = card == null
+        ? '—'
+        : '${toArabicDigits('${card.wins}')} ${S.winsLabel} · '
+              '${toArabicDigits('${card.losses}')} ${S.lossesLabel}';
+
+    return SectionCard(
+      label: S.challenges,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          KalimatListRow(
+            icon: LucideIcons.hash,
+            label: S.myCode,
+            value: card == null ? '—' : toArabicDigits(card.friendCode),
+            onTap: card == null
+                ? null
+                : () => Clipboard.setData(ClipboardData(text: card.friendCode)),
           ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(Metrics.s4),
-          decoration: BoxDecoration(
-            color: c.surfaceCard,
-            border: Border.all(color: c.lineSoft),
-            borderRadius: BorderRadius.circular(Metrics.rCard),
-            boxShadow: c.shadowSm,
+          KalimatListRow(
+            icon: LucideIcons.swords,
+            label: S.challengeRecord,
+            value: record,
+            divider: false,
           ),
-          child: child,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

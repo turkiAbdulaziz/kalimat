@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-08-26. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-08-27. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -60,8 +60,31 @@ _Last updated: 2026-08-26. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - [x] Boot verified on device: RTL header, 6×5 board, 33-key keyboard and the first-launch help
       dialog «أهلاً زائر» all render correctly; dark theme confirmed. Xcode build 82s, SPM resolve 81s.
 
-**Suite: 103 tests green · `flutter analyze` clean.** (engine + LocalStore
-persistence + GameController use cases + rise-transition widget tests + flow)
+### M6 — Duels «التحدّيات»  *(code complete — needs migrations 0004/0005 + the duel seed run)*
+- [x] **Friend graph**: every profile carries a permanent ٦-digit `friend_code` (minted by the
+      signup trigger, backfilled for existing rows). «إضافة صديق» → request → قبول/رفض, remove
+      with a confirm. `profiles` is no longer world-readable — codes can't be harvested, and every
+      cross-user name now comes from a security-definer RPC.
+- [x] **Duels on a separate word pool**: `challenge_words` (2,000 words, disjoint from
+      `answers.txt`, emitted by the same pipeline) — a duel can never spoil a future daily, and
+      you can rematch as often as you like without touching «كلمة اليوم».
+- [x] **Winner rule**: a win beats a loss → fewer guesses → the faster solve (unknown clock last).
+      Decided server-side in `submit_challenge_result()`, mirrored client-side by `decideOutcome()`
+      for rendering. Async 48h window; unplayed duels expire lazily.
+- [x] **Views**: a swords icon in the header (with an accent dot for «دورك»), «التحدّيات» screen
+      (duels grouped دورك / بانتظار الخصم / انتهت + friends tab with «رمزي» in board tiles), the
+      duel board (same surface, the badge slot names the opponent), the result card with
+      «إعادة التحدي» and a duel share line, and a «التحدّيات» section on «حسابي».
+- [x] **Live progress**: Realtime `postgres_changes` on `challenge_participants` — «ليلى في المحاولة ٤»
+      appears in the badge slot while your friend plays.
+- [x] **Refactors that made it fit**: the game loop moved into `WordGameNotifier` (daily + duel
+      sessions share it), the board became `GameSurface`, and `ScreenHeader`/`SectionCard` are now
+      shared chrome. The solve clock added along the way finally populates `game_results.duration_ms`
+      for the daily game too.
+
+**Suite: 128 tests green · `flutter analyze` clean.** (engine + LocalStore
+persistence + GameController use cases + duel winner-rule matrix + duel session +
+rise-transition and «التحدّيات» widget tests + flow)
 
 ---
 
@@ -74,7 +97,12 @@ persistence + GameController use cases + rise-transition widget tests + flow)
    Review `tool/out/answers_candidates.txt` (frequency-ranked, clitic-flagged) and build a
    curated `assets/words/answers.txt` (aim ≥365 words, correct spellings, order = puzzle
    order). Then re-run `dart run tool/build_wordlists.dart` to regenerate the server seed.
-3. **Console setup for sign-in** *(unblocks M4 verification — needs your accounts)*
+3. **Run the duel migrations** *(unblocks M6 — 5 minutes in the dashboard)*
+   In the Supabase SQL editor, in order: `supabase/migrations/0004_challenges.sql`,
+   `supabase/migrations/0005_challenge_functions.sql`, then
+   `supabase/seed/challenge_words_seed.sql`. Nothing else changes; the app runs exactly as
+   before until they are in (the duel screens simply show their empty states).
+4. **Console setup for sign-in** *(unblocks M4 verification — needs your accounts)*
    Google Cloud: OAuth consent screen + **web** client ID + Android client ID (package
    `com.kalimat.app`, debug/release SHA-1s — I can generate the SHA-1s).
    Apple: paid developer account → App ID with Sign in with Apple + Services ID + `.p8` key.
@@ -89,6 +117,9 @@ persistence + GameController use cases + rise-transition widget tests + flow)
   screen → game with «أهلاً {name}»; guest path; sign-out → sign-in with board cleared,
   stats kept; returning account skips the name screen; leaderboard rows live-only,
   duplicate submit no-op.
+- **M6 verification (two devices)**: read A's code off «حسابي» → add on B → accept → duel →
+  both boards open at once to watch the live pill → result card → rematch. Plus the edge walk:
+  kill mid-duel (board + clock restore), airplane mode, an expired duel.
 - **M5 release prep** (no blockers, can start anytime): release keystore + signing config,
   versioning, MSA store listing copy, Play Console internal-testing track; iOS device/TestFlight
   build — simulator builds already run locally, so what is left is a paid Apple account for
@@ -108,4 +139,9 @@ persistence + GameController use cases + rise-transition widget tests + flow)
 - Reminder fires via inexact scheduling (no exact-alarm permission) — may land a few
   minutes late under Doze; accepted for now.
 - Statistics restore from server after account switch (currently local stats stay authoritative).
+- **Stranger queue + rank**: `challenges.source` and `profiles.rating` are already reserved, and
+  the duel board + Realtime channel are in place; what's missing is a matchmaking RPC over a
+  waiting pool and an Elo update hooked onto the outcome.
+- **Push for «دورك»**: the header dot only refreshes on app open/resume. A real notification
+  needs FCM/APNs, which the project has never set up (only `flutter_local_notifications`).
 - Widget-test coverage for the loss path (answer reveal badge) and the leaderboard tab.

@@ -41,3 +41,26 @@ String buildShareText({
   ];
   return lines.join('\n');
 }
+
+/// Duel variant: the two scores instead of a puzzle number, then your grid.
+///
+///     ‏كلمات — تحدٍّ
+///     ‏تركي ٣/٦ · ليلى ٤/٦
+///     🟫🟨⬜⬜🟫
+String buildChallengeShareText({
+  required String myName,
+  required String opponentName,
+  required bool won,
+  required bool opponentWon,
+  required int opponentGuesses,
+  required List<List<TileState>> rows,
+}) {
+  String score(bool w, int n) => w ? '${toArabicDigits('$n')}/٦' : '—/٦';
+  final lines = [
+    '$_rlmكلمات — تحدٍّ',
+    '$_rlm$myName ${score(won, rows.length)} · '
+        '$opponentName ${score(opponentWon, opponentGuesses)}',
+    for (final row in rows) _rlm + row.map(_square).join(),
+  ];
+  return lines.join('\n');
+}

@@ -1,5 +1,5 @@
-/// 56px static header: help — wordmark — stats + avatar (the only route to
-/// the account screen).
+/// 56px static header: help — wordmark — stats, duels, and the avatar (the
+/// only route to the account screen).
 library;
 
 import 'package:flutter/material.dart';
@@ -17,12 +17,21 @@ class AppHeader extends StatelessWidget {
     this.onHelp,
     this.onStats,
     this.onProfile,
+    this.onChallenges,
+    this.challengeBadge = false,
     this.avatarName = '',
   });
 
   final VoidCallback? onHelp;
   final VoidCallback? onStats;
   final VoidCallback? onProfile;
+
+  /// Null hides the duels icon entirely (offline / unconfigured builds).
+  final VoidCallback? onChallenges;
+
+  /// A single accent dot: your turn in a duel, or a friend request waiting.
+  final bool challengeBadge;
+
   final String avatarName;
 
   @override
@@ -56,6 +65,15 @@ class AppHeader extends StatelessWidget {
             label: S.stats,
             onPressed: onStats,
           ),
+          if (onChallenges != null)
+            _Dotted(
+              show: challengeBadge,
+              child: KalimatIconButton(
+                icon: LucideIcons.swords,
+                label: S.challenges,
+                onPressed: onChallenges,
+              ),
+            ),
           const SizedBox(width: Metrics.s1),
           KalimatAvatar(
             name: avatarName,
@@ -65,6 +83,42 @@ class AppHeader extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// 7px accent dot pinned to the top-trailing corner of an icon button.
+class _Dotted extends StatelessWidget {
+  const _Dotted({required this.child, required this.show});
+
+  final Widget child;
+  final bool show;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.kalimatColors;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        if (show)
+          PositionedDirectional(
+            top: 6,
+            end: 6,
+            child: Semantics(
+              label: S.yourTurn,
+              child: Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: c.accent,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: c.surfaceCard, width: 1.5),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

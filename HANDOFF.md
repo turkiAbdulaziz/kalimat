@@ -23,7 +23,10 @@ runnable screen prototypes in `design/ui_kits/kalimat_app/`, and the **user-flow
 `design/design_handoff_kalimat_user_flow/README.md`). Around the game surface sits the
 designed flow: first-run sign-in (Google/Apple/guest — the designed email-OTP screens
 were deliberately dropped) → display name → game, and a profile screen «حسابي» reached
-only via the header avatar (stats, preferences, daily reminder, sign-out).
+only via the header avatar (stats, preferences, daily reminder, sign-out). Beside the daily
+ritual sits the one competitive surface, «التحدّيات»: add a friend by their ٦-digit code,
+then duel them on a word drawn from a pool that is never a daily answer — fewer guesses
+wins, the faster solve breaks the tie.
 
 ## Environment & toolchain
 
@@ -72,28 +75,33 @@ adb -s emulator-5554 shell am start -n com.kalimat.app/com.kalimat.kalimat.MainA
 | `core/strings.dart` | Every piece of MSA copy. Single locale, no i18n framework. |
 | `core/theme/` | `kalimat_colors.dart` (brown ramp + `KalimatColors` ThemeExtension, light + **official** dark mapping from the handoff's colors.css, incl. `textWordmark`/`textOnSoft`/`textDanger` and theme-aware shadows — `c.shadowSm/Md/Lg`, instance fields, not statics), `kalimat_theme.dart` (TextThemes — **letterSpacing is always 0** for Arabic), `metrics.dart` (tile 58 / key 52 / max width 500…), `motion.dart` (durations + cubics). |
 | `core/utils/arabic_digits.dart` | ٠-٩ conversion + ٪. All UI numbers go through this. |
-| `core/rise_route.dart` | The house screen transition (kalimat-rise: fade + 8px rise, `Motion.base`/`easeOut`; pop = sink+fade). Used by `flow/root_flow.dart`'s step switcher and both profile push sites. Gated by the motion setting — off ⇒ `Duration.zero`. |
+| `core/rise_route.dart` | The house screen transition (kalimat-rise: fade + 8px rise, `Motion.base`/`easeOut`; pop = sink+fade). Used by `flow/root_flow.dart`'s step switcher, both profile push sites, and the «التحدّيات» / duel-board pushes. Gated by the motion setting — off ⇒ `Duration.zero`. |
 | `game/engine/` | **Pure Dart, zero Flutter imports, fully unit-tested.** `letters.dart` (33-key rows + `normalizeLetter/Word`), `evaluate.dart` (duplicate-safe two-pass on normalized forms), `keyboard_state.dart` (upgrade-only hints keyed by canonical class — this is why أ/إ/ا color together), `puzzle_calendar.dart` (**epoch 2026-09-01 = puzzle ١**), `share_grid.dart` (RLM-prefixed 🟫🟨⬜ rows). |
-| `game/data/` | `dictionary.dart` (18.3k normalized guess set), `bundled_word_source.dart` (offline answers, same ordering as the server seed), `local_store.dart` (SharedPreferences JSON: cached word, board, **stats — local is authoritative**, settings, pending-results queue, `onboarded` flag, cached `display_name`, reminder settings). |
-| `game/state/` | Riverpod Notifiers. `game_controller.dart` is the game loop: typing, validation, reveal choreography (flip 900 ms = 420 + 4×120 stagger), win/loss sequencing, persistence, `applyServerWord` (never interrupts a game in progress). |
-| `game/widgets/`, `game/dialogs/`, `game_screen.dart` | The UI. Widgets are dumb/props-only (shared set incl. `KalimatAvatar`, `KalimatInput`, `KalimatListRow`, `Wordmark`). Dialogs via `showKalimatDialog` (brown overlay + 2 px blur + rise); there is **no settings dialog** — preferences live on the profile screen, and the header's trailing avatar (not a gear) opens it. The game screen never scrolls; tiles shrink first on small screens. |
+| `game/data/` | `dictionary.dart` (18.3k normalized guess set), `bundled_word_source.dart` (offline answers, same ordering as the server seed), `local_store.dart` (SharedPreferences JSON: cached word, board, **stats — local is authoritative**, settings, pending-results queue, `onboarded` flag, cached `display_name`, reminder settings, and per-duel boards keyed by challenge id — pruned to the last 10). |
+| `game/state/` | Riverpod Notifiers. `word_game.dart` holds the **shared** loop — typing, validation, reveal choreography (flip 900 ms = 420 + 4×120 stagger), win/loss sequencing, the solve clock — as `WordGameNotifier`, with session hooks (`sessionWord`, `persistBoard`, `onGuessSubmitted`, `onFinished`). `game_controller.dart` is the daily session on top of it (board save, local stats, result queue, `applyServerWord` — never interrupts a game in progress) and re-exports `word_game.dart`, so `GameState`/`kWordLength`/`dictionaryProvider` still come from it. The duel session is `challenge/challenge_controller.dart`. |
+| `game/widgets/`, `game/dialogs/`, `game_screen.dart` | The UI. Widgets are dumb/props-only (shared set incl. `KalimatAvatar`, `KalimatInput`, `KalimatListRow`, `Wordmark`). Dialogs via `showKalimatDialog` (brown overlay + 2 px blur + rise); there is **no settings dialog** — preferences live on the profile screen, and the header's trailing avatar (not a gear) opens it. Pushed screens share `ScreenHeader` + `SectionCard`/`SectionNote`; the board itself is `GameSurface` (badge slot + grid + keyboard), mounted by both the daily screen and the duel screen. The game screen never scrolls; tiles shrink first on small screens. |
 | `flow/` | `flow_controller.dart` (`FlowStep` signin/name/game + `flowProvider`; gating: unconfigured or `onboarded` → straight to game, existing installs migrate silently; also `displayNameProvider`, sign-out clears board+identity but **keeps stats**), `root_flow.dart` (`home:` widget — kalimat-rise switch between steps: incoming screen fades in + rises 8px over `Motion.base`, outgoing fades in place; instant when «حركة المربعات» is off). |
 | `onboarding/` | `auth_shell.dart` (centred column, pinned bottom block), `sign_in_screen.dart` (Google/Apple/guest; inline taupe error line — new screens have no ToastSlot), `name_screen.dart`. |
 | `profile/` | `profile_screen.dart` («حسابي», pushed with the shared rise route (`core/rise_route.dart` — sink+fade on close, instant removal on sign-out); board state survives because it lives in providers), `edit_name_dialog.dart` (tap the name), `save_progress_section.dart` (anonymous-only linking, moved from the old settings dialog, keeps the confirm-switch dialog), `reminder_dialog.dart` (١٢-hour steppers + ص/م). |
+| `challenge/` | Duels «التحدّيات». `models.dart` (pure Dart: `ChallengeSide/Summary/Detail`, `Friend`, and `decideOutcome` — the winner rule, kept in lockstep with the SQL), `challenge_controller.dart` (`activeChallengeProvider` + `challengeGameProvider` + `opponentSideProvider`; one duel at a time, so no family), `challenges_screen.dart` (segmented shell) → `challenges_tab.dart` / `friends_tab.dart`, `challenge_screen.dart` (the duel board), `challenge_result_dialog.dart`, plus the add-friend / pick-friend / remove-friend dialogs. |
 | `notifications/` | `notification_service.dart` (flutter_local_notifications v22 + timezone; **inexact** daily schedule — no exact-alarm permission; `supported` guard keeps it off web/desktop/tests), `reminder_controller.dart` (permission → schedule/cancel → persist). Manifest has the two receivers + POST_NOTIFICATIONS/BOOT_COMPLETED. |
-| `backend/` | Supabase layer, **entirely dormant until configured** — see below. `sync_service.dart` runs on launch + app-resume: ensure anon session → fetch day word (server Riyadh calendar is authority) → bundled fallback on offline rollover → flush result queue. |
+| `backend/` | Supabase layer, **entirely dormant until configured** — see below. `sync_service.dart` runs on launch + app-resume: ensure anon session → fetch day word (server Riyadh calendar is authority) → bundled fallback on offline rollover → flush result queue. `challenge_repository.dart` / `friends_repository.dart` wrap the duel + friend RPCs and own the Realtime channel for opponent progress. |
 
-Layering rule: `backend/` imports `game/`, never the reverse. UI touches backend only
-through the providers in `backend_providers.dart`/`sync_service.dart` (game_screen, the
-stats dialog's leaderboard tab, and the flow/onboarding/profile layer).
+Layering rule: `backend/` imports `game/` and `challenge/models.dart`, never the reverse.
+UI touches backend only through the providers in `backend_providers.dart`/`sync_service.dart`
+(game_screen, the stats dialog's leaderboard tab, and the flow/onboarding/profile/challenge
+layer). `challenge/` builds on `game/` — it reuses the engine, the board surface, and the
+shared game loop rather than forking any of them.
 
 ## Word-list pipeline
 
 `dart run tool/build_wordlists.dart` (raw inputs in git-ignored `tool/raw/`, download URLs
 in the file header). Emits `assets/words/dictionary.txt`, `tool/out/answers_candidates.txt`
 (11,251 frequency-ranked candidates with clitic flags AL/W/F/B/L/SUF), a **provisional**
-`assets/words/answers.txt` (only when missing — it will not clobber a curated list), and
-`supabase/seed/daily_words_seed.sql` (same ordering ⇒ offline and online agree).
+`assets/words/answers.txt` (only when missing — it will not clobber a curated list),
+`supabase/seed/daily_words_seed.sql` (same ordering ⇒ offline and online agree), and
+`supabase/seed/challenge_words_seed.sql` (2,000 duel words, **disjoint from answers.txt**
+so a duel can never spoil a future daily — regenerate both together).
 The MustafaLinux list was evaluated and **rejected** (morphologically generated junk —
 would accept nearly anything as "a word"). Sources kept: Hugo0/wordle + hermitdave
 FrequencyWords, both MIT.
@@ -132,6 +140,29 @@ FrequencyWords, both MIT.
   Display name is cached locally (`display_name`) so the profile renders offline;
   server `profiles` is best-effort synced on link/edit.
 
+## Duels «التحدّيات» (M6)
+
+- Friend-first: every profile carries a permanent **٦-digit `friend_code`** (minted by the
+  signup trigger, backfilled in 0004). «إضافة صديق» → request → قبول, then duels are created
+  against a friend id. There is no join link and no deep-link config.
+- Migrations **0004_challenges.sql** (schema, RLS, Realtime publication) + **0005_challenge_functions.sql**
+  (RPCs), then `supabase/seed/challenge_words_seed.sql`. Same discipline as 0003: tables are
+  RPC-only, `auth.uid()` is stamped server-side, results are write-once.
+- **`profiles` is no longer world-readable** — 0004 drops the `"profiles read"` policy in favour
+  of read-own, so friend codes can't be harvested. Every cross-user name now comes from a
+  security-definer RPC (leaderboards included).
+- The winner rule lives twice, on purpose: `submit_challenge_result()` decides it server-side,
+  `decideOutcome()` in `challenge/models.dart` renders/predicts it. **Change one, change both**
+  (win beats loss → fewer guesses → faster solve; an unknown clock sorts last).
+- Live progress rides `postgres_changes` on `challenge_participants` (in the `supabase_realtime`
+  publication, with a participants-only select policy — Realtime honours RLS). The pill lands in
+  the existing badge slot; there is no new chrome.
+- The solve clock starts on the **first letter typed**, is persisted with the first submitted
+  guess, and survives a kill. As a side effect the daily game now fills `game_results.duration_ms`,
+  which had always been null.
+- Anti-cheat is deliberately shallow: the engine is client-side, so the word is readable by a
+  determined player (already true of the daily game). The RPCs only close the cheap holes.
+
 ## Gotchas that already cost time (don't rediscover)
 
 1. **Widget tests + real asset I/O deadlock**: `rootBundle` loads inside `testWidgets`
@@ -140,7 +171,7 @@ FrequencyWords, both MIT.
 2. **adb from Git Bash**: `/sdcard/...` gets path-mangled — use `MSYS_NO_PATHCONV=1` and a
    Windows-style destination for `adb pull`. PowerShell `>` corrupts binary screencap output.
 3. Flip face-swap happens at the **eased** halfway point (`Motion.easeInOut`), matching the
-   reveal timing constants in `game_controller.dart` — change one, change both.
+   reveal timing constants in `game/state/word_game.dart` — change one, change both.
 4. Key inset lip: Flutter has no inset BoxShadow — it's a bottom-aligned 2 px strip in
    `key_cap.dart`.
 5. Icon regeneration: `flutter test tool/generate_icon.dart` then
@@ -155,7 +186,14 @@ FrequencyWords, both MIT.
    (`initialize(settings:…)`, `zonedSchedule(id:…, scheduledDate:…)`,
    `cancel(id:…)`) and flutter_timezone v5 returns a `TimezoneInfo` (use
    `.identifier`) — most tutorials show the older positional APIs.
-9. Pinned-bottom onboarding layout: `IntrinsicHeight` + `Spacer` inside a scroll view
+9. A duel board is a *session*, not a family: `activeChallengeProvider` holds the open duel and
+   `ChallengeGameController` reads it in `build()`. Opening another duel calls
+   `.open(detail)`, which invalidates `challengeGameProvider` — never read that provider
+   while the active challenge is null.
+10. PL/pgSQL shadowing: a `RETURNS TABLE` column name shadows a real table column of the
+   same name inside the body. `create_challenge` therefore returns `challenge_id` /
+   `challenge_word`, not `id` / `word` — the Dart repository reads those exact keys.
+11. Pinned-bottom onboarding layout: `IntrinsicHeight` + `Spacer` inside a scroll view
    miscomputes and overflows; `auth_shell.dart` uses
    `ConstrainedBox(minHeight) > Column(mainAxisAlignment: spaceBetween)` instead.
 
@@ -170,6 +208,9 @@ with the repo. Everything needed to continue is in this file + STATUS.md + `desi
 - Approved plan (M5 user flow): `~/.claude/plans/read-the-handoff-file-abundant-crab.md`
 - Approved plan (rise transitions + ui-inspo agent):
   `~/.claude/plans/now-the-thing-is-hazy-castle.md`
+- Approved plan (M6 duels «التحدّيات»):
+  `~/.claude/plans/read-the-handoff-file-vectorized-simon.md` — written on the Mac, so it
+  is the one plan file the Windows box does not have
 - Design reference: `design/readme.md`, `design/guidelines/*.card.html`, and the
   user-flow spec `design/design_handoff_kalimat_user_flow/README.md` (exact per-screen
   values; its email-OTP screens are intentionally not implemented)
