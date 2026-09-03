@@ -97,11 +97,18 @@ rise-transition and «التحدّيات» widget tests + flow)
    Review `tool/out/answers_candidates.txt` (frequency-ranked, clitic-flagged) and build a
    curated `assets/words/answers.txt` (aim ≥365 words, correct spellings, order = puzzle
    order). Then re-run `dart run tool/build_wordlists.dart` to regenerate the server seed.
-3. **Run the duel migrations** *(unblocks M6 — 5 minutes in the dashboard)*
-   In the Supabase SQL editor, in order: `supabase/migrations/0004_challenges.sql`,
-   `supabase/migrations/0005_challenge_functions.sql`, then
-   `supabase/seed/challenge_words_seed.sql`. Nothing else changes; the app runs exactly as
-   before until they are in (the duel screens simply show their empty states).
+3. ~~**Run the duel migrations**~~ **DONE 2026-09-03** — 0004/0005 + the duel seed are in,
+   and the whole RPC surface was verified live over REST (28 checks: friend codes →
+   request/accept → duel → live progress column → winner rule → draw → write-once →
+   RLS lockdown, all green).
+   **One follow-up: run `supabase/migrations/0006_fix_participants_policy.sql`** *(2 minutes)*.
+   Live verification caught a bug in 0004: the participants select policy re-checks
+   membership via a subquery on `challenges`, which has RLS on with zero policies — so the
+   subquery is always empty and the policy never passes. Everything RPC-based works
+   (security definer bypasses RLS), but Realtime delivery honours that policy, so the
+   live opponent-progress pill never fires until 0006 is in. A confirmed
+   `postgres_changes` subscription received nothing on opponent update; 0006 routes the
+   check through a security-definer helper (same pattern as `are_friends`).
 4. **Console setup for sign-in** *(unblocks M4 verification — needs your accounts)*
    Google Cloud: OAuth consent screen + **web** client ID + Android client ID (package
    `com.kalimat.app`, debug/release SHA-1s — I can generate the SHA-1s).
@@ -117,9 +124,12 @@ rise-transition and «التحدّيات» widget tests + flow)
   screen → game with «أهلاً {name}»; guest path; sign-out → sign-in with board cleared,
   stats kept; returning account skips the name screen; leaderboard rows live-only,
   duplicate submit no-op.
-- **M6 verification (two devices)**: read A's code off «حسابي» → add on B → accept → duel →
-  both boards open at once to watch the live pill → result card → rematch. Plus the edge walk:
-  kill mid-duel (board + clock restore), airplane mode, an expired duel.
+- **M6 verification (two devices)**: backend flow is verified end-to-end over REST
+  (2026-09-03; two simulated players, plus a websocket check of the Realtime channel —
+  blocked on 0006, re-verify the pill after it runs). Still worth the on-device pass:
+  read A's code off «حسابي» → add on B → accept → duel → both boards open at once to
+  watch the live pill → result card → rematch. Plus the edge walk: kill mid-duel
+  (board + clock restore), airplane mode, an expired duel.
 - **M5 release prep** (no blockers, can start anytime): release keystore + signing config,
   versioning, MSA store listing copy, Play Console internal-testing track; iOS device/TestFlight
   build — simulator builds already run locally, so what is left is a paid Apple account for

@@ -196,6 +196,11 @@ FrequencyWords, both MIT.
 11. Pinned-bottom onboarding layout: `IntrinsicHeight` + `Spacer` inside a scroll view
    miscomputes and overflows; `auth_shell.dart` uses
    `ConstrainedBox(minHeight) > Column(mainAxisAlignment: spaceBetween)` instead.
+12. An RLS policy that subqueries a zero-policy table (like `challenges`) silently
+   evaluates to false for everyone — the subquery is itself under RLS when run as the
+   querying role. This broke Realtime delivery for the duel pill (0004, fixed in 0006).
+   Membership checks used inside policies must go through a **security-definer helper**
+   (`is_challenge_participant`, `are_friends`), never a raw subquery on an RPC-only table.
 
 ## Plans & docs
 
