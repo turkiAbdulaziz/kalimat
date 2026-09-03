@@ -17,6 +17,7 @@ abstract final class S {
   // Board area (caller appends the Arabic-Indic puzzle number)
   static const dayBadgePrefix = 'كلمة اليوم ';
   static const answerRevealPrefix = 'الكلمة: ';
+  static const statsAnswerLabel = 'الكلمة';
 
   // Toasts
   static const tooShort = 'الكلمة قصيرة';

@@ -18,6 +18,7 @@ import '../engine/share_grid.dart';
 import '../state/game_controller.dart';
 import '../state/settings_controller.dart';
 import '../state/stats_controller.dart';
+import '../widgets/answer_tiles.dart';
 import '../widgets/distribution_bar.dart';
 import '../widgets/kalimat_button.dart';
 import '../widgets/kalimat_dialog.dart';
@@ -127,6 +128,23 @@ class _StatsContent extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (!won && game.finished) ...[
+          // Loss: no celebration, just the answer in the board's language.
+          Center(
+            child: Text(
+              S.statsAnswerLabel,
+              style: TextStyle(
+                fontFamily: kFontUi,
+                fontSize: TypeScale.xs2,
+                color: c.textSubtle,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
+          const SizedBox(height: Metrics.s2),
+          AnswerTiles(word: game.word.word),
+          const SizedBox(height: Metrics.s4),
+        ],
         if (won)
           Padding(
             padding: const EdgeInsets.only(bottom: Metrics.s4),

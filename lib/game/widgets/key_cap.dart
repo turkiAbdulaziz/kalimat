@@ -56,7 +56,9 @@ class _KeyCapState extends State<KeyCap> {
       scale: _held && !widget.disabled ? .94 : 1,
       duration: Motion.instant,
       curve: Motion.easeOut,
-      child: Opacity(
+      child: AnimatedOpacity(
+        duration: Motion.fast,
+        curve: Motion.easeOut,
         opacity: widget.disabled ? .5 : 1,
         child: AnimatedContainer(
           duration: Motion.fast,

@@ -74,6 +74,7 @@ class GameSurface extends StatelessWidget {
                       current: game.current,
                       shakeRow: game.shakeRow,
                       revealRow: game.revealRow,
+                      waveRow: game.waveRow,
                       animatePop: motion,
                       tileSize: tileSize,
                     ),

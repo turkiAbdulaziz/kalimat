@@ -18,6 +18,7 @@ import '../engine/evaluate.dart';
 import '../engine/keyboard_state.dart';
 import '../engine/letters.dart';
 import '../engine/models.dart';
+import 'haptics.dart';
 import 'settings_controller.dart';
 
 const int kWordLength = 5;
@@ -25,8 +26,16 @@ const int kMaxGuesses = 6;
 
 /// Reveal choreography (must match the tile flip animation timings).
 const Duration kRevealTotal = Duration(milliseconds: 900); // 420 + 4*120
-const Duration kWinToastToStats = Duration(milliseconds: 1400);
+const Duration kWinToastToStats = Duration(milliseconds: 1600);
+
+/// Motion off: no wave to make room for, keep the original delay.
+const Duration kWinToastToStatsReduced = Duration(milliseconds: 1400);
 const Duration kLossToStats = Duration(milliseconds: 1000);
+
+/// Win wave: hold after the reveal, then a pop ripples across the winning
+/// row (Motion.waveStagger per tile). Total = 4×70 stagger + 220 pop.
+const Duration kWinHoldToWave = Duration(milliseconds: 250);
+const Duration kWinWaveTotal = Duration(milliseconds: 500);
 
 /// Overridden in main() with the loaded dictionary.
 final dictionaryProvider = Provider<GuessDictionary>(
@@ -45,6 +54,7 @@ class GameState {
     this.toastIsWin = false,
     this.shakeRow = -1,
     this.revealRow = -1,
+    this.waveRow = -1,
     this.revealAnswer = false,
     this.statsDialogTick = 0,
   });
@@ -73,6 +83,9 @@ class GameState {
   final int shakeRow;
   final int revealRow;
 
+  /// Winning row pop-waving (celebration after the reveal), -1 when none.
+  final int waveRow;
+
   /// Loss: the badge slot shows «الكلمة: …».
   final bool revealAnswer;
 
@@ -93,6 +106,7 @@ class GameState {
     bool? toastIsWin,
     int? shakeRow,
     int? revealRow,
+    int? waveRow,
     bool? revealAnswer,
     int? statsDialogTick,
   }) => GameState(
@@ -106,6 +120,7 @@ class GameState {
     toastIsWin: toastIsWin ?? this.toastIsWin,
     shakeRow: shakeRow ?? this.shakeRow,
     revealRow: revealRow ?? this.revealRow,
+    waveRow: waveRow ?? this.waveRow,
     revealAnswer: revealAnswer ?? this.revealAnswer,
     statsDialogTick: statsDialogTick ?? this.statsDialogTick,
   );
@@ -200,6 +215,7 @@ abstract class WordGameNotifier extends Notifier<GameState> {
   void onKey(String letter) {
     if (state.finished || state.current.length >= kWordLength) return;
     _startClock();
+    ref.read(hapticsProvider).tap();
     state = state.copyWith(current: [...state.current, letter]);
   }
 
@@ -271,6 +287,7 @@ abstract class WordGameNotifier extends Notifier<GameState> {
   void _rejectRow(String message) {
     final row = state.guesses.length;
     state = state.copyWith(shakeRow: motion ? row : -1);
+    ref.read(hapticsProvider).error();
     flash(message);
     if (motion) {
       after(const Duration(milliseconds: 450), () {
@@ -281,17 +298,39 @@ abstract class WordGameNotifier extends Notifier<GameState> {
 
   void _finish({required bool won}) {
     final guesses = state.guesses.length;
+    final rowIndex = guesses - 1;
     state = state.copyWith(
       status: won ? GameStatus.won : GameStatus.lost,
       revealAnswer: !won,
     );
-    if (won) flash(S.win, isWin: true);
+    if (won) {
+      flash(S.win, isWin: true);
+      if (motion) {
+        // The celebration: a pop ripples across the winning row, with one
+        // haptic at the wave's first pop (the visual peak).
+        after(kWinHoldToWave, () {
+          state = state.copyWith(waveRow: rowIndex);
+          ref.read(hapticsProvider).success();
+          after(kWinWaveTotal, () {
+            state = state.copyWith(waveRow: -1);
+          });
+        });
+      } else {
+        // No wave, but the haptic still carries the moment.
+        ref.read(hapticsProvider).success();
+      }
+    }
 
     onFinished(won: won, guesses: guesses, durationMs: _elapsedMs());
 
-    after(won ? kWinToastToStats : kLossToStats, () {
-      state = state.copyWith(statsDialogTick: state.statsDialogTick + 1);
-    });
+    after(
+      won
+          ? (motion ? kWinToastToStats : kWinToastToStatsReduced)
+          : kLossToStats,
+      () {
+        state = state.copyWith(statsDialogTick: state.statsDialogTick + 1);
+      },
+    );
   }
 
   void flash(String message, {bool isWin = false}) {

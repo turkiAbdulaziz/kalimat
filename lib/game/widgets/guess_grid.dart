@@ -18,6 +18,7 @@ class GuessGrid extends StatelessWidget {
     required this.current,
     this.shakeRow = -1,
     this.revealRow = -1,
+    this.waveRow = -1,
     this.animatePop = true,
     this.tileSize = Metrics.tileSize,
   });
@@ -27,6 +28,9 @@ class GuessGrid extends StatelessWidget {
   final List<String> current;
   final int shakeRow;
   final int revealRow;
+
+  /// Winning row celebrating with a staggered pop wave, -1 when none.
+  final int waveRow;
   final bool animatePop;
   final double tileSize;
 
@@ -58,12 +62,16 @@ class GuessGrid extends StatelessWidget {
     if (r < guesses.length) {
       // Submitted row.
       final letters = guesses[r].split('');
+      // Index 0 renders rightmost under RTL, so both staggers ripple
+      // right-to-left with no special-casing.
       return Tile(
         letter: c < letters.length ? letters[c] : '',
         state: rowStates[r][c],
         size: tileSize,
         reveal: r == revealRow,
         revealDelay: Motion.flipStagger * c,
+        wave: r == waveRow,
+        waveDelay: Motion.waveStagger * c,
       );
     }
     if (r == guesses.length && c < current.length) {

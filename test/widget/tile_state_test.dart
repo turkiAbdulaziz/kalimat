@@ -76,4 +76,38 @@ void main() {
     await tester.pumpAndSettle();
     expect(_decorationOf(tester).color, colors.tileCorrect);
   });
+
+  testWidgets('wave edge pops the tile; mount with wave does not', (
+    tester,
+  ) async {
+    double scale() => tester
+        .widget<Transform>(
+          find
+              .descendant(of: find.byType(Tile), matching: find.byType(Transform))
+              .first,
+        )
+        .transform
+        .storage[0];
+
+    // Mounting with wave already true must NOT replay (remount mid-wave).
+    await tester.pumpWidget(
+      _wrap(const Tile(letter: 'م', state: TileState.correct, wave: true)),
+    );
+    await tester.pump(const Duration(milliseconds: 110));
+    expect(scale(), 1.0);
+
+    // The false→true edge pops: scale rises above 1 near the pop's peak
+    // (~60ms; the overshoot back half dips slightly below 1 by design).
+    await tester.pumpWidget(
+      _wrap(const Tile(letter: 'م', state: TileState.correct)),
+    );
+    await tester.pumpWidget(
+      _wrap(const Tile(letter: 'م', state: TileState.correct, wave: true)),
+    );
+    await tester.pump(const Duration(milliseconds: 30)); // zero timer + tick
+    await tester.pump(const Duration(milliseconds: 30));
+    expect(scale(), greaterThan(1.01));
+    await tester.pumpAndSettle();
+    expect(scale(), 1.0);
+  });
 }

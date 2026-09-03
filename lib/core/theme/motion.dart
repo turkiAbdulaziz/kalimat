@@ -9,6 +9,7 @@ abstract final class Motion {
   static const Duration base = Duration(milliseconds: 220);
   static const Duration slow = Duration(milliseconds: 420);
   static const Duration flipStagger = Duration(milliseconds: 120);
+  static const Duration waveStagger = Duration(milliseconds: 70);
   static const Duration toastVisible = Duration(milliseconds: 1300);
 
   /// Default easing — cubic-bezier(.2,.8,.3,1).

@@ -22,6 +22,8 @@ class Tile extends StatefulWidget {
     this.animatePop = false,
     this.reveal = false,
     this.revealDelay = Duration.zero,
+    this.wave = false,
+    this.waveDelay = Duration.zero,
   });
 
   final String letter;
@@ -34,6 +36,11 @@ class Tile extends StatefulWidget {
   /// Flip from the "filled" face to the evaluated face after [revealDelay].
   final bool reveal;
   final Duration revealDelay;
+
+  /// Win-wave pop after [waveDelay]. Triggered only on a false→true edge
+  /// (never on mount), so a tile remounted mid-wave doesn't replay.
+  final bool wave;
+  final Duration waveDelay;
 
   @override
   State<Tile> createState() => _TileState();
@@ -68,6 +75,11 @@ class _TileState extends State<Tile> with TickerProviderStateMixin {
       _pop.forward(from: 0);
     }
     if (widget.reveal && !old.reveal) _startReveal();
+    if (widget.wave && !old.wave) {
+      Future<void>.delayed(widget.waveDelay, () {
+        if (mounted) _pop.forward(from: 0);
+      });
+    }
   }
 
   @override
