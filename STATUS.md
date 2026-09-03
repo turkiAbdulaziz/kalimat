@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-08-27. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-09-03. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -82,9 +82,36 @@ _Last updated: 2026-08-27. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
       shared chrome. The solve clock added along the way finally populates `game_results.duration_ms`
       for the daily game too.
 
-**Suite: 128 tests green · `flutter analyze` clean.** (engine + LocalStore
+### M7 — «حياة»: app-wide motion, haptics & celebration  *(complete, 2026-09-03)*
+House rule (from `design/inspo/app-wide-motion.md`): **motion is event-driven and runs
+once** — every surface speaks the four existing keyframes; no loops, no idle pulses,
+no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
+- [x] **M7a foundations**: `MotionScope` gates the shared widgets (dialogs, toasts,
+      switch travel, bars; micro-feedback ≤140ms exempt by principle); StaggeredRise /
+      CountUpText / CelebrationPop primitives; HapticsService behind a new «الاهتزاز»
+      setting; DistributionBar width finally grows 420ms per spec; toastVisible token
+      wired; code-tile pop gate leak fixed; themed KalimatSpinner.
+- [x] **M7b game peaks**: the win wave (reveal → 250ms hold → pop ripples across the
+      winning row 70ms/tile, one lightImpact at its start, dialog at 1600ms; duels
+      inherit it via the shared loop); loss stays neutral with the answer as filled
+      tiles in the stats dialog; key-press/shake haptics; keyboard disable fades.
+- [x] **M7c stats & streak**: Arabic-Indic count-ups, bars fill top-to-bottom landing
+      on today's row, streak pops only when it grew, landmark streaks (٧/٣٠/١٠٠) get
+      one fill beat on the win pill, profile sections stagger in, tab cross-fades,
+      press feedback on name/avatar.
+- [x] **M7d duels**: row entrances, the live pill pops on value change («لعبت للتو»
+      as information), «دورك» dot scales in, winner line pops on the result card,
+      rematch rises sequenced, friend rows fade out on accept/decline/remove.
+- [x] **M7e chrome**: skeleton rows (no shimmer), leaderboard entrances, empty-state
+      breath (shared SampleTileRow), sign-in busy spinner + error fade, help-dialog
+      example flips in, day-rollover board cross-fade, reminder digits roll, and a
+      brown-600 branded splash on both platforms (white flash gone).
+- [x] **M7f sound**: scoped only — decisions in `design/sound-scope.md`, default-off
+      «الصوت» setting, audioplayers, CC0 assets. Not built.
+
+**Suite: 145 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +
-rise-transition and «التحدّيات» widget tests + flow)
+rise-transition, motion-gate/primitives, win-wave and «التحدّيات» widget tests + flow)
 
 ---
 
@@ -141,7 +168,9 @@ rise-transition and «التحدّيات» widget tests + flow)
   weekly keep-alive.
 - Streak-preserving timezone note: daily word flips at Riyadh midnight (≈1–2 h earlier
   in the Maghreb) — confirm that's acceptable before launch.
-- Onboarding polish: animate the help-dialog example row on first open.
+- ~~Onboarding polish: animate the help-dialog example row on first open.~~ Done in M7e.
+- M7 on-device eyeball pass: win wave + haptics on a real phone (simulator has no
+  vibration motor), motion-off sweep, dark-mode sweep, splash on cold start.
 - Launcher label is still Latin "kalimat" (AndroidManifest `android:label`) — the
   Android 13+ permission dialog shows it; consider «كلمات» before release.
 - Reminder fires via inexact scheduling (no exact-alarm permission) — may land a few
