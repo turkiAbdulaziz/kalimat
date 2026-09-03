@@ -6,6 +6,7 @@ import 'package:kalimat/core/strings.dart';
 import 'package:kalimat/game/data/dictionary.dart';
 import 'package:kalimat/game/data/local_store.dart';
 import 'package:kalimat/game/engine/models.dart';
+import 'package:kalimat/game/engine/puzzle_calendar.dart';
 import 'package:kalimat/game/state/game_controller.dart';
 import 'package:kalimat/game/state/settings_controller.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -26,10 +27,13 @@ Future<Widget> _app(
     overrides: [
       localStoreProvider.overrideWithValue(store),
       dictionaryProvider.overrideWithValue(_dictionary),
+      // Dated *today* so SyncService's offline day-rollover check
+      // (sync_service.dart) never swaps the word mid-test — a fixed date
+      // broke here the day the calendar epoch passed.
       initialWordProvider.overrideWithValue(
         DailyWord(
-          date: DateTime(2026, 9, 1),
-          puzzleNo: 1,
+          date: dateOnly(DateTime.now()),
+          puzzleNo: puzzleNumberFor(DateTime.now()),
           word: 'مدرسة',
           fromServer: false,
         ),

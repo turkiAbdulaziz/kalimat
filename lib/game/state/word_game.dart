@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/strings.dart';
+import '../../core/theme/motion.dart';
 import '../data/dictionary.dart';
 import '../engine/evaluate.dart';
 import '../engine/keyboard_state.dart';
@@ -295,7 +296,7 @@ abstract class WordGameNotifier extends Notifier<GameState> {
 
   void flash(String message, {bool isWin = false}) {
     state = state.copyWith(toast: message, toastIsWin: isWin);
-    after(const Duration(milliseconds: 1300), () {
+    after(Motion.toastVisible, () {
       state = state.copyWith(clearToast: true);
     });
   }

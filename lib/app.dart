@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/strings.dart';
 import 'core/theme/kalimat_theme.dart';
+import 'core/theme/motion_scope.dart';
 import 'flow/root_flow.dart';
 import 'game/state/settings_controller.dart';
 
@@ -16,6 +17,7 @@ class KalimatApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dark = ref.watch(settingsProvider.select((s) => s.dark));
+    final motion = ref.watch(settingsProvider.select((s) => s.motion));
 
     return MaterialApp(
       title: S.appTitle,
@@ -30,6 +32,9 @@ class KalimatApp extends ConsumerWidget {
       theme: kalimatTheme(Brightness.light),
       darkTheme: kalimatTheme(Brightness.dark),
       themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+      // Above the Navigator/Overlay so dialog routes and pushed screens
+      // inherit the motion gate.
+      builder: (context, child) => MotionScope(enabled: motion, child: child!),
       home: const RootFlow(),
     );
   }

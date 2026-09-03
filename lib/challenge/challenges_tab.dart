@@ -11,6 +11,7 @@ import '../core/strings.dart';
 import '../core/theme/metrics.dart';
 import '../game/state/settings_controller.dart';
 import '../game/widgets/kalimat_button.dart';
+import '../game/widgets/kalimat_spinner.dart';
 import '../game/widgets/section_card.dart';
 import 'challenge_row.dart';
 import 'challenge_screen.dart';
@@ -156,11 +157,5 @@ class _Loading extends StatelessWidget {
   const _Loading();
 
   @override
-  Widget build(BuildContext context) => const Center(
-    child: SizedBox(
-      width: 20,
-      height: 20,
-      child: CircularProgressIndicator(strokeWidth: 2),
-    ),
-  );
+  Widget build(BuildContext context) => const KalimatSpinner();
 }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/metrics.dart';
+import '../../core/theme/motion_scope.dart';
 import '../../core/utils/arabic_digits.dart';
 import '../engine/models.dart';
 import 'tile.dart';
@@ -122,7 +123,8 @@ class _CodeFieldState extends State<CodeField> {
                   letter: toArabicDigits(d.trim()),
                   state: d.trim().isEmpty ? TileState.empty : TileState.filled,
                   size: widget.tileSize,
-                  animatePop: i == _value.length - 1,
+                  animatePop:
+                      context.motionEnabled && i == _value.length - 1,
                 ),
               ],
             ],

@@ -19,6 +19,7 @@ import '../game/state/settings_controller.dart';
 import '../game/widgets/code_field.dart';
 import '../game/widgets/kalimat_avatar.dart';
 import '../game/widgets/kalimat_button.dart';
+import '../game/widgets/kalimat_spinner.dart';
 import '../game/widgets/section_card.dart';
 import 'add_friend_dialog.dart';
 import 'challenge_screen.dart';
@@ -120,13 +121,7 @@ class FriendsTab extends ConsumerWidget {
           child: friends.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: Metrics.s4),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
+              child: KalimatSpinner(),
             ),
             error: (_, _) => const SectionNote(S.leaderboardError),
             data: (list) {

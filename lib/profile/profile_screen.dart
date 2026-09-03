@@ -165,6 +165,12 @@ class ProfileScreen extends ConsumerWidget {
                                 checked: settings.motion,
                                 onChanged: settingsController.setMotion,
                               ),
+                              KalimatSwitch(
+                                label: S.settingHaptics,
+                                hint: S.settingHapticsHint,
+                                checked: settings.haptics,
+                                onChanged: settingsController.setHaptics,
+                              ),
                               if (NotificationService.supported)
                                 KalimatListRow(
                                   icon: LucideIcons.bell,

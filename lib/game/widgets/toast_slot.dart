@@ -9,6 +9,7 @@ import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
 import '../../core/theme/metrics.dart';
 import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 import '../../core/utils/arabic_digits.dart';
 
 class ToastSlot extends StatelessWidget {
@@ -69,7 +70,7 @@ class ToastSlot extends StatelessWidget {
       height: Metrics.toastSlotHeight,
       child: Center(
         child: AnimatedSwitcher(
-          duration: Motion.fast,
+          duration: context.motionDuration(Motion.fast),
           switchInCurve: Motion.easeOut,
           switchOutCurve: Motion.easeOut,
           transitionBuilder: (child, animation) => FadeTransition(

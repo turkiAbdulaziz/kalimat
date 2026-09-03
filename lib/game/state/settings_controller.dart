@@ -1,6 +1,9 @@
-/// Settings state (dark / hints / motion), persisted to LocalStore.
-/// The motion flag («حركة المربعات») gates ALL app motion: board animations
-/// and screen transitions (core/rise_route.dart, flow/root_flow.dart).
+/// Settings state (dark / hints / motion / haptics), persisted to LocalStore.
+/// The motion flag («حركة المربعات») gates all app *movement*: board
+/// animations, screen transitions (core/rise_route.dart, flow/root_flow.dart),
+/// and — via core/theme/motion_scope.dart — the shared widgets' translation/
+/// scale/stagger/blur. Micro-feedback crossfades (≤140ms color/opacity, 80ms
+/// press scale) are exempt by design: see the MotionScope doc comment.
 library;
 
 import 'package:flutter/widgets.dart' show WidgetsBinding;
@@ -39,6 +42,8 @@ class SettingsController extends Notifier<GameSettings> {
   void setHints(bool v) => _update(state.copyWith(hints: v));
 
   void setMotion(bool v) => _update(state.copyWith(motion: v));
+
+  void setHaptics(bool v) => _update(state.copyWith(haptics: v));
 
   void _update(GameSettings next) {
     state = next;

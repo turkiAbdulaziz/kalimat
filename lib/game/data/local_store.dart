@@ -63,29 +63,34 @@ class GameSettings {
     this.dark = false,
     this.hints = true,
     this.motion = true,
+    this.haptics = true,
   });
 
   final bool dark;
   final bool hints;
   final bool motion;
+  final bool haptics;
 
-  GameSettings copyWith({bool? dark, bool? hints, bool? motion}) =>
+  GameSettings copyWith({bool? dark, bool? hints, bool? motion, bool? haptics}) =>
       GameSettings(
         dark: dark ?? this.dark,
         hints: hints ?? this.hints,
         motion: motion ?? this.motion,
+        haptics: haptics ?? this.haptics,
       );
 
   Map<String, Object?> toJson() => {
     'dark': dark,
     'hints': hints,
     'motion': motion,
+    'haptics': haptics,
   };
 
   static GameSettings fromJson(Map<String, Object?> j) => GameSettings(
     dark: j['dark'] as bool? ?? false,
     hints: j['hints'] as bool? ?? true,
     motion: j['motion'] as bool? ?? true,
+    haptics: j['haptics'] as bool? ?? true,
   );
 }
 

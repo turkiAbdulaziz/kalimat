@@ -11,6 +11,7 @@ import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/metrics.dart';
 import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 import 'kalimat_button.dart';
 
 Future<T?> showKalimatDialog<T>({
@@ -23,7 +24,9 @@ Future<T?> showKalimatDialog<T>({
     barrierDismissible: true,
     barrierLabel: S.close,
     barrierColor: colors.surfaceOverlay,
-    transitionDuration: Motion.base,
+    // Gated: at zero duration the builder runs once at value == 1, so the
+    // blur/fade end state still applies in a single frame.
+    transitionDuration: context.motionDuration(Motion.base),
     pageBuilder: (context, _, _) => builder(context),
     transitionBuilder: (context, animation, _, child) {
       final t = CurvedAnimation(parent: animation, curve: Motion.easeOut);

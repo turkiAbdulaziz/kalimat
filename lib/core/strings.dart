@@ -50,6 +50,8 @@ abstract final class S {
   static const settingHints = 'تلميحات الحروف';
   static const settingHintsHint = 'إظهار الحروف المستبعدة على لوحة المفاتيح';
   static const settingMotion = 'حركة المربعات';
+  static const settingHaptics = 'الاهتزاز';
+  static const settingHapticsHint = 'اهتزاز خفيف عند الكتابة والفوز';
 
   // Account section (settings)
   static const accountSection = 'حفظ التقدم';

@@ -10,6 +10,7 @@ import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
 import '../../core/theme/metrics.dart';
 import '../../core/utils/arabic_digits.dart';
+import '../widgets/kalimat_spinner.dart';
 import '../widgets/segment_toggle.dart';
 
 class LeaderboardView extends ConsumerStatefulWidget {
@@ -107,13 +108,7 @@ class _GlobalList extends ConsumerWidget {
 
 Widget _loading() => const Padding(
   padding: EdgeInsets.symmetric(vertical: Metrics.s6),
-  child: Center(
-    child: SizedBox(
-      width: 20,
-      height: 20,
-      child: CircularProgressIndicator(strokeWidth: 2),
-    ),
-  ),
+  child: KalimatSpinner(),
 );
 
 class _Note extends StatelessWidget {

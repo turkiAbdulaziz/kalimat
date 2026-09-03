@@ -7,6 +7,7 @@ import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
 import '../../core/theme/metrics.dart';
 import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 
 class KalimatSwitch extends StatelessWidget {
   const KalimatSwitch({
@@ -69,7 +70,7 @@ class KalimatSwitch extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onChanged(!checked),
               child: AnimatedContainer(
-                duration: Motion.base,
+                duration: context.motionDuration(Motion.base),
                 curve: Motion.easeOut,
                 width: 46,
                 height: 28,
@@ -79,7 +80,7 @@ class KalimatSwitch extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: AnimatedAlign(
-                  duration: Motion.base,
+                  duration: context.motionDuration(Motion.base),
                   curve: Motion.easeOut,
                   alignment: checked
                       ? AlignmentDirectional.centerEnd

@@ -15,6 +15,7 @@ import '../core/utils/arabic_digits.dart';
 import '../game/engine/letters.dart';
 import '../game/state/settings_controller.dart';
 import '../game/widgets/game_surface.dart';
+import '../game/widgets/kalimat_spinner.dart';
 import '../game/widgets/screen_header.dart';
 import '../game/widgets/section_card.dart';
 import 'challenge_controller.dart';
@@ -114,13 +115,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
                 ),
                 Expanded(
                   child: _loading
-                      ? const Center(
-                          child: SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
+                      ? const KalimatSpinner()
                       : _failed || detail == null
                       ? const Center(child: SectionNote(S.openChallengeFailed))
                       : _keyboardListener(child: _Board(detail: detail)),
