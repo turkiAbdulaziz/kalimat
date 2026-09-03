@@ -7,11 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../backend/backend_providers.dart';
+import '../core/motion/celebration_pop.dart';
 import '../core/rise_route.dart';
 import '../core/strings.dart';
 import '../core/theme/kalimat_colors.dart';
 import '../core/theme/kalimat_theme.dart';
 import '../core/theme/metrics.dart';
+import '../core/theme/motion.dart';
 import '../core/utils/arabic_digits.dart';
 import '../flow/flow_controller.dart';
 import '../game/engine/share_grid.dart';
@@ -86,10 +88,16 @@ class _ChallengeResultDialog extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _ScoreLine(
-            name: myName,
-            side: mine,
-            winner: outcome == ChallengeOutcome.won,
+          // Your winning line pops once as the card lands; a loss or draw
+          // stays neutral. The haptic already fired with the board's wave.
+          CelebrationPop(
+            celebrateOnMount: outcome == ChallengeOutcome.won,
+            delay: Motion.base,
+            child: _ScoreLine(
+              name: myName,
+              side: mine,
+              winner: outcome == ChallengeOutcome.won,
+            ),
           ),
           const SizedBox(height: Metrics.s2),
           _ScoreLine(
@@ -115,6 +123,9 @@ class _ChallengeResultDialog extends ConsumerWidget {
     if (created == null) return;
     ref.invalidate(myChallengesProvider);
     navigator.pop(); // the result card
+    // Let the card's 220ms dismissal finish before the new board rises —
+    // sequenced, not two overlapping rises.
+    if (motion) await Future<void>.delayed(Motion.base);
     // Replace the finished board rather than stacking a second one.
     navigator.pushReplacement(
       riseRoute(

@@ -10,6 +10,8 @@ import '../core/rise_route.dart';
 import '../core/strings.dart';
 import '../core/theme/metrics.dart';
 import '../game/state/settings_controller.dart';
+import '../core/motion/staggered_rise.dart';
+import '../core/theme/motion_scope.dart';
 import '../game/widgets/kalimat_button.dart';
 import '../game/widgets/kalimat_spinner.dart';
 import '../game/widgets/section_card.dart';
@@ -135,8 +137,8 @@ class _Group extends StatelessWidget {
       child: SectionCard(
         label: label,
         padded: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: StaggeredRise(
+          enabled: context.motionEnabled,
           children: [
             for (final (i, c) in items.indexed)
               ChallengeRow(

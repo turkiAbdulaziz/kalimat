@@ -9,17 +9,21 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../backend/backend_providers.dart';
+import '../core/motion/staggered_rise.dart';
 import '../core/rise_route.dart';
 import '../core/strings.dart';
 import '../core/theme/kalimat_colors.dart';
 import '../core/theme/kalimat_theme.dart';
 import '../core/theme/metrics.dart';
+import '../core/theme/motion.dart';
+import '../core/theme/motion_scope.dart';
 import '../core/utils/arabic_digits.dart';
 import '../game/state/settings_controller.dart';
 import '../game/widgets/code_field.dart';
 import '../game/widgets/kalimat_avatar.dart';
 import '../game/widgets/kalimat_button.dart';
 import '../game/widgets/kalimat_spinner.dart';
+import '../game/widgets/press_scale.dart';
 import '../game/widgets/section_card.dart';
 import 'add_friend_dialog.dart';
 import 'challenge_screen.dart';
@@ -98,12 +102,17 @@ class FriendsTab extends ConsumerWidget {
             padded: false,
             child: Column(
               children: [
-                for (final (i, r) in requests.indexed)
-                  _RequestRow(
-                    request: r,
-                    divider: i < requests.length - 1,
-                    onRespond: (accept) => _respond(ref, r.id, accept),
-                  ),
+                StaggeredRise(
+                  enabled: context.motionEnabled,
+                  children: [
+                    for (final (i, r) in requests.indexed)
+                      _RequestRow(
+                        request: r,
+                        divider: i < requests.length - 1,
+                        onRespond: (accept) => _respond(ref, r.id, accept),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -126,7 +135,8 @@ class FriendsTab extends ConsumerWidget {
             error: (_, _) => const SectionNote(S.leaderboardError),
             data: (list) {
               if (list.isEmpty) return const SectionNote(S.noFriends);
-              return Column(
+              return StaggeredRise(
+                enabled: context.motionEnabled,
                 children: [
                   for (final (i, f) in list.indexed)
                     _FriendRow(
@@ -202,9 +212,8 @@ class _AddButton extends StatelessWidget {
     final c = context.kalimatColors;
     return Semantics(
       button: true,
-      child: GestureDetector(
+      child: PressScale(
         onTap: onPressed,
-        behavior: HitTestBehavior.opaque,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -227,7 +236,7 @@ class _AddButton extends StatelessWidget {
   }
 }
 
-class _RequestRow extends StatelessWidget {
+class _RequestRow extends StatefulWidget {
   const _RequestRow({
     required this.request,
     required this.onRespond,
@@ -239,47 +248,73 @@ class _RequestRow extends StatelessWidget {
   final bool divider;
 
   @override
+  State<_RequestRow> createState() => _RequestRowState();
+}
+
+class _RequestRowState extends State<_RequestRow> {
+  bool _leaving = false;
+
+  FriendRequest get request => widget.request;
+  bool get divider => widget.divider;
+
+  /// The row fades out before the refresh removes it — the answer is
+  /// visible, not a vanish.
+  Future<void> _respond(bool accept) async {
+    if (_leaving) return;
+    setState(() => _leaving = true);
+    await Future<void>.delayed(Motion.fast);
+    if (mounted) widget.onRespond(accept);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = context.kalimatColors;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Metrics.s2,
-        vertical: Metrics.s2,
-      ),
-      decoration: BoxDecoration(
-        border: divider ? Border(bottom: BorderSide(color: c.lineSoft)) : null,
-      ),
-      child: Row(
-        children: [
-          KalimatAvatar(name: request.displayName, size: 36),
-          const SizedBox(width: Metrics.s3),
-          Expanded(
-            child: Text(
-              request.displayName,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: kFontUi,
-                fontSize: TypeScale.sm,
-                fontWeight: FontWeight.w600,
-                color: c.textBody,
-                letterSpacing: 0,
+    return AnimatedOpacity(
+      opacity: _leaving ? 0 : 1,
+      duration: Motion.fast,
+      curve: Motion.easeOut,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Metrics.s2,
+          vertical: Metrics.s2,
+        ),
+        decoration: BoxDecoration(
+          border: divider
+              ? Border(bottom: BorderSide(color: c.lineSoft))
+              : null,
+        ),
+        child: Row(
+          children: [
+            KalimatAvatar(name: request.displayName, size: 36),
+            const SizedBox(width: Metrics.s3),
+            Expanded(
+              child: Text(
+                request.displayName,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: kFontUi,
+                  fontSize: TypeScale.sm,
+                  fontWeight: FontWeight.w600,
+                  color: c.textBody,
+                  letterSpacing: 0,
+                ),
               ),
             ),
-          ),
-          KalimatButton(label: S.accept, onPressed: () => onRespond(true)),
-          const SizedBox(width: Metrics.s1),
-          KalimatButton(
-            label: S.decline,
-            variant: KalimatButtonVariant.ghost,
-            onPressed: () => onRespond(false),
-          ),
-        ],
+            KalimatButton(label: S.accept, onPressed: () => _respond(true)),
+            const SizedBox(width: Metrics.s1),
+            KalimatButton(
+              label: S.decline,
+              variant: KalimatButtonVariant.ghost,
+              onPressed: () => _respond(false),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _FriendRow extends StatelessWidget {
+class _FriendRow extends StatefulWidget {
   const _FriendRow({
     required this.friend,
     required this.onChallenge,
@@ -293,61 +328,83 @@ class _FriendRow extends StatelessWidget {
   final bool divider;
 
   @override
+  State<_FriendRow> createState() => _FriendRowState();
+}
+
+class _FriendRowState extends State<_FriendRow> {
+  bool _leaving = false;
+
+  Friend get friend => widget.friend;
+  VoidCallback get onChallenge => widget.onChallenge;
+  bool get divider => widget.divider;
+
+  @override
   Widget build(BuildContext context) {
     final c = context.kalimatColors;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Metrics.s2,
-        vertical: Metrics.s2,
-      ),
-      decoration: BoxDecoration(
-        border: divider ? Border(bottom: BorderSide(color: c.lineSoft)) : null,
-      ),
-      child: Row(
-        children: [
-          KalimatAvatar(name: friend.displayName, size: 36),
-          const SizedBox(width: Metrics.s3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  friend.displayName,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: kFontUi,
-                    fontSize: TypeScale.sm,
-                    fontWeight: FontWeight.w600,
-                    color: c.textBody,
-                    letterSpacing: 0,
+    return AnimatedOpacity(
+      opacity: _leaving ? 0 : 1,
+      duration: Motion.fast,
+      curve: Motion.easeOut,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Metrics.s2,
+          vertical: Metrics.s2,
+        ),
+        decoration: BoxDecoration(
+          border: divider
+              ? Border(bottom: BorderSide(color: c.lineSoft))
+              : null,
+        ),
+        child: Row(
+          children: [
+            KalimatAvatar(name: friend.displayName, size: 36),
+            const SizedBox(width: Metrics.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    friend.displayName,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: kFontUi,
+                      fontSize: TypeScale.sm,
+                      fontWeight: FontWeight.w600,
+                      color: c.textBody,
+                      letterSpacing: 0,
+                    ),
                   ),
-                ),
-                Text(
-                  '${toArabicDigits('${friend.wins}')} ${S.winsLabel} · '
-                  '${toArabicDigits('${friend.losses}')} ${S.lossesLabel}',
-                  style: TextStyle(
-                    fontFamily: kFontUi,
-                    fontSize: TypeScale.xs2,
-                    color: c.textSubtle,
-                    letterSpacing: 0,
+                  Text(
+                    '${toArabicDigits('${friend.wins}')} ${S.winsLabel} · '
+                    '${toArabicDigits('${friend.losses}')} ${S.lossesLabel}',
+                    style: TextStyle(
+                      fontFamily: kFontUi,
+                      fontSize: TypeScale.xs2,
+                      color: c.textSubtle,
+                      letterSpacing: 0,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          KalimatButton(label: S.challengeAction, onPressed: onChallenge),
-          KalimatIconButton(
-            icon: LucideIcons.userMinus,
-            label: S.remove,
-            onPressed: () => _confirmRemove(context),
-          ),
-        ],
+            KalimatButton(label: S.challengeAction, onPressed: onChallenge),
+            KalimatIconButton(
+              icon: LucideIcons.userMinus,
+              label: S.remove,
+              onPressed: () => _confirmRemove(context),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _confirmRemove(BuildContext context) async {
     final ok = await showRemoveFriendDialog(context, friend.displayName);
-    if (ok ?? false) onRemove();
+    if (!(ok ?? false) || !mounted) return;
+    // Fade out before the refresh removes the row.
+    setState(() => _leaving = true);
+    await Future<void>.delayed(Motion.fast);
+    if (mounted) widget.onRemove();
   }
 }

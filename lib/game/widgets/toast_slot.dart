@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/motion/celebration_pop.dart';
 import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
@@ -69,21 +70,27 @@ class ToastSlot extends StatelessWidget {
     return SizedBox(
       height: Metrics.toastSlotHeight,
       child: Center(
-        child: AnimatedSwitcher(
-          duration: context.motionDuration(Motion.fast),
-          switchInCurve: Motion.easeOut,
-          switchOutCurve: Motion.easeOut,
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween(
-                begin: const Offset(0, .35),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
+        // A changed badge value (the duel opponent's live progress) gets a
+        // one-shot pop on top of the switcher's rise — motion as
+        // information: «she just played».
+        child: CelebrationPop(
+          popKey: badge,
+          child: AnimatedSwitcher(
+            duration: context.motionDuration(Motion.fast),
+            switchInCurve: Motion.easeOut,
+            switchOutCurve: Motion.easeOut,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween(
+                  begin: const Offset(0, .35),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
             ),
+            child: child,
           ),
-          child: child,
         ),
       ),
     );

@@ -10,6 +10,7 @@ import 'package:kalimat/core/theme/kalimat_theme.dart';
 import 'package:kalimat/core/theme/motion.dart';
 import 'package:kalimat/core/theme/motion_scope.dart';
 import 'package:kalimat/game/widgets/distribution_bar.dart';
+import 'package:kalimat/game/widgets/toast_slot.dart';
 
 Widget _wrap(Widget child, {bool? motion}) => MaterialApp(
   theme: kalimatTheme(Brightness.light),
@@ -209,6 +210,37 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 60));
       expect(scaleOf(tester), 1.0);
+    });
+  });
+
+  group('ToastSlot opponent pill', () {
+    testWidgets('pops once when the badge value changes', (tester) async {
+      double scaleOf() => tester
+          .widget<Transform>(
+            find
+                .descendant(
+                  of: find.byType(CelebrationPop),
+                  matching: find.byType(Transform),
+                )
+                .first,
+          )
+          .transform
+          .storage[0];
+
+      await tester.pumpWidget(
+        _wrap(const ToastSlot(puzzleNo: 1, badge: 'ليلى في المحاولة ٢')),
+      );
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(scaleOf(), 1.0); // mount alone never pops
+
+      await tester.pumpWidget(
+        _wrap(const ToastSlot(puzzleNo: 1, badge: 'ليلى في المحاولة ٣')),
+      );
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(scaleOf(), greaterThan(1.01));
+      await tester.pumpAndSettle();
+      expect(scaleOf(), 1.0);
+      expect(find.text('ليلى في المحاولة ٣'), findsOneWidget);
     });
   });
 

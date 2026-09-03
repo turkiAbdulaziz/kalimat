@@ -8,6 +8,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/metrics.dart';
+import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 import 'kalimat_avatar.dart';
 import 'kalimat_button.dart';
 
@@ -101,23 +103,36 @@ class _Dotted extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         child,
-        if (show)
-          PositionedDirectional(
-            top: 6,
-            end: 6,
+        // The dot scales+fades in when «دورك» arrives — once, no pulsing.
+        PositionedDirectional(
+          top: 6,
+          end: 6,
+          child: ExcludeSemantics(
+            excluding: !show,
             child: Semantics(
               label: S.yourTurn,
-              child: Container(
-                width: 7,
-                height: 7,
-                decoration: BoxDecoration(
-                  color: c.accent,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: c.surfaceCard, width: 1.5),
+              child: AnimatedScale(
+                scale: show ? 1 : 0,
+                duration: context.motionDuration(Motion.fast),
+                curve: Motion.easeOut,
+                child: AnimatedOpacity(
+                  opacity: show ? 1 : 0,
+                  duration: context.motionDuration(Motion.fast),
+                  curve: Motion.easeOut,
+                  child: Container(
+                    width: 7,
+                    height: 7,
+                    decoration: BoxDecoration(
+                      color: c.accent,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: c.surfaceCard, width: 1.5),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
+        ),
       ],
     );
   }

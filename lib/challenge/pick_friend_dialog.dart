@@ -11,6 +11,7 @@ import '../core/theme/metrics.dart';
 import '../core/utils/arabic_digits.dart';
 import '../game/widgets/kalimat_avatar.dart';
 import '../game/widgets/kalimat_dialog.dart';
+import '../game/widgets/press_scale.dart';
 import 'models.dart';
 
 Future<Friend?> showPickFriendDialog(
@@ -51,9 +52,8 @@ class _FriendChoice extends StatelessWidget {
     final c = context.kalimatColors;
     return Semantics(
       button: true,
-      child: GestureDetector(
+      child: PressScale(
         onTap: onTap,
-        behavior: HitTestBehavior.opaque,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: Metrics.s3),
           decoration: BoxDecoration(
