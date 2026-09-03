@@ -101,14 +101,12 @@ rise-transition and «التحدّيات» widget tests + flow)
    and the whole RPC surface was verified live over REST (28 checks: friend codes →
    request/accept → duel → live progress column → winner rule → draw → write-once →
    RLS lockdown, all green).
-   **One follow-up: run `supabase/migrations/0006_fix_participants_policy.sql`** *(2 minutes)*.
-   Live verification caught a bug in 0004: the participants select policy re-checks
-   membership via a subquery on `challenges`, which has RLS on with zero policies — so the
-   subquery is always empty and the policy never passes. Everything RPC-based works
-   (security definer bypasses RLS), but Realtime delivery honours that policy, so the
-   live opponent-progress pill never fires until 0006 is in. A confirmed
-   `postgres_changes` subscription received nothing on opponent update; 0006 routes the
-   check through a security-definer helper (same pattern as `are_friends`).
+   Live verification caught a bug in 0004 (participants select policy subqueried the
+   zero-policy `challenges` table, so it never passed and Realtime never delivered —
+   HANDOFF gotcha 12); **0006 fixed it and ran 2026-09-03**. Re-verified after: the
+   `postgres_changes` event arrives on the opponent's socket with the guess count, the
+   unfinished grid stays null in the payload, and the full 28-check suite is green with
+   participants able to read exactly their own duels' rows and nothing else.
 4. **Console setup for sign-in** *(unblocks M4 verification — needs your accounts)*
    Google Cloud: OAuth consent screen + **web** client ID + Android client ID (package
    `com.kalimat.app`, debug/release SHA-1s — I can generate the SHA-1s).
@@ -124,9 +122,9 @@ rise-transition and «التحدّيات» widget tests + flow)
   screen → game with «أهلاً {name}»; guest path; sign-out → sign-in with board cleared,
   stats kept; returning account skips the name screen; leaderboard rows live-only,
   duplicate submit no-op.
-- **M6 verification (two devices)**: backend flow is verified end-to-end over REST
-  (2026-09-03; two simulated players, plus a websocket check of the Realtime channel —
-  blocked on 0006, re-verify the pill after it runs). Still worth the on-device pass:
+- **M6 verification (two devices)**: backend flow fully verified 2026-09-03 — two
+  simulated players over REST (28 checks) plus a raw-websocket check that the Realtime
+  pill event actually arrives (post-0006). Still worth the on-device pass:
   read A's code off «حسابي» → add on B → accept → duel → both boards open at once to
   watch the live pill → result card → rematch. Plus the edge walk: kill mid-duel
   (board + clock restore), airplane mode, an expired duel.
