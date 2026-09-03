@@ -1,21 +1,28 @@
-/// A single statistic: big Kufi numeral over a subtle label.
+/// A single statistic: big Kufi numeral over a subtle label. The numeral
+/// counts up in Arabic-Indic digits when motion is on.
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/motion/count_up_text.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
+import '../../core/theme/motion_scope.dart';
 
 class StatCard extends StatelessWidget {
   const StatCard({
     super.key,
     required this.value,
     required this.label,
+    this.suffix = '',
     this.emphasis = false,
   });
 
-  final String value;
+  final int value;
   final String label;
+
+  /// Appended after the digits, e.g. '٪'.
+  final String suffix;
   final bool emphasis;
 
   @override
@@ -26,8 +33,10 @@ class StatCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
+          CountUpText(
+            value: value,
+            suffix: suffix,
+            enabled: context.motionEnabled,
             style: TextStyle(
               fontFamily: kFontDisplay,
               fontSize: TypeScale.xl2,

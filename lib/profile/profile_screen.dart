@@ -11,6 +11,8 @@ import 'package:share_plus/share_plus.dart';
 
 import '../backend/backend_providers.dart';
 import '../backend/supabase_config.dart';
+import '../core/motion/celebration_pop.dart';
+import '../core/motion/staggered_rise.dart';
 import '../core/strings.dart';
 import '../core/theme/kalimat_colors.dart';
 import '../core/theme/kalimat_theme.dart';
@@ -27,6 +29,7 @@ import '../game/widgets/kalimat_avatar.dart';
 import '../game/widgets/kalimat_button.dart';
 import '../game/widgets/kalimat_list_row.dart';
 import '../game/widgets/kalimat_switch.dart';
+import '../game/widgets/press_scale.dart';
 import '../game/widgets/screen_header.dart';
 import '../game/widgets/section_card.dart';
 import '../game/widgets/stat_card.dart';
@@ -81,8 +84,9 @@ class ProfileScreen extends ConsumerWidget {
                       horizontal: Metrics.gutter,
                       vertical: Metrics.s6,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    // Sections rise in with a 30ms stagger, once, on entry.
+                    child: StaggeredRise(
+                      enabled: settings.motion,
                       children: [
                         _Identity(
                           name: name,
@@ -97,20 +101,21 @@ class ProfileScreen extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               StatCard(
-                                value: toArabicDigits('${stats.played}'),
+                                value: stats.played,
                                 label: S.statPlayed,
                               ),
                               StatCard(
-                                value: toArabicPercent(stats.winRatePercent),
+                                value: stats.winRatePercent,
+                                suffix: arabicPercent,
                                 label: S.statWinRate,
                                 emphasis: true,
                               ),
                               StatCard(
-                                value: toArabicDigits('${stats.streak}'),
+                                value: stats.streak,
                                 label: S.statStreak,
                               ),
                               StatCard(
-                                value: toArabicDigits('${stats.best}'),
+                                value: stats.best,
                                 label: S.statBest,
                               ),
                             ],
@@ -285,7 +290,7 @@ class _Identity extends StatelessWidget {
               Semantics(
                 button: true,
                 label: S.editName,
-                child: GestureDetector(
+                child: PressScale(
                   onTap: onEditName,
                   child: Text(
                     name,
@@ -315,23 +320,27 @@ class _Identity extends StatelessWidget {
               const SizedBox(height: Metrics.s2),
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: c.accentSoft,
-                    borderRadius: BorderRadius.circular(Metrics.rPill),
-                  ),
-                  child: Text(
-                    '${S.streakBadgePrefix}${toArabicDigits('$streak')}',
-                    style: TextStyle(
-                      fontFamily: kFontUi,
-                      fontSize: TypeScale.xs2,
-                      fontWeight: FontWeight.w600,
-                      color: c.textOnSoft,
-                      letterSpacing: 0,
+                // Pops once if the streak grows while the screen is open.
+                child: CelebrationPop(
+                  popKey: streak,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: c.accentSoft,
+                      borderRadius: BorderRadius.circular(Metrics.rPill),
+                    ),
+                    child: Text(
+                      '${S.streakBadgePrefix}${toArabicDigits('$streak')}',
+                      style: TextStyle(
+                        fontFamily: kFontUi,
+                        fontSize: TypeScale.xs2,
+                        fontWeight: FontWeight.w600,
+                        color: c.textOnSoft,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
                 ),

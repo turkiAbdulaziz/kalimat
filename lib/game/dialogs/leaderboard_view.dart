@@ -9,6 +9,8 @@ import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
 import '../../core/theme/metrics.dart';
+import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 import '../../core/utils/arabic_digits.dart';
 import '../widgets/kalimat_spinner.dart';
 import '../widgets/segment_toggle.dart';
@@ -37,7 +39,12 @@ class _LeaderboardViewState extends ConsumerState<LeaderboardView> {
           ),
         ),
         const SizedBox(height: Metrics.s4),
-        if (_tab == 0) const _DailyList() else const _GlobalList(),
+        AnimatedSwitcher(
+          duration: context.motionDuration(Motion.fast),
+          switchInCurve: Motion.easeOut,
+          switchOutCurve: Motion.easeOut,
+          child: _tab == 0 ? const _DailyList() : const _GlobalList(),
+        ),
       ],
     );
   }

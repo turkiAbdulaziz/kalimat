@@ -9,6 +9,7 @@ import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
 import '../../core/theme/metrics.dart';
 import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 
 class KalimatListRow extends StatefulWidget {
   const KalimatListRow({
@@ -73,13 +74,21 @@ class _KalimatListRowState extends State<KalimatListRow> {
             ),
           ),
           if (widget.value != null) ...[
-            Text(
-              widget.value!,
-              style: TextStyle(
-                fontFamily: kFontUi,
-                fontSize: TypeScale.xs,
-                color: c.textSubtle,
-                letterSpacing: 0,
+            // A changed value (── → the loaded record, a new reminder time)
+            // crossfades instead of snapping.
+            AnimatedSwitcher(
+              duration: context.motionDuration(Motion.fast),
+              switchInCurve: Motion.easeOut,
+              switchOutCurve: Motion.easeOut,
+              child: Text(
+                widget.value!,
+                key: ValueKey(widget.value),
+                style: TextStyle(
+                  fontFamily: kFontUi,
+                  fontSize: TypeScale.xs,
+                  color: c.textSubtle,
+                  letterSpacing: 0,
+                ),
               ),
             ),
             const SizedBox(width: Metrics.s2),

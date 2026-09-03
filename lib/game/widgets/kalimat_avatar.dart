@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/kalimat_theme.dart';
+import 'press_scale.dart';
 
 class KalimatAvatar extends StatelessWidget {
   const KalimatAvatar({
@@ -51,7 +52,7 @@ class KalimatAvatar extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      child: GestureDetector(onTap: onTap, child: circle),
+      child: PressScale(onTap: onTap, child: circle),
     );
   }
 }

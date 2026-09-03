@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kalimat/core/motion/celebration_pop.dart';
 import 'package:kalimat/core/motion/count_up_text.dart';
 import 'package:kalimat/core/motion/staggered_rise.dart';
 import 'package:kalimat/core/theme/kalimat_theme.dart';
@@ -149,6 +150,65 @@ void main() {
       expect(find.text('٠'), findsOneWidget);
       await tester.pumpAndSettle();
       expect(find.text('٤٢'), findsOneWidget);
+    });
+  });
+
+  group('CelebrationPop', () {
+    double scaleOf(WidgetTester tester) => tester
+        .widget<Transform>(
+          find
+              .descendant(
+                of: find.byType(CelebrationPop),
+                matching: find.byType(Transform),
+              )
+              .first,
+        )
+        .transform
+        .storage[0];
+
+    testWidgets('pops when popKey changes, not on mount', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const CelebrationPop(popKey: 3, child: Text('س'))),
+      );
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(scaleOf(tester), 1.0); // mount alone never pops
+
+      await tester.pumpWidget(
+        _wrap(const CelebrationPop(popKey: 4, child: Text('س'))),
+      );
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(scaleOf(tester), greaterThan(1.01));
+      await tester.pumpAndSettle();
+      expect(scaleOf(tester), 1.0);
+    });
+
+    testWidgets('celebrateOnMount pops after its delay', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CelebrationPop(
+            celebrateOnMount: true,
+            delay: Duration(milliseconds: 200),
+            child: Text('س'),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(scaleOf(tester), 1.0); // still holding
+      await tester.pump(const Duration(milliseconds: 110)); // timer fires
+      await tester.pump(const Duration(milliseconds: 60)); // pop mid-flight
+      expect(scaleOf(tester), greaterThan(1.01));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('motion off: never pops', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CelebrationPop(celebrateOnMount: true, child: Text('س')),
+          motion: false,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(scaleOf(tester), 1.0);
     });
   });
 
