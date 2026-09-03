@@ -10,6 +10,8 @@ import '../core/strings.dart';
 import '../core/theme/kalimat_colors.dart';
 import '../core/theme/kalimat_theme.dart';
 import '../core/theme/metrics.dart';
+import '../core/theme/motion.dart';
+import '../core/theme/motion_scope.dart';
 import '../core/utils/arabic_digits.dart';
 import '../game/data/local_store.dart';
 import '../game/widgets/kalimat_button.dart';
@@ -99,8 +101,10 @@ class _ReminderDialogState extends ConsumerState<_ReminderDialog> {
             onChanged: (v) => setState(() => _enabled = v),
           ),
           const SizedBox(height: Metrics.s4),
-          Opacity(
+          AnimatedOpacity(
             opacity: _enabled ? 1 : .45,
+            duration: Motion.fast,
+            curve: Motion.easeOut,
             child: IgnorePointer(
               ignoring: !_enabled,
               child: Row(
@@ -159,15 +163,32 @@ class _Stepper extends StatelessWidget {
           label: S.increase,
           onPressed: onUp,
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontFamily: kFontDisplay,
-            fontSize: TypeScale.xl,
-            fontWeight: FontWeight.w700,
-            color: c.textBody,
-            letterSpacing: 0,
-            height: 1,
+        // Digits roll via a mini rise on change instead of snapping.
+        AnimatedSwitcher(
+          duration: context.motionDuration(Motion.fast),
+          switchInCurve: Motion.easeOut,
+          switchOutCurve: Motion.easeOut,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween(
+                begin: const Offset(0, .25),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: Text(
+            value,
+            key: ValueKey(value),
+            style: TextStyle(
+              fontFamily: kFontDisplay,
+              fontSize: TypeScale.xl,
+              fontWeight: FontWeight.w700,
+              color: c.textBody,
+              letterSpacing: 0,
+              height: 1,
+            ),
           ),
         ),
         KalimatIconButton(

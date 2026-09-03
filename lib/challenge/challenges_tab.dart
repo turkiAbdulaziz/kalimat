@@ -13,7 +13,8 @@ import '../game/state/settings_controller.dart';
 import '../core/motion/staggered_rise.dart';
 import '../core/theme/motion_scope.dart';
 import '../game/widgets/kalimat_button.dart';
-import '../game/widgets/kalimat_spinner.dart';
+import '../game/widgets/sample_tile_row.dart';
+import '../game/widgets/skeleton_rows.dart';
 import '../game/widgets/section_card.dart';
 import 'challenge_row.dart';
 import 'challenge_screen.dart';
@@ -54,6 +55,10 @@ class ChallengesTab extends ConsumerWidget {
         ],
         if (!async.isLoading && list.isEmpty) ...[
           const SizedBox(height: Metrics.s6),
+          // The empty state breathes once: the demo row flips in, then
+          // rests (no looping).
+          SampleTileRow(animate: context.motionEnabled),
+          const SizedBox(height: Metrics.s2),
           const SectionNote(S.noChallengesHint),
         ],
         _Group(
@@ -159,5 +164,8 @@ class _Loading extends StatelessWidget {
   const _Loading();
 
   @override
-  Widget build(BuildContext context) => const KalimatSpinner();
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.only(top: Metrics.s2),
+    child: SkeletonRows(count: 3, rowHeight: 56),
+  );
 }

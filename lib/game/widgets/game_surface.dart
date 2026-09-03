@@ -11,6 +11,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../core/theme/metrics.dart';
+import '../../core/theme/motion.dart';
 import '../engine/models.dart';
 import '../state/word_game.dart';
 import 'guess_grid.dart';
@@ -68,15 +69,24 @@ class GameSurface extends StatelessWidget {
                       revealedAnswer: game.revealAnswer ? revealedAnswer : null,
                     ),
                     const SizedBox(height: Metrics.s4),
-                    GuessGrid(
-                      guesses: game.guesses,
-                      rowStates: game.rowStates,
-                      current: game.current,
-                      shakeRow: game.shakeRow,
-                      revealRow: game.revealRow,
-                      waveRow: game.waveRow,
-                      animatePop: motion,
-                      tileSize: tileSize,
+                    // Keyed by the word's date: a day rollover (or any
+                    // in-place reset) cross-fades the board instead of
+                    // wiping it in a single frame.
+                    AnimatedSwitcher(
+                      duration: motion ? Motion.fast : Duration.zero,
+                      switchInCurve: Motion.easeOut,
+                      switchOutCurve: Motion.easeOut,
+                      child: GuessGrid(
+                        key: ValueKey(game.word.date),
+                        guesses: game.guesses,
+                        rowStates: game.rowStates,
+                        current: game.current,
+                        shakeRow: game.shakeRow,
+                        revealRow: game.revealRow,
+                        waveRow: game.waveRow,
+                        animatePop: motion,
+                        tileSize: tileSize,
+                      ),
                     ),
                   ],
                 );

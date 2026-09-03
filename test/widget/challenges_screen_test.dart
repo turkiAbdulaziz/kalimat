@@ -13,6 +13,7 @@ import 'package:kalimat/challenge/challenges_screen.dart';
 import 'package:kalimat/challenge/models.dart';
 import 'package:kalimat/core/strings.dart';
 import 'package:kalimat/core/theme/kalimat_theme.dart';
+import 'package:kalimat/core/theme/motion_scope.dart';
 import 'package:kalimat/core/utils/arabic_digits.dart';
 import 'package:kalimat/game/data/local_store.dart';
 import 'package:kalimat/game/state/settings_controller.dart';
@@ -47,8 +48,12 @@ Future<Widget> _screen(
   MyPlayerCard? card,
   int initialTab = 0,
 }) async {
+  // Motion off keeps the empty state's sample-row flip (Future.delayed
+  // staggers) out of the pump timeline — same trick as sign_in_screen_test.
   SharedPreferencesAsyncPlatform.instance =
-      InMemorySharedPreferencesAsync.empty();
+      InMemorySharedPreferencesAsync.withData({
+        'settings': '{"dark":false,"hints":true,"motion":false}',
+      });
   final store = (await tester.runAsync(LocalStore.create))!;
   return ProviderScope(
     overrides: [
@@ -61,6 +66,7 @@ Future<Widget> _screen(
     ],
     child: MaterialApp(
       theme: kalimatTheme(Brightness.light),
+      builder: (context, child) => MotionScope(enabled: false, child: child!),
       home: Directionality(
         textDirection: TextDirection.rtl,
         child: ChallengesScreen(initialTab: initialTab),

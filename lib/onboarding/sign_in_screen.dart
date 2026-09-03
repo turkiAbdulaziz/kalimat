@@ -13,10 +13,11 @@ import '../core/theme/kalimat_colors.dart';
 import '../core/theme/kalimat_theme.dart';
 import '../core/theme/metrics.dart';
 import '../core/theme/motion.dart';
-import '../game/engine/models.dart';
+import '../core/theme/motion_scope.dart';
 import '../game/state/settings_controller.dart';
 import '../game/widgets/kalimat_button.dart';
-import '../game/widgets/tile.dart';
+import '../game/widgets/kalimat_spinner.dart';
+import '../game/widgets/sample_tile_row.dart';
 import '../game/widgets/wordmark.dart';
 import '../flow/flow_controller.dart';
 import 'auth_shell.dart';
@@ -84,7 +85,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
               ),
               const SizedBox(height: Metrics.s4),
-              _SampleRow(animate: motion),
+              SampleTileRow(animate: motion),
             ],
           ),
         ),
@@ -122,14 +123,24 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             SizedBox(
               height: Metrics.s4,
               child: Center(
-                child: Text(
-                  _error ?? '',
-                  style: TextStyle(
-                    fontFamily: kFontUi,
-                    fontSize: TypeScale.xs2,
-                    color: c.textDanger,
-                    letterSpacing: 0,
-                  ),
+                // Busy shows a real spinner; an error fades in instead of
+                // snapping into the fixed-height slot.
+                child: AnimatedSwitcher(
+                  duration: context.motionDuration(Motion.fast),
+                  switchInCurve: Motion.easeOut,
+                  switchOutCurve: Motion.easeOut,
+                  child: _busy
+                      ? const KalimatSpinner(size: 14)
+                      : Text(
+                          _error ?? '',
+                          key: ValueKey(_error),
+                          style: TextStyle(
+                            fontFamily: kFontUi,
+                            fontSize: TypeScale.xs2,
+                            color: c.textDanger,
+                            letterSpacing: 0,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -140,37 +151,3 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 }
 
-/// The «كلمات» demo row: correct/correct/present/absent/correct, flipping in
-/// with the usual 120ms stagger when motion is on.
-class _SampleRow extends StatelessWidget {
-  const _SampleRow({required this.animate});
-
-  final bool animate;
-
-  static const _cells = [
-    ('ك', TileState.correct),
-    ('ل', TileState.correct),
-    ('م', TileState.present),
-    ('ا', TileState.absent),
-    ('ت', TileState.correct),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (final (i, cell) in _cells.indexed) ...[
-          if (i > 0) const SizedBox(width: Metrics.tileGap),
-          Tile(
-            letter: cell.$1,
-            state: cell.$2,
-            size: 44,
-            reveal: animate,
-            revealDelay: Motion.flipStagger * i,
-          ),
-        ],
-      ],
-    );
-  }
-}

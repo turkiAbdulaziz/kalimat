@@ -12,8 +12,9 @@ import '../../core/theme/metrics.dart';
 import '../../core/theme/motion.dart';
 import '../../core/theme/motion_scope.dart';
 import '../../core/utils/arabic_digits.dart';
-import '../widgets/kalimat_spinner.dart';
+import '../../core/motion/staggered_rise.dart';
 import '../widgets/segment_toggle.dart';
+import '../widgets/skeleton_rows.dart';
 
 class LeaderboardView extends ConsumerStatefulWidget {
   const LeaderboardView({super.key});
@@ -62,7 +63,8 @@ class _DailyList extends ConsumerWidget {
       data: (rows) {
         if (rows == null) return const _Note(S.leaderboardError);
         if (rows.isEmpty) return const _Note(S.leaderboardEmpty);
-        return Column(
+        return StaggeredRise(
+          enabled: context.motionEnabled,
           children: [
             for (final (i, e) in rows.indexed)
               _Row(
@@ -92,7 +94,8 @@ class _GlobalList extends ConsumerWidget {
       data: (rows) {
         if (rows == null) return const _Note(S.leaderboardError);
         if (rows.isEmpty) return const _Note(S.leaderboardEmpty);
-        return Column(
+        return StaggeredRise(
+          enabled: context.motionEnabled,
           children: [
             for (final (i, e) in rows.indexed)
               _Row(
@@ -113,9 +116,11 @@ class _GlobalList extends ConsumerWidget {
       toArabicDigits(v.toStringAsFixed(1)).replaceAll('.', '٫');
 }
 
+// Static sunken blocks matching the row layout — no shimmer (looping is
+// forbidden); the real rows rise in when the data lands.
 Widget _loading() => const Padding(
-  padding: EdgeInsets.symmetric(vertical: Metrics.s6),
-  child: KalimatSpinner(),
+  padding: EdgeInsets.symmetric(vertical: Metrics.s2),
+  child: SkeletonRows(count: 5, rowHeight: 34),
 );
 
 class _Note extends StatelessWidget {

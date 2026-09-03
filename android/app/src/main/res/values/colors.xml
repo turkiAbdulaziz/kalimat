@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#8A6544</color>
+    <!-- brown-600, the wordmark/icon ground — the splash matches the icon. -->
+    <color name="launch_background">#FF8A6544</color>
 </resources>

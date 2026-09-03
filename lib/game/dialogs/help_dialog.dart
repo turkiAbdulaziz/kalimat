@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import '../../core/strings.dart';
 import '../../core/theme/kalimat_colors.dart';
 import '../../core/theme/metrics.dart';
+import '../../core/theme/motion.dart';
+import '../../core/theme/motion_scope.dart';
 import '../engine/models.dart';
 import '../widgets/kalimat_button.dart';
 import '../widgets/kalimat_dialog.dart';
@@ -57,9 +59,17 @@ class _HelpDialog extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Flips in once when the dialog opens — the demo teaches
+                // the reveal by performing it.
                 for (final (i, e) in _example.indexed) ...[
                   if (i > 0) const SizedBox(width: Metrics.tileGap),
-                  Tile(letter: e.$1, state: e.$2, size: 44),
+                  Tile(
+                    letter: e.$1,
+                    state: e.$2,
+                    size: 44,
+                    reveal: context.motionEnabled,
+                    revealDelay: Motion.flipStagger * i,
+                  ),
                 ],
               ],
             ),
