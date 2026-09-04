@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-09-03. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-09-04. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -108,6 +108,18 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
       brown-600 branded splash on both platforms (white flash gone).
 - [x] **M7f sound**: scoped only — decisions in `design/sound-scope.md`, default-off
       «الصوت» setting, audioplayers, CC0 assets. Not built.
+
+### Figma — every screen recreated for a redesign pass  *(2026-09-03, outside the repo)*
+- [x] The shipped app rebuilt as a native Figma system in the user's **kalimatDesign** file
+      (link + constraints in HANDOFF → "Figma design file"): 5 variable collections mirroring
+      `design/tokens`, 23 text styles, 9 effect styles, 17 icons, 19 component sets, and 38
+      screen frames (onboarding, game states, dialogs, profile, challenges, duel, dark).
+- [x] Decisions recorded: Cairo / Noto Sans Arabic stand in for the bundled fonts (swap at
+      the text-style level); light + dark are two collections because the Starter plan has
+      no modes; ~17 of the plan's ~20 monthly MCP calls were spent, so more Figma-via-Claude
+      work waits for the next month or a seat upgrade.
+- [ ] Redesign exploration itself — that is the user's pass in Figma; nothing to port back
+      until a direction is chosen.
 
 **Suite: 145 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +

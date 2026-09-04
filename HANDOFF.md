@@ -235,6 +235,46 @@ with the repo. Everything needed to continue is in this file + STATUS.md + `desi
   user-flow spec `design/design_handoff_kalimat_user_flow/README.md` (exact per-screen
   values; its email-OTP screens are intentionally not implemented)
 
+## Figma design file (built 2026-09-03, lives outside the repo)
+
+Every screen, dialog and state of the shipped app was recreated as native Figma
+components in the user's file **kalimatDesign** —
+https://www.figma.com/design/efNNJSRK9FX3O0gFjHwxza/kalimatDesign — so a redesign can be
+explored there without touching `lib/`. **Nothing from it is committed here**; the
+source of truth for the file was `lib/` + `design/tokens/*.css`, not the other way round.
+
+- **Pages** (Starter plan caps a file at 3): *Components* — a Read-me card, a
+  Foundations section (every colour token light/dark with hex + CSS name, the type ramp),
+  variable collections `Primitives` / `Color · Light` / `Color · Dark` / `Spacing` /
+  `Radius` (WEB code syntax = the CSS custom property), 23 text styles, 9 effect styles,
+  17 Lucide icon components and 19 component sets (Tile, KeyCap, Button, Pill, Toast,
+  Avatar, StatCard, SegmentToggle, Switch, ListRow, Input, IconButton, ScreenHeader,
+  AppHeader, Keyboard, Board, SectionCard and Dialog — the last two use slots).
+  *Screens* — 38 frames at 390×844 in sections Onboarding · Game · Dialogs · Profile ·
+  Challenges · Duel · Dark, all composed from instances with real state overrides
+  (board rows, key hints, switches, pills) and the exact MSA copy from `strings.dart`.
+- **Fonts are substituted.** Figma's cloud fonts have no Noto Kufi Arabic / IBM Plex
+  Sans Arabic, so `display/*` styles use **Cairo** and `ui/*` styles use **Noto Sans
+  Arabic**. Every text layer carries a text style, so restoring the real typefaces is one
+  family change per style — install `assets/fonts/*.ttf` on the Mac and open the file in
+  the Figma desktop app first (the cloud font list won't see local fonts).
+- **Dark mode is two collections, not modes** — Starter allows one mode per collection.
+  `Color · Light` and `Color · Dark` share variable names; the *Dark* section holds
+  clones whose paints were rebound name-for-name (635 paints, 15 shadow styles). On a Pro
+  plan the two can be merged into one collection with Light/Dark modes.
+- **Known faithful wart**: keyboard row 3 is cramped at 390 px because `إدخال`/`حذف`
+  are fixed 62 px (`game/widgets/keyboard.dart`), leaving ~17 px per letter key — a
+  redesign candidate, not a Figma bug.
+- **Tooling**: the official Figma MCP plugin (`claude plugin install
+  figma@claude-plugins-official`, then `claude mcp login "plugin:figma:figma"` from a
+  normal Terminal window — the in-session `/mcp` flow can't complete OAuth). The account
+  is a **Starter / View seat ⇒ ~20 MCP tool calls per month**; the build used ~17, so
+  further MCP edits may be rate-limited until the month rolls over or the seat is
+  upgraded. Batch `use_figma` scripts heavily (one screen per call, idempotent by node
+  name, inline `node.screenshot()` instead of `get_screenshot`). The build scripts were
+  session-scratch and are not kept; the Read-me card in the file documents the
+  structure well enough to extend by hand or by script.
+
 ## Claude Code extras (travel with the repo)
 
 - `.claude/agents/ui-inspo.md` — research-only agent: web-searches UI/motion
