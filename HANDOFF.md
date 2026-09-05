@@ -51,19 +51,21 @@ Both machines run Flutter **3.47.1** stable / Dart 3.13.1 — keep them matched 
 - Simulator needs no Apple account; a physical iPhone needs a personal team in Xcode
   (`ios/Runner.xcworkspace` → Signing) + Developer Mode on the phone.
 
-**App identity (both platforms)**: `com.kalimat.app` (Android namespace/MainActivity
-remain `com.kalimat.kalimat` — fine, applicationId ≠ package). Android minSdk 24;
+**App identity (both platforms)**: `com.kalimat.game` — it was `com.kalimat.app` until
+2026-09-05, when the first App Store archive revealed that Apple had already issued that ID to a
+different team (bundle IDs are global across all developer accounts). Android namespace/MainActivity
+remain `com.kalimat.kalimat` — fine, applicationId ≠ package. Android minSdk 24;
 core-library desugaring is ON in `android/app/build.gradle.kts` (required by
 flutter_local_notifications — don't remove).
 
 ```powershell
-flutter test                 # 103 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
+flutter test                 # 149 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
 flutter analyze              # clean
 flutter run --dart-define-from-file=env/dev.json    # online build (Supabase creds live in env/dev.json)
 # Windows/Android:
 flutter build apk --debug --dart-define-from-file=env/dev.json
 adb -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
-adb -s emulator-5554 shell am start -n com.kalimat.app/com.kalimat.kalimat.MainActivity
+adb -s emulator-5554 shell am start -n com.kalimat.game/com.kalimat.kalimat.MainActivity
 # Mac/iOS:
 #   open -a Simulator && flutter run --dart-define-from-file=env/dev.json
 ```
@@ -82,12 +84,12 @@ adb -s emulator-5554 shell am start -n com.kalimat.app/com.kalimat.kalimat.MainA
 | `game/data/` | `dictionary.dart` (18.3k normalized guess set), `bundled_word_source.dart` (offline answers, same ordering as the server seed), `local_store.dart` (SharedPreferences JSON: cached word, board, **stats — local is authoritative**, settings, pending-results queue, `onboarded` flag, cached `display_name`, reminder settings, and per-duel boards keyed by challenge id — pruned to the last 10). |
 | `game/state/` | Riverpod Notifiers. `word_game.dart` holds the **shared** loop — typing, validation, reveal choreography (flip 900 ms = 420 + 4×120 stagger), win/loss sequencing incl. the **win wave** (250 ms hold → pop ripples across the winning row at 70 ms/tile via `waveRow` — duels inherit it; stats dialog at 1600 ms, or 1400 ms motion-off with no wave), the solve clock — as `WordGameNotifier`, with session hooks (`sessionWord`, `persistBoard`, `onGuessSubmitted`, `onFinished`). `game_controller.dart` is the daily session on top of it (board save, local stats, result queue, `applyServerWord` — never interrupts a game in progress) and re-exports `word_game.dart`, so `GameState`/`kWordLength`/`dictionaryProvider` still come from it. The duel session is `challenge/challenge_controller.dart`. `haptics.dart` (`hapticsProvider` → semantic `tap/success/error`, behind the «الاهتزاز» setting, fired from the notifier at visual peaks — still fires when motion is off; tests override with a recording fake). |
 | `game/widgets/`, `game/dialogs/`, `game_screen.dart` | The UI. Widgets are dumb/props-only (shared set incl. `KalimatAvatar`, `KalimatInput`, `KalimatListRow`, `Wordmark`). Dialogs via `showKalimatDialog` (brown overlay + 2 px blur + rise); there is **no settings dialog** — preferences live on the profile screen, and the header's trailing avatar (not a gear) opens it. Pushed screens share `ScreenHeader` + `SectionCard`/`SectionNote`; the board itself is `GameSurface` (badge slot + grid + keyboard), mounted by both the daily screen and the duel screen. The game screen never scrolls; tiles shrink first on small screens. |
-| `flow/` | `flow_controller.dart` (`FlowStep` signin/name/game + `flowProvider`; gating: unconfigured or `onboarded` → straight to game, existing installs migrate silently; also `displayNameProvider`, sign-out clears board+identity but **keeps stats**), `root_flow.dart` (`home:` widget — kalimat-rise switch between steps: incoming screen fades in + rises 8px over `Motion.base`, outgoing fades in place; instant when «حركة المربعات» is off). |
-| `onboarding/` | `auth_shell.dart` (centred column, pinned bottom block), `sign_in_screen.dart` (Google/Apple/guest; inline taupe error line — new screens have no ToastSlot), `name_screen.dart`. |
-| `profile/` | `profile_screen.dart` («حسابي», pushed with the shared rise route (`core/rise_route.dart` — sink+fade on close, instant removal on sign-out); board state survives because it lives in providers), `edit_name_dialog.dart` (tap the name), `save_progress_section.dart` (anonymous-only linking, moved from the old settings dialog, keeps the confirm-switch dialog), `reminder_dialog.dart` (١٢-hour steppers + ص/م). |
+| `flow/` | `flow_controller.dart` (`FlowStep` signin/name/game + `flowProvider`; gating: unconfigured or `onboarded` → straight to game, existing installs migrate silently; also `displayNameProvider`, sign-out clears board+identity but **keeps stats**; `deleteAccount()` calls the 0007 RPC and then wipes the device — stats, duel boards and the result queue included — before returning to sign-in), `root_flow.dart` (`home:` widget — kalimat-rise switch between steps: incoming screen fades in + rises 8px over `Motion.base`, outgoing fades in place; instant when «حركة المربعات» is off). |
+| `onboarding/` | `auth_shell.dart` (centred column, pinned bottom block), `sign_in_screen.dart` (Google/Apple/guest; inline taupe error line — new screens have no ToastSlot; the Google button renders only while `kGoogleSignInAvailable` — i.e. `GOOGLE_WEB_CLIENT_ID` is set — and Apple takes the primary slot otherwise, so a reviewer never meets a dead button), `name_screen.dart`. |
+| `profile/` | `profile_screen.dart` («حسابي», pushed with the shared rise route (`core/rise_route.dart` — sink+fade on close, instant removal on sign-out); board state survives because it lives in providers), `edit_name_dialog.dart` (tap the name), `save_progress_section.dart` (anonymous-only linking, moved from the old settings dialog, keeps the confirm-switch dialog; same Google gate), `delete_account_dialog.dart` («حذف الحساب» — the confirm behind the danger row that sits under sign-out for linked users; App Review 5.1.1(v) requires in-app deletion wherever accounts can be created), `reminder_dialog.dart` (١٢-hour steppers + ص/م). |
 | `challenge/` | Duels «التحدّيات». `models.dart` (pure Dart: `ChallengeSide/Summary/Detail`, `Friend`, and `decideOutcome` — the winner rule, kept in lockstep with the SQL), `challenge_controller.dart` (`activeChallengeProvider` + `challengeGameProvider` + `opponentSideProvider`; one duel at a time, so no family), `challenges_screen.dart` (segmented shell) → `challenges_tab.dart` / `friends_tab.dart`, `challenge_screen.dart` (the duel board), `challenge_result_dialog.dart`, plus the add-friend / pick-friend / remove-friend dialogs. |
 | `notifications/` | `notification_service.dart` (flutter_local_notifications v22 + timezone; **inexact** daily schedule — no exact-alarm permission; `supported` guard keeps it off web/desktop/tests), `reminder_controller.dart` (permission → schedule/cancel → persist). Manifest has the two receivers + POST_NOTIFICATIONS/BOOT_COMPLETED. |
-| `backend/` | Supabase layer, **entirely dormant until configured** — see below. `sync_service.dart` runs on launch + app-resume: ensure anon session → fetch day word (server Riyadh calendar is authority) → bundled fallback on offline rollover → flush result queue. `challenge_repository.dart` / `friends_repository.dart` wrap the duel + friend RPCs and own the Realtime channel for opponent progress. |
+| `backend/` | Supabase layer, **entirely dormant until configured** — see below. `sync_service.dart` runs on launch + app-resume: ensure anon session → fetch day word (server Riyadh calendar is authority) → bundled fallback on offline rollover → flush result queue. `challenge_repository.dart` / `friends_repository.dart` wrap the duel + friend RPCs and own the Realtime channel for opponent progress. `auth_repository.dart` also carries `deleteAccount()` (RPC, then a **local-scope** sign-out — the server session died with the user). |
 
 Layering rule: `backend/` imports `game/` and `challenge/models.dart`, never the reverse.
 UI touches backend only through the providers in `backend_providers.dart`/`sync_service.dart`
@@ -165,6 +167,15 @@ FrequencyWords, both MIT.
 - Anti-cheat is deliberately shallow: the engine is client-side, so the word is readable by a
   determined player (already true of the daily game). The RPCs only close the cheap holes.
 
+### Account deletion (0007, written 2026-09-05 — run it before TestFlight)
+
+`supabase/migrations/0007_delete_account.sql` adds `delete_account()`: security definer, deletes
+`auth.users where id = auth.uid()`. Every user-keyed table cascades (profiles + friend code,
+game_results, friendships, challenges as creator/opponent, challenge_participants);
+`challenges.winner_id` is `set null`, so a finished duel the opponent still lists survives without
+its winner mark. Callable by `authenticated` only. Until it has been run in the SQL editor,
+«حذف الحساب» in the app ends in «تعذّر حذف الحساب» and changes nothing.
+
 ## Gotchas that already cost time (don't rediscover)
 
 1. **Widget tests + real asset I/O deadlock**: `rootBundle` loads inside `testWidgets`
@@ -216,6 +227,15 @@ FrequencyWords, both MIT.
 15. The fixed puzzle-١ test fixture broke the whole suite the day the epoch passed —
    date-sensitive fixtures must be pinned to *today* (`dateOnly(DateTime.now())` +
    `puzzleNumberFor`), or SyncService's offline rollover swaps the word mid-test.
+16. **Bundle IDs are global.** `com.kalimat.app` archived fine but failed at signing with
+   "cannot be registered to your development team because it is not available" — another
+   Apple team already owns it. Renamed to `com.kalimat.game` (both platforms). Nothing local
+   can tell you an ID is taken; only the first `flutter build ipa` does.
+17. `codesign -d` on `build/ios/archive/Runner.xcarchive/…/Runner.app` shows *Apple
+   Development* + `get-task-allow`, which looks wrong but isn't — the archive is
+   development-signed and the export step re-signs. Verify distribution signing on the
+   **IPA payload** (`unzip kalimat.ipa` → `Payload/Runner.app`) or in
+   `build/ios/ipa/DistributionSummary.plist`.
 
 ## Plans & docs
 
@@ -318,6 +338,80 @@ place to explore a redesign. The Figma file stays as the component/variable refe
 - **Intended loop**: duplicate a frame on the canvas, change it by hand or by asking, and once a
   direction wins port it straight into `lib/` (tokens in `core/theme/` first, then widgets) — never
   back through Figma.
+
+## App Store release (iOS) — set up 2026-09-05
+
+The paid Apple Developer membership arrived on 2026-09-05 and the project was made
+submittable the same day. What is in the repo, and what the store side still needs:
+
+**Signing & project** (`ios/`)
+- Team **W62CSC2R8A** ("Turki Alotaibi") — the Apple ID `turkialotibi.0@icloud.com` in Xcode.
+  `DEVELOPMENT_TEAM` is set on all three Runner configurations and in the project's
+  `TargetAttributes`; signing is **automatic**. The first archive renewed the expired
+  development certificate, registered the App ID and minted the distribution profile without a
+  single prompt — no manual work in the portal was needed.
+- `Runner.entitlements` carries **Sign in with Apple** (`com.apple.developer.applesignin`),
+  wired via `CODE_SIGN_ENTITLEMENTS`; the capability is also declared in `SystemCapabilities`.
+- `Info.plist`: `CFBundleDisplayName` = **كلمات**, `CFBundleDevelopmentRegion` = `ar`,
+  `CFBundleLocalizations` = [ar], **portrait only**, `ITSAppUsesNonExemptEncryption = NO`
+  (HTTPS only — skips the export-compliance prompt on every upload).
+- **iPhone only** (`TARGETED_DEVICE_FAMILY = 1`): no iPad screenshots, no iPad layout review;
+  iPads run it in compatibility mode.
+- `PrivacyInfo.xcprivacy` (in the Resources phase) declares the four collected data types
+  (user ID, name, email, gameplay content — all linked, none tracking) and the UserDefaults
+  required-reason API (CA92.1, via shared_preferences). Keep it in step with the App Privacy
+  answers in `store/listing.md`.
+- `ios/ExportOptions.plist`: `app-store-connect`, automatic, symbols uploaded.
+- Flutter's validator warns that `LaunchImage` is the 1×1 template placeholder. Deliberate:
+  the launch storyboard is a flat brown-600 ground (M7e) and the image is invisible. Cosmetic.
+
+**Build & upload**
+```
+flutter build ipa --release --dart-define-from-file=env/dev.json \
+  --export-options-plist=ios/ExportOptions.plist
+# → build/ios/ipa/kalimat.ipa (≈24 MB); archive ≈107 s + export ≈67 s on the MacBook
+```
+Upload with the **Transporter** app (drag the .ipa) or Xcode → Organizer → Distribute. The
+Supabase defines must be on the build line — without `env/dev.json` the store build would be
+the offline dev build. Google is still unconfigured: `kGoogleSignInAvailable` hides the
+button, so the shipped sign-in screen is Apple + guest. When Google credentials exist, the iOS
+side also needs `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios
+requirement) in addition to `--dart-define=GOOGLE_WEB_CLIENT_ID=…`.
+
+**Screenshots** — `store/screenshots/*.png`, 1320×2868 (6.9-inch, the one size Apple requires)
+- A dedicated simulator **«Kalimat Screens»** (iPhone 17 Pro Max, iOS 26.5).
+- `integration_test/screenshots_test.dart` seeds an in-memory LocalStore per frame (player ليلى,
+  answer مدرسة, the canvas's sample stats) and pumps the real app unconfigured; each
+  `binding.takeScreenshot()` is captured on the device and written by
+  `test_driver/integration_test.dart` after the run. The frames are the full Flutter view —
+  the status-bar strip shows the app's own background, no clock/battery (Apple doesn't require
+  one). Not part of `flutter test` (integration tests need a device). ~30 s once the debug
+  build is cached.
+```
+udid=$(xcrun simctl list devices | grep 'Kalimat Screens' | grep -oE '[0-9A-F-]{36}')
+xcrun simctl boot $udid
+flutter drive --driver=test_driver/integration_test.dart \
+  --target=integration_test/screenshots_test.dart -d $udid
+```
+- **Gotcha (cost one run):** the extended driver's `onScreenshot` callback is *post-hoc* — it
+  receives all captures after the last test — so shelling out to `simctl io screenshot` from it
+  for status-bar shots yields six copies of the final screen. Live host-side capture would need
+  a flutter_driver-style app entry (`enableFlutterDriverExtension`) driven step by step.
+
+**Store copy & legal** — `store/`
+- `listing.md`: name/subtitle/description/keywords/what's-new in MSA, category, App Privacy
+  answers, age-rating answers, reviewer notes, and the pre-submit checklist.
+- `privacy.html` + `support.html`: self-contained RTL pages, light + dark, ready to host
+  anywhere static (GitHub Pages needs a **public** repo on a free plan — this one is private).
+  Both carry a `[SUPPORT_EMAIL]` placeholder to fill before hosting. App Review 5.1.1(i) also
+  wants the policy reachable **inside** the app: once the URL exists, make the sign-in legal
+  line and the profile footer open it (`url_launcher`, ~15 min) — not done yet because there
+  is no URL to point at.
+
+**Still on the store side (needs the account owner)**: create the app record in App Store
+Connect under `com.kalimat.game`, paste `listing.md`, host the two pages and paste their URLs,
+upload the IPA, run `0007_delete_account.sql`, and turn on the Apple provider in Supabase with
+`com.kalimat.game` in its Client IDs. STATUS.md keeps the live checklist.
 
 ## Claude Code extras (travel with the repo)
 

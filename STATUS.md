@@ -1,11 +1,11 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-09-04. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-09-05. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
 ### M0 — Scaffold & assets
-- [x] Flutter project (android / ios / windows / web scaffolds), appId `com.kalimat.app`, minSdk 24, git repo
+- [x] Flutter project (android / ios / windows / web scaffolds), appId `com.kalimat.game` (was `com.kalimat.app` until 2026-09-05 — taken on Apple's side), minSdk 24, git repo
 - [x] Fonts bundled: Noto Kufi Arabic 400/500/700/800 + IBM Plex Sans Arabic 400/500/600/700 (OFL, licenses shipped)
 - [x] Word pipeline: 18,352-word guess dictionary (Hugo0 + FrequencyWords, MIT), provisional 500-answer list, Supabase seed SQL — all from one script (`tool/build_wordlists.dart`)
 - [x] App icon: كلمات wordmark on brown-600, stamped for Android (incl. adaptive) + iOS
@@ -133,9 +133,32 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
 - [ ] Redesign exploration itself — duplicate a frame on the canvas, tweak, pick a direction, then
       port the winner into `lib/` directly.
 
-**Suite: 145 tests green · `flutter analyze` clean.** (engine + LocalStore
+### M8 — App Store release prep (iOS)  *(2026-09-05 — the paid Apple membership arrived; details in HANDOFF → "App Store release")*
+- [x] **Signed App Store IPA builds**: team `W62CSC2R8A`, automatic signing, Sign in with Apple
+      entitlement, iPhone-only, portrait-only, display name «كلمات», Arabic bundle region,
+      `ITSAppUsesNonExemptEncryption = NO`, privacy manifest, `ios/ExportOptions.plist`.
+      `flutter build ipa` → `build/ios/ipa/kalimat.ipa`, verified distribution-signed with the
+      applesignin entitlement in the payload.
+- [x] **Bundle ID renamed `com.kalimat.app` → `com.kalimat.game`** on both platforms: Apple had
+      already issued the old one to another team (found by the first archive's signing step).
+- [x] **In-app account deletion** (App Review 5.1.1(v)): `0007_delete_account.sql` RPC,
+      `AuthRepository.deleteAccount()`, `FlowController.deleteAccount()` (wipes the device too —
+      stats, duel boards, result queue), «حذف الحساب» danger row under sign-out with a confirm
+      dialog and a failure snackbar. 4 new tests.
+- [x] **Google button gated** on `GOOGLE_WEB_CLIENT_ID` (`kGoogleSignInAvailable`) on the sign-in
+      screen and «حفظ التقدم»; Apple becomes the primary CTA while Google is absent — no dead
+      button for the reviewer.
+- [x] **Store assets in `store/`**: `listing.md` (MSA copy, keywords, App Privacy + age-rating
+      answers, reviewer notes, pre-submit checklist), `privacy.html`, `support.html` (RTL,
+      light+dark, `[SUPPORT_EMAIL]` placeholder), six 6.9-inch screenshots in `store/screenshots/`
+      from the «Kalimat Screens» simulator via `integration_test/screenshots_test.dart`.
+- [ ] Privacy-policy link **inside** the app (legal line + profile footer) — waits for the hosted URL.
+- [ ] Upload + App Store Connect record — your side, see "Waiting on you" №5.
+
+**Suite: 149 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +
-rise-transition, motion-gate/primitives, win-wave and «التحدّيات» widget tests + flow)
+rise-transition, motion-gate/primitives, win-wave, «التحدّيات», delete-account dialog widget
+tests + flow incl. account deletion)
 
 ---
 
@@ -160,9 +183,27 @@ rise-transition, motion-gate/primitives, win-wave and «التحدّيات» wid
    participants able to read exactly their own duels' rows and nothing else.
 4. **Console setup for sign-in** *(unblocks M4 verification — needs your accounts)*
    Google Cloud: OAuth consent screen + **web** client ID + Android client ID (package
-   `com.kalimat.app`, debug/release SHA-1s — I can generate the SHA-1s).
-   Apple: paid developer account → App ID with Sign in with Apple + Services ID + `.p8` key.
-   Details/checklist: companion plan §11.
+   `com.kalimat.game`, debug/release SHA-1s — I can generate the SHA-1s) + an iOS client ID
+   (`GIDClientID` + URL scheme in Info.plist). Until then the Google button stays hidden.
+   Apple: ~~paid developer account → App ID with Sign in with Apple~~ **done 2026-09-05** (the
+   archive registered the App ID with the capability). Still needed: the Services ID + `.p8`
+   key only if you want Apple sign-in on **Android**; iOS needs neither.
+5. **Ship to the App Store** *(everything code-side is done — ~1 h of console work)*
+   1. **Supabase**: run `supabase/migrations/0007_delete_account.sql` in the SQL editor;
+      Authentication → Providers → **Apple** ON with `com.kalimat.game` in *Client IDs* (the
+      secret key can stay empty for the native iOS flow).
+   2. **Host** `store/privacy.html` and `store/support.html` (fill `[SUPPORT_EMAIL]` first).
+      Cheapest: a small **public** GitHub repo with Pages on — the kalimat repo is private and
+      free-plan Pages needs public. Then tell me the URL so the in-app legal line can link to it.
+   3. **App Store Connect** → My Apps → ＋ → iOS app, name «كلمات» (fallback in `listing.md` if
+      the name is taken), primary language Arabic, bundle ID `com.kalimat.game`, SKU `kalimat-ios`.
+      Paste everything from `store/listing.md`; upload `store/screenshots/*.png`; answer App
+      Privacy and the age-rating questionnaire as written there.
+   4. **Upload the build**: rebuild with the command in HANDOFF, then drag
+      `build/ios/ipa/kalimat.ipa` into the Transporter app (App Store, free). Pick the build in
+      the version page once it finishes processing (~10 min).
+   5. **TestFlight yourself first** on a real iPhone: sign in with Apple → name → play → «حسابي»
+      → «حذف الحساب». Then *Submit for Review*.
 
 ## 🔜 Possible next steps (my side, once unblocked)
 
@@ -179,10 +220,11 @@ rise-transition, motion-gate/primitives, win-wave and «التحدّيات» wid
   read A's code off «حسابي» → add on B → accept → duel → both boards open at once to
   watch the live pill → result card → rematch. Plus the edge walk: kill mid-duel
   (board + clock restore), airplane mode, an expired duel.
-- **M5 release prep** (no blockers, can start anytime): release keystore + signing config,
-  versioning, MSA store listing copy, Play Console internal-testing track; iOS device/TestFlight
-  build — simulator builds already run locally, so what is left is a paid Apple account for
-  signing plus the Sign in with Apple entitlement + Google URL scheme.
+- **Android release prep** (no blockers): release keystore + signing config, Play Console
+  internal-testing track, Play listing (reuse `store/listing.md`), and the Latin launcher label.
+  The iOS half is done (M8).
+- **In-app privacy link**: as soon as the policy URL exists, `url_launcher` + tappable legal
+  line on sign-in and profile footer (App Review 5.1.1(i)).
 - **Redesign port**: once a direction is picked on the Claude Design canvas, port it into `lib/`
   — tokens first (`core/theme/kalimat_colors.dart`, `kalimat_theme.dart`, `metrics.dart`), then
   the widgets. The canvas frames are token-exact, so a changed frame maps 1:1 onto those files.
@@ -199,7 +241,10 @@ rise-transition, motion-gate/primitives, win-wave and «التحدّيات» wid
 - M7 on-device eyeball pass: win wave + haptics on a real phone (simulator has no
   vibration motor), motion-off sweep, dark-mode sweep, splash on cold start.
 - Launcher label is still Latin "kalimat" (AndroidManifest `android:label`) — the
-  Android 13+ permission dialog shows it; consider «كلمات» before release.
+  Android 13+ permission dialog shows it; consider «كلمات» before release. (iOS already
+  shows «كلمات» — `CFBundleDisplayName`.)
+- iOS `LaunchImage` is the 1×1 template placeholder over the brown-600 launch ground —
+  fine, but a wordmark there would make the splash match Android's.
 - Reminder fires via inexact scheduling (no exact-alarm permission) — may land a few
   minutes late under Doze; accepted for now.
 - Statistics restore from server after account switch (currently local stats stay authoritative).

@@ -27,6 +27,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter # App Store screenshots — integration_test/screenshots_test.dart
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
   shared_preferences_platform_interface: ^2.4.2 # in-memory store for widget tests
