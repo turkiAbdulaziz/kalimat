@@ -51,6 +51,7 @@ void main() {
     expect(find.text(S.guestName), findsOneWidget);
     expect(find.textContaining('@'), findsNothing);
     expect(find.text(S.signOut), findsNothing);
+    expect(find.text(S.deleteAccount), findsNothing);
 
     for (final label in [
       S.statPlayed,

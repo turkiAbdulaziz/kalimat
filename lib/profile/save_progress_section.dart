@@ -133,14 +133,16 @@ class _SaveProgressSectionState extends ConsumerState<SaveProgressSection> {
           ),
         ),
         const SizedBox(height: Metrics.s3),
-        KalimatButton(
-          label: S.continueWithGoogle,
-          variant: KalimatButtonVariant.secondary,
-          block: true,
-          disabled: _busy,
-          onPressed: () => _link(auth.linkGoogle),
-        ),
-        const SizedBox(height: Metrics.s2),
+        if (kGoogleSignInAvailable) ...[
+          KalimatButton(
+            label: S.continueWithGoogle,
+            variant: KalimatButtonVariant.secondary,
+            block: true,
+            disabled: _busy,
+            onPressed: () => _link(auth.linkGoogle),
+          ),
+          const SizedBox(height: Metrics.s2),
+        ],
         KalimatButton(
           label: S.continueWithApple,
           variant: KalimatButtonVariant.secondary,

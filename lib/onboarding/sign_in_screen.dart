@@ -92,18 +92,25 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            KalimatButton(
-              label: S.continueWithGoogle,
-              large: true,
-              block: true,
-              disabled: _busy,
-              onPressed: () =>
-                  _start(ref.read(authRepositoryProvider).linkGoogle),
-            ),
-            const SizedBox(height: Metrics.s2),
+            // Google renders only once its web client ID is configured
+            // (kGoogleSignInAvailable); until then Apple takes the primary
+            // slot so the screen still has one clear call to action.
+            if (kGoogleSignInAvailable) ...[
+              KalimatButton(
+                label: S.continueWithGoogle,
+                large: true,
+                block: true,
+                disabled: _busy,
+                onPressed: () =>
+                    _start(ref.read(authRepositoryProvider).linkGoogle),
+              ),
+              const SizedBox(height: Metrics.s2),
+            ],
             KalimatButton(
               label: S.continueWithApple,
-              variant: KalimatButtonVariant.secondary,
+              variant: kGoogleSignInAvailable
+                  ? KalimatButtonVariant.secondary
+                  : KalimatButtonVariant.primary,
               large: true,
               block: true,
               disabled: _busy,
@@ -150,4 +157,3 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     );
   }
 }
-

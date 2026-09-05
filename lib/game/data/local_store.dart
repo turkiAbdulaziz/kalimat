@@ -71,13 +71,17 @@ class GameSettings {
   final bool motion;
   final bool haptics;
 
-  GameSettings copyWith({bool? dark, bool? hints, bool? motion, bool? haptics}) =>
-      GameSettings(
-        dark: dark ?? this.dark,
-        hints: hints ?? this.hints,
-        motion: motion ?? this.motion,
-        haptics: haptics ?? this.haptics,
-      );
+  GameSettings copyWith({
+    bool? dark,
+    bool? hints,
+    bool? motion,
+    bool? haptics,
+  }) => GameSettings(
+    dark: dark ?? this.dark,
+    hints: hints ?? this.hints,
+    motion: motion ?? this.motion,
+    haptics: haptics ?? this.haptics,
+  );
 
   Map<String, Object?> toJson() => {
     'dark': dark,
@@ -267,6 +271,9 @@ class LocalStore {
 
   Future<void> setStats(GameStats s) => _setJson(_kStats, s.toJson());
 
+  /// Account deletion only — sign-out keeps stats (they are authoritative).
+  Future<void> clearStats() => _prefs.remove(_kStats);
+
   /// Whether the user has ever explicitly saved settings (used to decide
   /// accessibility-driven defaults).
   bool get hasStoredSettings => _prefs.getString(_kSettings) != null;
@@ -348,6 +355,8 @@ class LocalStore {
       return const [];
     }
   }
+
+  Future<void> clearPendingResults() => _prefs.remove(_kQueue);
 
   Future<void> setPendingResults(List<PendingResult> q) =>
       _setJson(_kQueue, [for (final r in q) r.toJson()]);

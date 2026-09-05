@@ -35,8 +35,14 @@ const String kGoogleWebClientId = String.fromEnvironment(
 /// Apple Services ID (Android/web flow) + Supabase callback URL.
 const String kAppleServiceId = String.fromEnvironment(
   'APPLE_SERVICE_ID',
-  defaultValue: '', // TODO(M4): e.g. com.kalimat.app.signin
+  defaultValue: '', // TODO(M4): e.g. com.kalimat.game.signin
 );
+
+/// Google appears in the UI only once its client ID is configured; without
+/// it [AuthRepository.linkGoogle] can only fail, and a dead button is an App
+/// Review rejection. Apple has no such gate — on iOS it needs only the
+/// entitlement, and the Android web flow degrades to a failure line.
+final bool kGoogleSignInAvailable = kGoogleWebClientId.isNotEmpty;
 
 enum LinkOutcome {
   /// Identity linked onto the current (anonymous) user — uid preserved.
@@ -206,6 +212,32 @@ class AuthRepository {
     } catch (e) {
       debugPrint('kalimat: sign-out failed: $e');
     }
+  }
+
+  /// Deletes the account server-side (`delete_account()` — 0007; cascades
+  /// through profiles, results, friendships and duels), then drops the
+  /// local session. Local scope on purpose: the server session vanished
+  /// with the user, so a global sign-out would only 403. Returns false and
+  /// changes nothing when the RPC fails.
+  Future<bool> deleteAccount() async {
+    if (!isSupabaseConfigured) return false;
+    try {
+      await SupabaseService.client.rpc('delete_account');
+    } catch (e) {
+      debugPrint('kalimat: account deletion failed: $e');
+      return false;
+    }
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {
+      // Google may never have been initialized on this device.
+    }
+    try {
+      await SupabaseService.client.auth.signOut(scope: SignOutScope.local);
+    } catch (e) {
+      debugPrint('kalimat: local sign-out after deletion failed: $e');
+    }
+    return true;
   }
 
   Future<void> updateDisplayName(String name) async {

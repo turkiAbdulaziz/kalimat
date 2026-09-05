@@ -43,7 +43,10 @@ void main() {
     expect(find.text(S.appTitle), findsOneWidget);
     expect(find.text(S.signInPitch), findsOneWidget);
     expect(find.byType(Tile), findsNWidgets(5));
-    expect(find.text(S.continueWithGoogle), findsOneWidget);
+    // No GOOGLE_WEB_CLIENT_ID under `flutter test` ⇒ Google is hidden and
+    // Apple takes the primary slot; a dead Google button would be an App
+    // Review rejection.
+    expect(find.text(S.continueWithGoogle), findsNothing);
     expect(find.text(S.continueWithApple), findsOneWidget);
     expect(find.text(S.continueAsGuest), findsOneWidget);
     expect(find.text(S.legalLine), findsOneWidget);
@@ -74,7 +77,7 @@ void main() {
     await tester.pump();
 
     // Supabase is unconfigured in tests, so ensureSession() fails fast.
-    await tester.tap(find.text(S.continueWithGoogle));
+    await tester.tap(find.text(S.continueWithApple));
     await tester.pump();
     await tester.pump();
 

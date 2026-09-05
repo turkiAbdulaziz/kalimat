@@ -35,6 +35,7 @@ import '../game/widgets/section_card.dart';
 import '../game/widgets/stat_card.dart';
 import '../notifications/notification_service.dart';
 import '../notifications/reminder_controller.dart';
+import 'delete_account_dialog.dart';
 import 'edit_name_dialog.dart';
 import 'reminder_dialog.dart';
 import 'save_progress_section.dart';
@@ -50,6 +51,26 @@ class ProfileScreen extends ConsumerWidget {
     // profile route without its sink transition so only RootFlow's rise
     // plays (instead of two stacked animations over the new screen).
     if (context.mounted) navigator.removeRoute(route);
+  }
+
+  /// «حذف الحساب» (App Review 5.1.1(v)). Confirms first; on success the flow
+  /// is already back on sign-in beneath us, so the route goes the same way
+  /// sign-out's does. Failure leaves everything in place and says so.
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    final approved = await showDeleteAccountDialog(context);
+    if (approved != true || !context.mounted) return;
+    final navigator = Navigator.of(context);
+    final route = ModalRoute.of(context)!;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final ok = await ref.read(flowProvider.notifier).deleteAccount();
+    if (!context.mounted) return;
+    if (!ok) {
+      messenger?.showSnackBar(
+        const SnackBar(content: Text(S.deleteAccountFailed)),
+      );
+      return;
+    }
+    navigator.removeRoute(route);
   }
 
   @override
@@ -114,10 +135,7 @@ class ProfileScreen extends ConsumerWidget {
                                 value: stats.streak,
                                 label: S.statStreak,
                               ),
-                              StatCard(
-                                value: stats.best,
-                                label: S.statBest,
-                              ),
+                              StatCard(value: stats.best, label: S.statBest),
                             ],
                           ),
                         ),
@@ -201,14 +219,21 @@ class ProfileScreen extends ConsumerWidget {
                                       )
                                     : null,
                               ),
-                              if (linked)
+                              if (linked) ...[
                                 KalimatListRow(
                                   icon: LucideIcons.logOut,
                                   label: S.signOut,
                                   danger: true,
-                                  divider: false,
                                   onTap: () => _signOut(context, ref),
                                 ),
+                                KalimatListRow(
+                                  icon: LucideIcons.userX,
+                                  label: S.deleteAccount,
+                                  danger: true,
+                                  divider: false,
+                                  onTap: () => _deleteAccount(context, ref),
+                                ),
+                              ],
                             ],
                           ),
                         ),

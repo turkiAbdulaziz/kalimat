@@ -101,6 +101,13 @@ abstract final class S {
   static const backToGame = 'العودة إلى اللعبة';
   static const preferences = 'التفضيلات';
   static const signOut = 'تسجيل الخروج';
+  static const deleteAccount = 'حذف الحساب';
+  static const deleteAccountTitle = 'حذف الحساب نهائيًا';
+  static const deleteAccountBody =
+      'سيُحذف حسابك ونتائجك وقائمة أصدقائك وتحدّياتك نهائيًا من خوادمنا، '
+      'وتُمسح إحصاءاتك من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.';
+  static const deleteConfirm = 'حذف نهائيًا';
+  static const deleteAccountFailed = 'تعذّر حذف الحساب';
   static const editName = 'تعديل الاسم';
   static const shareLastResult = 'مشاركة النتيجة الأخيرة';
   static const streakBadgePrefix = 'سلسلة ';

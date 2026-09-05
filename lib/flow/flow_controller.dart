@@ -12,6 +12,7 @@ import '../backend/supabase_service.dart';
 import '../core/strings.dart';
 import '../game/state/game_controller.dart';
 import '../game/state/settings_controller.dart';
+import '../game/state/stats_controller.dart';
 
 enum FlowStep { signin, name, game }
 
@@ -136,5 +137,24 @@ class FlowController extends Notifier<FlowStep> {
     await store.clearOnboarded();
     ref.invalidate(gameProvider);
     state = FlowStep.signin;
+  }
+
+  /// «حذف الحساب»: the server account and everything it owns are gone, so
+  /// unlike [signOut] this also wipes the device — stats, duel boards, the
+  /// unsent result queue — and starts over at sign-in. Returns false and
+  /// changes nothing when the server call fails.
+  Future<bool> deleteAccount() async {
+    if (!await ref.read(authRepositoryProvider).deleteAccount()) return false;
+    final store = ref.read(localStoreProvider);
+    await store.clearBoard();
+    await store.clearStats();
+    await store.clearChallengeBoards();
+    await store.clearPendingResults();
+    await ref.read(displayNameProvider.notifier).clear();
+    await store.clearOnboarded();
+    ref.invalidate(gameProvider);
+    ref.invalidate(statsProvider);
+    state = FlowStep.signin;
+    return true;
   }
 }
