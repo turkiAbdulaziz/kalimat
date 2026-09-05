@@ -118,8 +118,20 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
       the text-style level); light + dark are two collections because the Starter plan has
       no modes; ~17 of the plan's ~20 monthly MCP calls were spent, so more Figma-via-Claude
       work waits for the next month or a seat upgrade.
-- [ ] Redesign exploration itself — that is the user's pass in Figma; nothing to port back
-      until a direction is chosen.
+- Redesign exploration has moved to the Claude Design canvas (next section); the Figma file
+      stays as the component/variable reference.
+
+### Claude Design canvas — every screen, light + dark  *(2026-09-04, outside the repo)*
+- [x] The whole app rebuilt again as a Claude Design canvas, **«Kalimat Screens»** (link, page
+      list, sample data and the update procedure in HANDOFF → "Claude Design canvas"): 110 frames
+      on 12 pages (six light, six dark) covering every screen, dialog and state, with the real
+      Noto Kufi / IBM Plex Sans Arabic fonts and the official dark mapping — the answer to the
+      Figma file's call budget, font substitution and missing dark mode.
+- [x] Reviewed frame-by-frame against `lib/`: format, tokens (both themes), copy incl. diacritics,
+      Arabic-Indic digits, RTL placement and keyboard rows all exact. The one approximation is the
+      two stock Material snackbars, whose colours come from `ColorScheme.fromSeed`.
+- [ ] Redesign exploration itself — duplicate a frame on the canvas, tweak, pick a direction, then
+      port the winner into `lib/` directly.
 
 **Suite: 145 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +
@@ -171,6 +183,9 @@ rise-transition, motion-gate/primitives, win-wave and «التحدّيات» wid
   versioning, MSA store listing copy, Play Console internal-testing track; iOS device/TestFlight
   build — simulator builds already run locally, so what is left is a paid Apple account for
   signing plus the Sign in with Apple entitlement + Google URL scheme.
+- **Redesign port**: once a direction is picked on the Claude Design canvas, port it into `lib/`
+  — tokens first (`core/theme/kalimat_colors.dart`, `kalimat_theme.dart`, `metrics.dart`), then
+  the widgets. The canvas frames are token-exact, so a changed frame maps 1:1 onto those files.
 
 ## 💡 Ideas / backlog (not planned, jot-down list)
 

@@ -275,6 +275,50 @@ source of truth for the file was `lib/` + `design/tokens/*.css`, not the other w
   session-scratch and are not kept; the Read-me card in the file documents the
   structure well enough to extend by hand or by script.
 
+## Claude Design canvas (built 2026-09-04, lives outside the repo)
+
+The Figma file above hit three walls for a redesign pass (≈20 MCP calls a month, substituted
+fonts, no dark mode on Starter). So every screen was rebuilt a second time as a **Claude Design
+canvas** — Claude Code's `/design` skill, published as a private Artifact — and that is now the
+place to explore a redesign. The Figma file stays as the component/variable reference.
+
+**«Kalimat Screens»** (🟫): https://claude.ai/code/artifact/bd5efe88-9526-47a7-9af6-e2560c8361ac
+
+- **What is on it**: 110 static 390×844 frames on 12 pages — *Onboarding · Game · Dialogs ·
+  Profile · Challenges · Duel*, then the same six again as *Dark · …*. Every screen, dialog and
+  state of the shipped app, 55 per theme: splash, sign-in idle/busy/error, name screen empty/typing,
+  the board empty/mid-play/both toasts/won/lost/hints-off/offline, help + the first-run greeting,
+  stats in-progress/won/lost, the leaderboard in today/all-time/loading/empty/error, profile
+  guest/linked/offline/link-failed, edit-name, switch-account, reminder on/off, the duels tab
+  empty/loading/populated/create-failed, the friends tab populated/empty/loading/error/code-copied,
+  add-friend (typing/not-found/already-friends), pick-friend, remove-friend, the duel board
+  (not started/live progress/score to beat/loading/failed) and all four result cards. It opens on
+  Onboarding; the other pages are in the canvas toolbar's pages menu. Scrolling screens (the
+  profiles, the populated duel list) use taller frames so the whole page is visible.
+- **Source of truth was `lib/` + `design/tokens/*.css`, not Figma**: colours (light AND the
+  official dark mapping), the type ramp, spacing, radii, shadows, keyboard rows and every string in
+  `strings.dart` were lifted verbatim. Fonts are the real Noto Kufi Arabic / IBM Plex Sans Arabic
+  via Google Fonts — nothing is substituted. Icons are the same Lucide set, drawn as stroke SVG.
+- **Sample data**: player ليلى, puzzle ٤, answer مدرسة, opponent نورة, friends سارة / عمر / خالد,
+  a pending request from هند, friend code ٤٨٢٩١٧, stats ٤٢ played · ٨٩٪ · streak ٧ · best ١٢.
+- **Known approximations**: the two stock Material snackbars («تم نسخ الرمز», «تعذّر إنشاء
+  التحدي») — their colours come from `ColorScheme.fromSeed`, not the token set. Everything else is
+  token-exact and was reviewed frame-by-frame against `lib/` (format, tokens, copy incl. diacritics,
+  Arabic-Indic digits, RTL placement, keyboard rows). Layout was verified by reading the markup, not
+  by rendering: headless Brave/Chrome does not run on this Mac (sandbox + CVDisplayLink), so if a
+  frame looks off on screen, name it and it gets fixed.
+- **Nothing from it is committed.** The frames came from a throwaway Node generator (`gen.mjs` —
+  shared component functions emitting one `.dc.html` per frame plus `canvas.json`) in a session
+  scratch dir that is gone with the job. The canvas itself is the durable copy: to change it later,
+  read the artifact from Claude Code, `seed-canvas.mjs --extract` the saved page into a fresh
+  directory, edit the extracted frames, re-seed, and republish to the **same URL** with
+  `contract: "0.1.31"` and no `capabilities` (the `/design` skill spells out each step). Edits made
+  by hand in the canvas editor persist only after **Save**; every Save is a new version that all
+  open views reload to, so it is a one-editor-at-a-time document.
+- **Intended loop**: duplicate a frame on the canvas, change it by hand or by asking, and once a
+  direction wins port it straight into `lib/` (tokens in `core/theme/` first, then widgets) — never
+  back through Figma.
+
 ## Claude Code extras (travel with the repo)
 
 - `.claude/agents/ui-inspo.md` — research-only agent: web-searches UI/motion
