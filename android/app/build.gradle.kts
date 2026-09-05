@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.kalimat.app"
+        applicationId = "com.kalimat.game"
         // minSdk 24: floor for google_sign_in v7 / supabase / sign_in_with_apple.
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
