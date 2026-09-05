@@ -48,8 +48,9 @@ Both machines run Flutter **3.47.1** stable / Dart 3.13.1 — keep them matched 
   `pubspec.lock`; `Flutter/ephemeral/Packages/...` is gitignored and regenerated per build.
 - **iOS minimum is 15.0** (Flutter 3.47's floor — it rewrites lower targets on build).
   iPhone 6s / 7 / SE-1st-gen are out of scope for launch.
-- Simulator needs no Apple account; a physical iPhone needs a personal team in Xcode
-  (`ios/Runner.xcworkspace` → Signing) + Developer Mode on the phone.
+- Simulator needs no Apple account; a physical iPhone needs the team signed in to Xcode
+  (paid Apple Developer membership since 2026-09-05, team `W62CSC2R8A` — see "App Store
+  release" below) + Developer Mode on the phone.
 
 **App identity (both platforms)**: `com.kalimat.game` — it was `com.kalimat.app` until
 2026-09-05, when the first App Store archive revealed that Apple had already issued that ID to a
@@ -256,6 +257,8 @@ with the repo. Everything needed to continue is in this file + STATUS.md + `desi
 - Approved plan (M6 duels «التحدّيات»):
   `~/.claude/plans/read-the-handoff-file-vectorized-simon.md` — written on the Mac, so it
   is the one plan file the Windows box does not have
+- M8 (App Store release, 2026-09-05/06) ran without a plan file — the "App Store release"
+  section above and STATUS → M8 are the record
 - Design reference: `design/readme.md`, `design/guidelines/*.card.html`, and the
   user-flow spec `design/design_handoff_kalimat_user_flow/README.md` (exact per-screen
   values; its email-OTP screens are intentionally not implemented)
@@ -374,14 +377,35 @@ submittable the same day. What is in the repo, and what the store side still nee
 ```
 flutter build ipa --release --dart-define-from-file=env/dev.json \
   --export-options-plist=ios/ExportOptions.plist
-# → build/ios/ipa/kalimat.ipa (≈24 MB); archive ≈107 s + export ≈67 s on the MacBook
+# → build/ios/archive/Runner.xcarchive + build/ios/ipa/kalimat.ipa (≈24 MB)
+# archive ≈107 s + export ≈67 s on the MacBook; both are gitignored — a fresh clone rebuilds
 ```
-Upload with the **Transporter** app (drag the .ipa) or Xcode → Organizer → Distribute. The
-Supabase defines must be on the build line — without `env/dev.json` the store build would be
-the offline dev build. Google is still unconfigured: `kGoogleSignInAvailable` hides the
-button, so the shipped sign-in screen is Apple + guest. When Google credentials exist, the iOS
-side also needs `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios
-requirement) in addition to `--dart-define=GOOGLE_WEB_CLIENT_ID=…`.
+- If the export step dies with `exportArchive The request timed out` (Apple's cloud-signing
+  service hiccup, seen 2026-09-06), don't rebuild — re-export the archive that already exists:
+  `xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive
+  -exportOptionsPlist ios/ExportOptions.plist -exportPath build/ios/ipa -allowProvisioningUpdates`
+- The Supabase defines must be on the build line — without `env/dev.json` the store build
+  would be the offline dev build.
+- **Three ways to upload**, all riding the Xcode account already on this Mac:
+  1. **Xcode Organizer** — double-click `build/ios/archive/Runner.xcarchive` in Finder; it
+     imports under *iOS Apps*. Distribute App → App Store Connect → Upload, keep the defaults.
+     (If the Organizer offers a *Mac* App Store flow or complains about `App.pkg`, the archive's
+     `Info.plist` is damaged — gotcha 18 — rebuild.)
+  2. **Transporter** (Apple, free, Mac App Store) — drag `build/ios/ipa/kalimat.ipa`, Deliver.
+  3. **Hands-off** — set `destination` to `upload` in `ios/ExportOptions.plist`; the export step
+     then pushes straight to App Store Connect, no clicking.
+  Each upload needs a build number App Store Connect hasn't seen: bump `1.0.0+N` in
+  `pubspec.yaml` before rebuilding. Processing takes ~10 min, then the build can be picked on
+  the version page.
+- **The App Store Connect record exists**: «كلمات», `com.kalimat.game`, **app ID 6809039437**,
+  created by the account owner 2026-09-05. **No build has been uploaded yet** (as of
+  2026-09-06 00:05): the first Organizer attempt failed on a corrupted archive (gotcha 18);
+  the archive and IPA were then rebuilt clean and verified (Apple Distribution
+  `W62CSC2R8A`, applesignin entitlement, `get-task-allow` off, `DTPlatformName = iphoneos`).
+- Google is still unconfigured: `kGoogleSignInAvailable` hides the button, so the shipped
+  sign-in screen is Apple + guest. When Google credentials exist, the iOS side also needs
+  `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios
+  requirement) in addition to `--dart-define=GOOGLE_WEB_CLIENT_ID=…`.
 
 **Screenshots** — `store/screenshots/*.png`, 1320×2868 (6.9-inch, the one size Apple requires)
 - A dedicated simulator **«Kalimat Screens»** (iPhone 17 Pro Max, iOS 26.5).
@@ -413,10 +437,12 @@ flutter drive --driver=test_driver/integration_test.dart \
   line and the profile footer open it (`url_launcher`, ~15 min) — not done yet because there
   is no URL to point at.
 
-**Still on the store side (needs the account owner)**: create the app record in App Store
-Connect under `com.kalimat.game`, paste `listing.md`, host the two pages and paste their URLs,
-upload the IPA, run `0007_delete_account.sql`, and turn on the Apple provider in Supabase with
-`com.kalimat.game` in its Client IDs. STATUS.md keeps the live checklist.
+**Still on the store side (needs the account owner)**: the app record exists; what remains is
+to paste `listing.md` and the screenshots into it, host the two pages and paste their URLs,
+upload the build, run `0007_delete_account.sql`, turn on the Apple provider in Supabase with
+`com.kalimat.game` in its Client IDs, and TestFlight once on a real iPhone. Code-side, the only
+open item is the in-app privacy-policy link, which waits for the hosted URL. STATUS.md keeps
+the live checklist.
 
 ## Claude Code extras (travel with the repo)
 

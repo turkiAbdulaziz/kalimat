@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-09-05. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-09-06. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -133,7 +133,7 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
 - [ ] Redesign exploration itself — duplicate a frame on the canvas, tweak, pick a direction, then
       port the winner into `lib/` directly.
 
-### M8 — App Store release prep (iOS)  *(2026-09-05 — the paid Apple membership arrived; details in HANDOFF → "App Store release")*
+### M8 — App Store release prep (iOS)  *(2026-09-05/06 — the paid Apple membership arrived; details in HANDOFF → "App Store release")*
 - [x] **Signed App Store IPA builds**: team `W62CSC2R8A`, automatic signing, Sign in with Apple
       entitlement, iPhone-only, portrait-only, display name «كلمات», Arabic bundle region,
       `ITSAppUsesNonExemptEncryption = NO`, privacy manifest, `ios/ExportOptions.plist`.
@@ -152,8 +152,13 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
       answers, reviewer notes, pre-submit checklist), `privacy.html`, `support.html` (RTL,
       light+dark, `[SUPPORT_EMAIL]` placeholder), six 6.9-inch screenshots in `store/screenshots/`
       from the «Kalimat Screens» simulator via `integration_test/screenshots_test.dart`.
+- [x] **App Store Connect record** created by the account owner 2026-09-05: «كلمات»,
+      `com.kalimat.game`, app ID 6809039437.
 - [ ] Privacy-policy link **inside** the app (legal line + profile footer) — waits for the hosted URL.
-- [ ] Upload + App Store Connect record — your side, see "Waiting on you" №5.
+- [ ] **First build upload — not done yet.** The Organizer attempt on 2026-09-05 failed because
+      the archive's `Info.plist` had been clobbered by a verification command (HANDOFF gotcha 18,
+      my mistake); archive + IPA were rebuilt clean 2026-09-06 00:05 and verified. Any of the
+      three upload routes in HANDOFF → "Build & upload" works now — see "Waiting on you" №5.
 
 **Suite: 149 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +
@@ -195,13 +200,15 @@ tests + flow incl. account deletion)
    2. **Host** `store/privacy.html` and `store/support.html` (fill `[SUPPORT_EMAIL]` first).
       Cheapest: a small **public** GitHub repo with Pages on — the kalimat repo is private and
       free-plan Pages needs public. Then tell me the URL so the in-app legal line can link to it.
-   3. **App Store Connect** → My Apps → ＋ → iOS app, name «كلمات» (fallback in `listing.md` if
-      the name is taken), primary language Arabic, bundle ID `com.kalimat.game`, SKU `kalimat-ios`.
-      Paste everything from `store/listing.md`; upload `store/screenshots/*.png`; answer App
-      Privacy and the age-rating questionnaire as written there.
-   4. **Upload the build**: rebuild with the command in HANDOFF, then drag
-      `build/ios/ipa/kalimat.ipa` into the Transporter app (App Store, free). Pick the build in
-      the version page once it finishes processing (~10 min).
+   3. **App Store Connect record** — ~~create it~~ **done 2026-09-05** («كلمات», `com.kalimat.game`,
+      app ID 6809039437). Still to fill on the 1.0 page: everything from `store/listing.md`,
+      `store/screenshots/*.png`, App Privacy and the age-rating questionnaire as written there,
+      and the two URLs from step 2.
+   4. **Upload the build**: `build/ios/archive/Runner.xcarchive` and `build/ios/ipa/kalimat.ipa`
+      (2026-09-06 00:05) are ready. Double-click the archive → Organizer → Distribute App → App
+      Store Connect → Upload; or drag the .ipa into Transporter; or ask for the hands-off
+      `destination = upload` export (HANDOFF → "Build & upload"). Pick the build on the version
+      page once processing finishes (~10 min). Later uploads need `1.0.0+2`, `+3`… in pubspec.
    5. **TestFlight yourself first** on a real iPhone: sign in with Apple → name → play → «حسابي»
       → «حذف الحساب». Then *Submit for Review*.
 
