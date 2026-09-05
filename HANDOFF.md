@@ -236,6 +236,11 @@ its winner mark. Callable by `authenticated` only. Until it has been run in the 
    development-signed and the export step re-signs. Verify distribution signing on the
    **IPA payload** (`unzip kalimat.ipa` → `Payload/Runner.app`) or in
    `build/ios/ipa/DistributionSummary.plist`.
+18. **`plutil -extract <key> json|xml1 file` OVERWRITES the file** with the extracted value
+   unless you add `-o -`. Only `-p`, `-lint` and `-extract … raw` are read-only. This turned
+   the archive's `Runner.app/Info.plist` into `[1]` on 2026-09-05; Xcode's Organizer then saw no
+   platform keys, assumed macOS, and failed with "App.pkg has conflicting provisioning
+   settings". A rebuild fixed it. Inspect plists with `plutil -p file` only.
 
 ## Plans & docs
 
