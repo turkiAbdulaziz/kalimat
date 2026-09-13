@@ -402,10 +402,19 @@ flutter build ipa --release --dart-define-from-file=env/dev.json \
   the version page.
 - **The App Store Connect record exists**: «كلمات», `com.kalimat.game`, **app ID 6809039437**,
   created by the account owner 2026-09-05. The last confirmed status is that no build has been
-  uploaded. The first Organizer attempt failed on a corrupted archive (gotcha 18); a clean
-  September 6 archive then verified the Apple Distribution pipeline, but it predates the
-  four-letter rollout and the App Review sign-in changes. **Do not upload that old IPA.** Build
-  a fresh signed archive from the current tree after coordinating the server switch.
+  uploaded. The first Organizer attempt failed on a corrupted archive (gotcha 18); the obsolete
+  September 6 artifacts were replaced on **2026-09-13** after the production four-letter rollout.
+  The current release source is commit `c5b1273` (`Release four-letter gameplay and App Store
+  updates`): 170 tests passed, `flutter analyze` was clean, and deterministic word-list generation
+  matched. The documented release-build command then produced a fresh
+  `build/ios/archive/Runner.xcarchive` and `build/ios/ipa/kalimat.ipa` (24,025,724 bytes), version
+  **1.0.0 (1)**. The exported IPA passed ZIP integrity validation and is distribution-signed for
+  team `W62CSC2R8A`, bundle `com.kalimat.game`, with `get-task-allow=false`, beta reports and the
+  Sign in with Apple entitlement. Xcode Organizer was opened on this fresh archive; **upload is
+  the next action and is not yet confirmed complete**. Build 1 remains valid only while App Store
+  Connect has not accepted another build 1; otherwise bump `pubspec.yaml` to `1.0.0+2` and rebuild.
+  The release commit and its preceding local commits have **not been pushed**; after committing
+  this handoff checkpoint, `main` is nine commits ahead of `origin/main`.
 - Google is still unconfigured: `kGoogleSignInAvailable` hides the button, so the shipped
   sign-in screen is Apple + guest. When Google credentials exist, the iOS side also needs
   `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios
