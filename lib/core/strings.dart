@@ -4,6 +4,7 @@
 library;
 
 abstract final class S {
+  static const retry = 'حاول مرة أخرى';
   // Brand
   static const appTitle = 'كلمات';
 
@@ -30,7 +31,7 @@ abstract final class S {
 
   // Help dialog
   static const helpBody =
-      'خمّن كلمة اليوم في ست محاولات. كل محاولة يجب أن تكون كلمة عربية من خمسة حروف.';
+      'خمّن كلمة اليوم في ست محاولات. كل محاولة يجب أن تكون كلمة عربية من أربعة حروف.';
   static const helpRuleCorrect = 'الحرف بالبني الغامق في مكانه الصحيح.';
   static const helpRulePresent =
       'الحرف بالبني الفاتح موجود في الكلمة لكن في مكان آخر.';
@@ -59,6 +60,7 @@ abstract final class S {
   static const accountHint = 'اربط حسابك ليبقى تقدمك محفوظًا عبر الأجهزة';
   static const continueWithGoogle = 'المتابعة عبر جوجل';
   static const continueWithApple = 'المتابعة عبر آبل';
+  static const continueWithAppleOfficial = 'Continue with Apple';
   static const accountLinked = 'الحساب مرتبط';
   static const displayNameLabel = 'الاسم في المتصدرين';
   static const save = 'حفظ';
@@ -81,6 +83,8 @@ abstract final class S {
   static const signInPitch =
       'خمّن كلمة اليوم في ست محاولات. كلمة جديدة كل يوم.';
   static const continueAsGuest = 'المتابعة كزائر';
+  static const continueAsGuestEnglish =
+      'Continue as guest · No account required';
   static const legalLine = 'بالمتابعة أنت توافق على الشروط وسياسة الخصوصية.';
   static const connectionFailed = 'تعذّر الاتصال';
 

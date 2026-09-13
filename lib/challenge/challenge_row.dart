@@ -11,13 +11,16 @@ import '../core/theme/kalimat_theme.dart';
 import '../core/theme/metrics.dart';
 import '../core/theme/motion.dart';
 import '../core/utils/arabic_digits.dart';
+import '../game/engine/game_rules.dart';
 import '../game/widgets/kalimat_avatar.dart';
 import 'models.dart';
 
 /// «٣/٦» for a finished side, «—/٦» for a loss, «…» while still playing.
 String scoreLabel(ChallengeSide side) {
   if (!side.finished) return '…';
-  return side.won ? '${toArabicDigits('${side.guesses}')}/٦' : '—/٦';
+  return side.won
+      ? '${toArabicDigits('${side.guesses}')}/${toArabicDigits('$kMaxGuesses')}'
+      : '—/${toArabicDigits('$kMaxGuesses')}';
 }
 
 class ChallengeRow extends StatefulWidget {

@@ -1,18 +1,18 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-09-06. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-09-13. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
 ### M0 — Scaffold & assets
 - [x] Flutter project (android / ios / windows / web scaffolds), appId `com.kalimat.game` (was `com.kalimat.app` until 2026-09-05 — taken on Apple's side), minSdk 24, git repo
 - [x] Fonts bundled: Noto Kufi Arabic 400/500/700/800 + IBM Plex Sans Arabic 400/500/600/700 (OFL, licenses shipped)
-- [x] Word pipeline: 18,352-word guess dictionary (Hugo0 + FrequencyWords, MIT), provisional 500-answer list, Supabase seed SQL — all from one script (`tool/build_wordlists.dart`)
+- [x] Word pipeline: 7,918-word guess dictionary (FrequencyWords + reviewed additions), curated 365-answer daily list and separate 200-answer duel list, Supabase seed SQL — all from one script (`tool/build_wordlists.dart`)
 - [x] App icon: كلمات wordmark on brown-600, stamped for Android (incl. adaptive) + iOS
 
 ### M1 — Offline playable core  *(verified on Pixel 6 emulator)*
 - [x] Pure-Dart engine: normalized lenient matching, duplicate-safe two-pass evaluation, upgrade-only keyboard hints per equivalence class, puzzle calendar (epoch 2026-09-01), share-text builder
-- [x] Full RTL game UI per the design system: 6×5 grid, the design's exact 33-key keyboard + إدخال/حذف, header, day badge «كلمة اليوم», toasts
+- [x] Full RTL game UI per the design system: 6×4 grid, the design's exact 33-key keyboard + إدخال/حذف, header, day badge «كلمة اليوم», toasts
 - [x] Dictionary validation («الكلمة غير موجودة» / «الكلمة قصيرة»), win/loss flow, answer reveal on loss
 - [x] Local persistence: board restore after kill/relaunch ✓, stats (played / win% / streak / best / distribution), settings
 - [x] 40 engine unit tests incl. duplicate-letter matrix and cross-class matches (ه↔ة, ا↔أ, ء≠أ, ؤ/ئ targets)
@@ -34,7 +34,7 @@ _Last updated: 2026-09-06. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
 - [x] «المتصدرون» tab in the stats dialog (اليوم / الإجمالي) + «حفظ التقدم» section in settings with display-name editing
 
 ### M5 — Designed user flow  *(from the Claude Design handoff in `design/design_handoff_kalimat_user_flow/`; verified on Pixel 6 emulator, unconfigured build)*
-- [x] First-run flow: sign-in screen (wordmark, pitch, flip-in sample row, Google/Apple/«المتابعة كزائر», legal line) → display-name screen → game; gated by `isSupabaseConfigured` + an `onboarded` flag (existing installs migrate silently, dev builds skip straight to the game)
+- [x] First-run flow: sign-in screen (wordmark, pitch, flip-in sample row, official Apple control, «المتابعة كزائر» with subtle “Continue as guest · No account required” clarification, legal line) → display-name screen → game; gated by `isSupabaseConfigured` + an `onboarded` flag (existing installs migrate silently, dev builds skip straight to the game)
 - [x] Profile screen «حسابي» (header avatar is the only route): identity + streak badge, 4 stat cards, distribution bars, preferences (dark/hints/motion switches moved here — settings dialog and gear deleted), «مشاركة النتيجة الأخيرة», sign-out (linked users; clears board + identity, keeps local stats), «حفظ التقدم» linking section for anonymous users, tap-name editing
 - [x] Design adaptation decisions: email-OTP/code screen dropped in favor of existing Google/Apple auth; leaderboard tab kept in the stats dialog (+ new «عرض حسابي» footer button); first-run help greets «أهلاً {name}»
 - [x] Official dark theme mapping (15 fields corrected from the old proposal) + new tokens `textWordmark`/`textOnSoft`/`textDanger`; theme-aware shadows; wordmark dark-mode bug fixed
@@ -57,7 +57,7 @@ _Last updated: 2026-09-06. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
       counterpart to `pubspec.lock`. It pins the transitive Google sign-in native stack:
       GoogleSignIn-iOS 9.2.0, AppAuth 2.1.0, GTMAppAuth 5.0.0, GoogleUtilities 8.1.2,
       gtm-session-fetcher 3.5.0, app-check 11.3.1, promises 2.4.1, interop-ios 101.0.0.
-- [x] Boot verified on device: RTL header, 6×5 board, 33-key keyboard and the first-launch help
+- [x] Boot verified on device: RTL header, 6×4 board, 33-key keyboard and the first-launch help
       dialog «أهلاً زائر» all render correctly; dark theme confirmed. Xcode build 82s, SPM resolve 81s.
 
 ### M6 — Duels «التحدّيات»  *(code complete — needs migrations 0004/0005 + the duel seed run)*
@@ -65,7 +65,7 @@ _Last updated: 2026-09-06. Companion to [HANDOFF.md](HANDOFF.md) (architecture, 
       signup trigger, backfilled for existing rows). «إضافة صديق» → request → قبول/رفض, remove
       with a confirm. `profiles` is no longer world-readable — codes can't be harvested, and every
       cross-user name now comes from a security-definer RPC.
-- [x] **Duels on a separate word pool**: `challenge_words` (2,000 words, disjoint from
+- [x] **Duels on a separate word pool**: `challenge_words` (200 curated words, disjoint from
       `answers.txt`, emitted by the same pipeline) — a duel can never spoil a future daily, and
       you can rematch as often as you like without touching «كلمة اليوم».
 - [x] **Winner rule**: a win beats a loss → fewer guesses → the faster solve (unknown clock last).
@@ -148,19 +148,27 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
 - [x] **Google button gated** on `GOOGLE_WEB_CLIENT_ID` (`kGoogleSignInAvailable`) on the sign-in
       screen and «حفظ التقدم»; Apple becomes the primary CTA while Google is absent — no dead
       button for the reviewer.
+- [x] **App Review sign-in clarity**: the first-run Apple action now uses the official-style
+      `SignInWithAppleButton` with its Apple logo, approved “Continue with Apple” title, 52px
+      black/white treatment and LTR logo placement. The Arabic guest action remains primary and
+      adds the muted English line “Continue as guest · No account required”. All 3 focused
+      sign-in widget tests and the full 8-frame iOS integration run passed; `05-signin.png` was
+      regenerated and visually reviewed.
 - [x] **Store assets in `store/`**: `listing.md` (MSA copy, keywords, App Privacy + age-rating
       answers, reviewer notes, pre-submit checklist), `privacy.html`, `support.html` (RTL,
-      light+dark, `[SUPPORT_EMAIL]` placeholder), six 6.9-inch screenshots in `store/screenshots/`
-      from the «Kalimat Screens» simulator via `integration_test/screenshots_test.dart`.
+      light+dark, `[SUPPORT_EMAIL]` placeholder), eight visually reviewed 6.9-inch screenshots
+      in `store/screenshots/` from the «Kalimat Screens» simulator via
+      `integration_test/screenshots_test.dart`, including daily and duel light/dark boards.
 - [x] **App Store Connect record** created by the account owner 2026-09-05: «كلمات»,
       `com.kalimat.game`, app ID 6809039437.
 - [ ] Privacy-policy link **inside** the app (legal line + profile footer) — waits for the hosted URL.
 - [ ] **First build upload — not done yet.** The Organizer attempt on 2026-09-05 failed because
       the archive's `Info.plist` had been clobbered by a verification command (HANDOFF gotcha 18,
-      my mistake); archive + IPA were rebuilt clean 2026-09-06 00:05 and verified. Any of the
-      three upload routes in HANDOFF → "Build & upload" works now — see "Waiting on you" №5.
+      my mistake). A clean archive + IPA rebuilt on 2026-09-06 verified the signing/export path,
+      but those artifacts predate the four-letter rollout and App Review sign-in changes. Build
+      fresh artifacts from the current tree; see HANDOFF → "Build & upload" and "Waiting on you" №5.
 
-**Suite: 149 tests green · `flutter analyze` clean.** (engine + LocalStore
+**Suite: 170 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +
 rise-transition, motion-gate/primitives, win-wave, «التحدّيات», delete-account dialog widget
 tests + flow incl. account deletion)
@@ -172,10 +180,7 @@ tests + flow incl. account deletion)
 1. ~~**Supabase project**~~ **DONE 2026-08-26** — project live, migrations + seed ran,
    Anonymous sign-ins + Manual linking on, creds in `env/dev.json`, verified end-to-end
    on the emulator (anon session, `get_daily_word()`, leaderboard tab, RLS lockdown).
-2. **Answer curation** *(launch blocker, not a dev blocker — ~1–2 h)*
-   Review `tool/out/answers_candidates.txt` (frequency-ranked, clitic-flagged) and build a
-   curated `assets/words/answers.txt` (aim ≥365 words, correct spellings, order = puzzle
-   order). Then re-run `dart run tool/build_wordlists.dart` to regenerate the server seed.
+2. ~~**Four-letter answer curation + production rollout**~~ **DONE 2026-09-13** — 365 daily + 200 disjoint duel answers, 7,918 accepted guesses, shared pure-Dart rules and deterministic SQL generation. The account owner confirmed migrations 0007/0008 and the regenerated seeds were applied to production. See `tool/curated/README.md` and `supabase/FOUR_LETTER_ROLLOUT.md`.
 3. ~~**Run the duel migrations**~~ **DONE 2026-09-03** — 0004/0005 + the duel seed are in,
    and the whole RPC surface was verified live over REST (28 checks: friend codes →
    request/accept → duel → live progress column → winner rule → draw → write-once →
@@ -194,8 +199,8 @@ tests + flow incl. account deletion)
    archive registered the App ID with the capability). Still needed: the Services ID + `.p8`
    key only if you want Apple sign-in on **Android**; iOS needs neither.
 5. **Ship to the App Store** *(everything code-side is done — ~1 h of console work)*
-   1. **Supabase**: run `supabase/migrations/0007_delete_account.sql` in the SQL editor;
-      Authentication → Providers → **Apple** ON with `com.kalimat.game` in *Client IDs* (the
+   1. **Supabase**: migrations 0007/0008 and the four-letter seeds are deployed. Authentication
+      → Providers → **Apple** ON with `com.kalimat.game` in *Client IDs* (the
       secret key can stay empty for the native iOS flow).
    2. **Host** `store/privacy.html` and `store/support.html` (fill `[SUPPORT_EMAIL]` first).
       Cheapest: a small **public** GitHub repo with Pages on — the kalimat repo is private and
@@ -204,11 +209,11 @@ tests + flow incl. account deletion)
       app ID 6809039437). Still to fill on the 1.0 page: everything from `store/listing.md`,
       `store/screenshots/*.png`, App Privacy and the age-rating questionnaire as written there,
       and the two URLs from step 2.
-   4. **Upload the build**: `build/ios/archive/Runner.xcarchive` and `build/ios/ipa/kalimat.ipa`
-      (2026-09-06 00:05) are ready. Double-click the archive → Organizer → Distribute App → App
-      Store Connect → Upload; or drag the .ipa into Transporter; or ask for the hands-off
-      `destination = upload` export (HANDOFF → "Build & upload"). Pick the build on the version
-      page once processing finishes (~10 min). Later uploads need `1.0.0+2`, `+3`… in pubspec.
+   4. **Build and upload the current app**: the September 6 archive/IPA is obsolete. With the
+      four-letter server switch deployed, run the signed build command in HANDOFF →
+      "Build & upload", then use Organizer or Transporter (or the hands-off upload export).
+      Pick the build on the version page once processing finishes (~10 min). Later uploads need
+      `1.0.0+2`, `+3`… in pubspec.
    5. **TestFlight yourself first** on a real iPhone: sign in with Apple → name → play → «حسابي»
       → «حذف الحساب». Then *Submit for Review*.
 
@@ -261,3 +266,15 @@ tests + flow incl. account deletion)
 - **Push for «دورك»**: the header dot only refreshes on app open/resume. A real notification
   needs FCM/APNs, which the project has never set up (only `flutter_local_notifications`).
 - Widget-test coverage for the loss path (answer reveal badge) and the leaderboard tab.
+
+## Four-letter implementation verification — 2026-09-13
+
+- [x] Daily games and duels: four letters, six attempts; centered boards, full keyboard and unchanged friend codes.
+- [x] Local gameplay version 2 reset, preserving authentication/onboarding/name/settings/reminders; failure and once-only restore tests.
+- [x] Stale cached/server daily answers fall back; incompatible duels show retry and never mount an invalid board.
+- [x] Curated 365/200 pools, normalized uniqueness/membership/length checks, 7,918 guesses, reproducible generation and all 365 matching SQL/bundled dates.
+- [x] Migration 0008 + transactional backup/deployment script; populated PostgreSQL 17.11 test passed reset, rollback, replay refusal, preserved users/friends/RLS/policies/RPCs and four-cell result constraints.
+- [x] All 170 Flutter tests passed, including daily/duel light/dark, motion on/off and small screens.
+- [x] `flutter analyze` passed with no issues.
+- [x] iOS integration suite passed all eight 1320×2868 captures; final daily, help, sign-in, profile and duel light/dark PNGs visually reviewed without clipping or stale five-letter content.
+- [x] Remote deployment: account owner confirmed migrations 0007/0008 and the regenerated daily/duel seeds were applied on 2026-09-13.

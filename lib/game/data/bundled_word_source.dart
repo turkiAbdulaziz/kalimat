@@ -7,6 +7,7 @@ library;
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../engine/models.dart';
+import '../engine/game_rules.dart';
 import '../engine/puzzle_calendar.dart';
 import 'word_source.dart';
 
@@ -22,7 +23,9 @@ class BundledWordSource implements WordSource {
         .map((l) => l.trim())
         .where((l) => l.isNotEmpty && !l.startsWith('#'))
         .toList(growable: false);
-    assert(answers.isNotEmpty, 'answers.txt is empty');
+    if (answers.isEmpty || !answers.every(isPlayableWord)) {
+      throw StateError('Bundled answers are incompatible with game rules');
+    }
     _answers = answers;
     return answers;
   }

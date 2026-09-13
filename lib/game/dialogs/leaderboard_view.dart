@@ -12,6 +12,7 @@ import '../../core/theme/metrics.dart';
 import '../../core/theme/motion.dart';
 import '../../core/theme/motion_scope.dart';
 import '../../core/utils/arabic_digits.dart';
+import '../engine/game_rules.dart';
 import '../../core/motion/staggered_rise.dart';
 import '../widgets/segment_toggle.dart';
 import '../widgets/skeleton_rows.dart';
@@ -71,8 +72,8 @@ class _DailyList extends ConsumerWidget {
                 rank: i + 1,
                 name: e.displayName,
                 value: e.won && e.guesses != null
-                    ? '${toArabicDigits('${e.guesses}')}/٦'
-                    : '—/٦',
+                    ? '${toArabicDigits('${e.guesses}')}/${toArabicDigits('$kMaxGuesses')}'
+                    : '—/${toArabicDigits('$kMaxGuesses')}',
                 highlight: i == 0,
               ),
           ],

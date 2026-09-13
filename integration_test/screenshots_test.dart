@@ -4,7 +4,7 @@
 /// `store/screenshots/<name>.png`.
 ///
 /// Each test seeds an in-memory LocalStore (the same trick the widget suite
-/// uses) so the frames show a lived-in game — player ليلى, answer مدرسة, the
+/// uses) so the frames show a lived-in game — player ليلى, answer وردة, the
 /// canvas's sample stats — with the app otherwise unconfigured (no Supabase
 /// defines), exactly like a fresh offline install.
 library;
@@ -14,6 +14,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:kalimat/app.dart';
+import 'package:kalimat/backend/backend_providers.dart';
+import 'package:kalimat/backend/challenge_repository.dart';
+import 'package:kalimat/challenge/challenge_screen.dart';
+import 'package:kalimat/challenge/models.dart';
 import 'package:kalimat/core/theme/kalimat_theme.dart';
 import 'package:kalimat/game/data/dictionary.dart';
 import 'package:kalimat/game/data/local_store.dart';
@@ -28,10 +32,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
-const _answer = 'مدرسة';
+const _answer = 'وردة';
 // Absent-only → mixed → nearly there: the board reads as a story.
-const _midPlay = ['كتابة', 'سلامة', 'مدينة'];
-const _won = ['سلامة', 'مدينة', 'مدرسة'];
+const _midPlay = ['جميل', 'بحار', 'ورقة'];
+const _won = ['بحار', 'ورقة', 'وردة'];
 // ٤٥ played · ٨٩٪ · streak ٧ · best ١٢ — the canvas's sample player.
 const _stats = GameStats(
   played: 45,
@@ -156,4 +160,50 @@ void main() {
     await _settle(tester);
     await binding.takeScreenshot('06-dark');
   });
+  for (final dark in [false, true]) {
+    testWidgets('duel board dark=$dark, motion disabled', (tester) async {
+      final store = await _store(helpSeen: true, dark: dark);
+      await store.setSettings(GameSettings(dark: dark, motion: false));
+      await store.setChallengeBoard(
+        'screenshot',
+        const ChallengeBoardSave(guesses: ['جميل', 'صباح', 'ساعة']),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            localStoreProvider.overrideWithValue(store),
+            dictionaryProvider.overrideWithValue(_dictionary),
+            challengeRepositoryProvider.overrideWithValue(_ScreenshotDuels()),
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: kalimatTheme(dark ? Brightness.dark : Brightness.light),
+            home: const Directionality(
+              textDirection: TextDirection.rtl,
+              child: ChallengeScreen(challengeId: 'screenshot'),
+            ),
+          ),
+        ),
+      );
+      await _settle(tester);
+      expect(tester.takeException(), isNull);
+      await binding.takeScreenshot(dark ? '08-duel-dark' : '07-duel');
+    });
+  }
+}
+
+class _ScreenshotDuels extends ChallengeRepository {
+  @override
+  Future<ChallengeDetail?> open(String id) async => ChallengeDetail(
+    id: id,
+    word: 'ساحة',
+    opponentId: 'opponent',
+    opponentName: 'تركي',
+    status: ChallengeStatus.active,
+    mine: const ChallengeSide(),
+    theirs: const ChallengeSide(guesses: 4),
+  );
+  @override
+  Stream<ChallengeSide> watchOpponent(String challengeId, String opponentId) =>
+      const Stream.empty();
 }

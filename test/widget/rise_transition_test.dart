@@ -39,7 +39,7 @@ Future<Widget> _app(
         DailyWord(
           date: DateTime(2026, 9, 1),
           puzzleNo: 1,
-          word: 'مدرسة',
+          word: 'وردة',
           fromServer: false,
         ),
       ),

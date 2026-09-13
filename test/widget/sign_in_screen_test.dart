@@ -10,6 +10,7 @@ import 'package:kalimat/game/widgets/tile.dart';
 import 'package:kalimat/onboarding/sign_in_screen.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 Future<Widget> _screen(
   WidgetTester tester, {
@@ -42,13 +43,15 @@ void main() {
 
     expect(find.text(S.appTitle), findsOneWidget);
     expect(find.text(S.signInPitch), findsOneWidget);
-    expect(find.byType(Tile), findsNWidgets(5));
+    expect(find.byType(Tile), findsNWidgets(4));
     // No GOOGLE_WEB_CLIENT_ID under `flutter test` ⇒ Google is hidden and
     // Apple takes the primary slot; a dead Google button would be an App
     // Review rejection.
     expect(find.text(S.continueWithGoogle), findsNothing);
-    expect(find.text(S.continueWithApple), findsOneWidget);
+    expect(find.byType(SignInWithAppleButton), findsOneWidget);
+    expect(find.text(S.continueWithAppleOfficial), findsOneWidget);
     expect(find.text(S.continueAsGuest), findsOneWidget);
+    expect(find.text(S.continueAsGuestEnglish), findsOneWidget);
     expect(find.text(S.legalLine), findsOneWidget);
   });
 
@@ -77,7 +80,7 @@ void main() {
     await tester.pump();
 
     // Supabase is unconfigured in tests, so ensureSession() fails fast.
-    await tester.tap(find.text(S.continueWithApple));
+    await tester.tap(find.byType(SignInWithAppleButton));
     await tester.pump();
     await tester.pump();
 

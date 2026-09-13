@@ -43,6 +43,9 @@ class _ChallengeResultDialog extends ConsumerWidget {
     final game = ref.watch(challengeGameProvider);
     final mine = ref.read(challengeGameProvider.notifier).mySide;
     final theirs = ref.watch(opponentSideProvider).value ?? detail.theirs;
+    final shareRows = game.rowStates.isEmpty
+        ? decodeResultGrid(mine.grid)
+        : game.rowStates;
     final outcome = decideOutcome(mine, theirs);
     final myName = ref.watch(displayNameProvider);
 
@@ -67,6 +70,7 @@ class _ChallengeResultDialog extends ConsumerWidget {
           const SizedBox(height: Metrics.s2),
           KalimatButton(
             label: S.shareResult,
+            disabled: shareRows.isEmpty,
             variant: KalimatButtonVariant.ghost,
             block: true,
             onPressed: () => SharePlus.instance.share(
@@ -77,7 +81,7 @@ class _ChallengeResultDialog extends ConsumerWidget {
                   won: mine.won,
                   opponentWon: theirs.won,
                   opponentGuesses: theirs.guesses,
-                  rows: game.rowStates,
+                  rows: shareRows,
                 ),
               ),
             ),

@@ -34,7 +34,7 @@ Everything App Store Connect asks for, ready to paste. Character limits are Appl
 ```
 «كلمات» لعبة الكلمة اليومية بالعربية.
 
-كل يوم كلمة واحدة من خمسة أحرف، ولك ست محاولات لتخمينها. بعد كل محاولة تتلوّن الحروف لتدلّك: بنيّ داكن للحرف في مكانه، بنيّ فاتح للحرف الموجود في مكان آخر، ورمادي للحرف غير الموجود. الكلمة نفسها لجميع اللاعبين، فشارك شبكتك الملوّنة دون أن تكشف الحل.
+كل يوم كلمة واحدة من أربعة أحرف، ولك ست محاولات لتخمينها. بعد كل محاولة تتلوّن الحروف لتدلّك: بنيّ داكن للحرف في مكانه، بنيّ فاتح للحرف الموجود في مكان آخر، ورمادي للحرف غير الموجود. الكلمة نفسها لجميع اللاعبين، فشارك شبكتك الملوّنة دون أن تكشف الحل.
 
 صُمّمت اللعبة للعربية من البداية:
 • واجهة عربية كاملة من اليمين إلى اليسار، بأرقام عربية.
@@ -80,6 +80,8 @@ Upload in this order — the first two carry the listing:
 4. `04-profile.png` — «حسابي» with stats and streak
 5. `05-signin.png` — sign-in screen
 6. `06-dark.png` — dark mode board
+7. `07-duel.png` — friend duel, motion disabled
+8. `08-duel-dark.png` — friend duel in dark mode, motion disabled
 
 Apple scales 6.9-inch shots to the other iPhone sizes automatically; iPad is not needed
 (the project is iPhone-only: `TARGETED_DEVICE_FAMILY = 1`).
@@ -126,7 +128,7 @@ Kalimat is a daily Arabic word game (Wordle-style). The whole UI is Arabic/RTL b
 - **Export compliance**: `ITSAppUsesNonExemptEncryption = NO` is already in Info.plist (HTTPS only),
   so the compliance prompt is skipped on each upload.
 - **Content rights**: fonts Noto Kufi Arabic / IBM Plex Sans Arabic (OFL, licences bundled);
-  word lists from Hugo0/wordle and hermitdave FrequencyWords (MIT). No third-party trademarks.
+  curated answer lists and accepted guesses from hermitdave FrequencyWords (MIT) plus reviewed additions. No third-party trademarks.
 - **Advertising identifier**: No.
 
 ## Before you press Submit — in-app checks

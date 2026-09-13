@@ -208,7 +208,7 @@ class _StatsContent extends ConsumerWidget {
               child: _WinPill(
                 text:
                     'كلمات ${toArabicDigits('${game.word.puzzleNo}')} — '
-                    '${toArabicDigits('${game.guesses.length}')}/٦',
+                    '${toArabicDigits('${game.guesses.length}')}/${toArabicDigits('$kMaxGuesses')}',
                 landmark: kStreakLandmarks.contains(stats.streak),
               ),
             ),
@@ -246,9 +246,9 @@ class _StatsContent extends ConsumerWidget {
         const SizedBox(height: Metrics.s2),
         // Bars fill top to bottom so the sequence ends on today's
         // highlighted row — the eye is delivered to the result.
-        for (var i = 0; i < 6; i++)
+        for (var i = 0; i < kMaxGuesses; i++)
           Padding(
-            padding: EdgeInsets.only(bottom: i < 5 ? 6 : 0),
+            padding: EdgeInsets.only(bottom: i < kMaxGuesses - 1 ? 6 : 0),
             child: DistributionBar(
               guess: i + 1,
               count: stats.dist[i],

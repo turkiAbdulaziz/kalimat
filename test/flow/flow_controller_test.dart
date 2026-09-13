@@ -63,7 +63,7 @@ void main() {
 
   test('signOut clears board, name, and onboarding but keeps stats', () async {
     await store.setBoard(
-      BoardSave(date: DateTime(2026, 9, 1), guesses: const ['مدرسة']),
+      BoardSave(date: DateTime(2026, 9, 1), guesses: const ['وردة']),
     );
     await store.setStats(const GameStats(played: 5, wins: 3, streak: 2));
     await container.read(flowProvider.notifier).completeName('ليلى');
@@ -102,7 +102,7 @@ void main() {
       );
       addTearDown(c.dispose);
       await store.setBoard(
-        BoardSave(date: DateTime(2026, 9, 1), guesses: const ['مدرسة']),
+        BoardSave(date: DateTime(2026, 9, 1), guesses: const ['وردة']),
       );
       await store.setStats(const GameStats(played: 5, wins: 3, streak: 2));
       await store.setChallengeBoard(
@@ -114,7 +114,7 @@ void main() {
           date: DateTime(2026, 9, 1),
           won: true,
           guesses: 3,
-          grid: '00000',
+          grid: '0000',
         ),
       ]);
       await c.read(flowProvider.notifier).completeName('ليلى');

@@ -46,6 +46,7 @@ class GameController extends WordGameNotifier {
   /// A game in progress is never interrupted — the new word is already
   /// cached and picked up on the next launch/rollover.
   void applyServerWord(DailyWord next) {
+    if (!isPlayableWord(next.word)) return;
     final same =
         _sameDate(state.word.date, next.date) && state.word.word == next.word;
     if (same) return;

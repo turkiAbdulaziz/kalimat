@@ -68,19 +68,19 @@ void main() {
     test('round trip keeps the date and typed spellings', () async {
       final store = await newStore();
       await store.setBoard(
-        BoardSave(date: DateTime(2026, 9, 1), guesses: const ['عندما', 'أعتقد']),
+        BoardSave(date: DateTime(2026, 9, 1), guesses: const ['كتاب', 'جميل']),
       );
       final loaded = store.board!;
       expect(loaded.date, DateTime(2026, 9, 1));
       // Typed spellings survive verbatim — the board shows what the player
       // typed, states are recomputed on load.
-      expect(loaded.guesses, ['عندما', 'أعتقد']);
+      expect(loaded.guesses, ['كتاب', 'جميل']);
     });
 
     test('clearBoard removes the save', () async {
       final store = await newStore();
       await store.setBoard(
-        BoardSave(date: DateTime(2026, 9, 1), guesses: const ['عندما']),
+        BoardSave(date: DateTime(2026, 9, 1), guesses: const ['كتاب']),
       );
       await store.clearBoard();
       expect(store.board, isNull);
@@ -100,21 +100,21 @@ void main() {
           date: DateTime(2026, 9, 1),
           won: true,
           guesses: 3,
-          grid: '01201|11020|22222',
+          grid: '0120|1102|2222',
           durationMs: 61234,
         ),
         PendingResult(
           date: DateTime(2026, 9, 2),
           won: false,
           guesses: null, // losses carry no guess count
-          grid: '00000|00000|00000|00000|00000|00000',
+          grid: '0000|0000|0000|0000|0000|0000',
         ),
       ]);
       final q = store.pendingResults;
       expect(q, hasLength(2));
       expect(q[0].won, isTrue);
       expect(q[0].guesses, 3);
-      expect(q[0].grid, '01201|11020|22222');
+      expect(q[0].grid, '0120|1102|2222');
       expect(q[0].durationMs, 61234);
       expect(q[1].won, isFalse);
       expect(q[1].guesses, isNull);
@@ -124,7 +124,12 @@ void main() {
     test('a successful flush drains the queue', () async {
       final store = await newStore();
       await store.setPendingResults([
-        PendingResult(date: DateTime(2026, 9, 1), won: true, guesses: 1, grid: '22222'),
+        PendingResult(
+          date: DateTime(2026, 9, 1),
+          won: true,
+          guesses: 1,
+          grid: '2222',
+        ),
       ]);
       await store.setPendingResults(const []);
       expect(store.pendingResults, isEmpty);
@@ -189,14 +194,14 @@ void main() {
       DailyWord(
         date: DateTime(2026, 9, 3),
         puzzleNo: 3,
-        word: 'يمكنك',
+        word: 'جميل',
         fromServer: true,
       ),
     );
     final w = store.cachedWord!;
     expect(w.date, DateTime(2026, 9, 3));
     expect(w.puzzleNo, 3);
-    expect(w.word, 'يمكنك');
+    expect(w.word, 'جميل');
     expect(w.fromServer, isTrue);
   });
 }

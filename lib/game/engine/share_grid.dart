@@ -3,7 +3,7 @@
 /// Format (design: «مربعات فقط، بلا نص إضافي» — squares only, no extra text):
 ///
 ///     كلمات ٢٤٧ — ٤/٦
-///     🟫🟨⬜⬜🟫
+///     🟫🟨⬜🟫
 ///     ...
 ///
 /// Each square line is prefixed with U+200F (RLM) so bidi keeps letter
@@ -12,6 +12,7 @@ library;
 
 import '../../core/utils/arabic_digits.dart';
 import 'models.dart';
+import 'game_rules.dart';
 
 const String _rlm = '‏';
 const String _squareCorrect = '🟫';
@@ -33,8 +34,10 @@ String buildShareText({
   required bool won,
   required List<List<TileState>> rows,
 }) {
+  _validateRows(rows);
   final score = won ? toArabicDigits('${rows.length}') : '—';
-  final header = '$_rlmكلمات ${toArabicDigits('$puzzleNo')} — $score/٦';
+  final header =
+      '$_rlmكلمات ${toArabicDigits('$puzzleNo')} — $score/${toArabicDigits('$kMaxGuesses')}';
   final lines = [
     header,
     for (final row in rows) _rlm + row.map(_square).join(),
@@ -46,7 +49,7 @@ String buildShareText({
 ///
 ///     ‏كلمات — تحدٍّ
 ///     ‏تركي ٣/٦ · ليلى ٤/٦
-///     🟫🟨⬜⬜🟫
+///     🟫🟨⬜🟫
 String buildChallengeShareText({
   required String myName,
   required String opponentName,
@@ -55,7 +58,10 @@ String buildChallengeShareText({
   required int opponentGuesses,
   required List<List<TileState>> rows,
 }) {
-  String score(bool w, int n) => w ? '${toArabicDigits('$n')}/٦' : '—/٦';
+  _validateRows(rows);
+  String score(bool w, int n) => w
+      ? '${toArabicDigits('$n')}/${toArabicDigits('$kMaxGuesses')}'
+      : '—/${toArabicDigits('$kMaxGuesses')}';
   final lines = [
     '$_rlmكلمات — تحدٍّ',
     '$_rlm$myName ${score(won, rows.length)} · '
@@ -63,4 +69,34 @@ String buildChallengeShareText({
     for (final row in rows) _rlm + row.map(_square).join(),
   ];
   return lines.join('\n');
+}
+
+void _validateRows(List<List<TileState>> rows) {
+  if (rows.isEmpty ||
+      rows.length > kMaxGuesses ||
+      rows.any((row) => row.length != kWordLength)) {
+    throw ArgumentError(
+      'Expected one to $kMaxGuesses rows of $kWordLength cells',
+    );
+  }
+}
+
+/// Server-only recap: typed letters are unavailable, but the result can be shared.
+List<List<TileState>> decodeResultGrid(String? grid) {
+  if (grid == null || !isCompatibleGrid(grid)) return const [];
+  return grid
+      .split('|')
+      .map(
+        (row) => row
+            .split('')
+            .map(
+              (cell) => switch (cell) {
+                '2' => TileState.correct,
+                '1' => TileState.present,
+                _ => TileState.absent,
+              },
+            )
+            .toList(),
+      )
+      .toList();
 }

@@ -28,11 +28,10 @@ class _HelpDialog extends StatelessWidget {
   final String? greetName;
 
   static const _example = [
-    ('م', TileState.correct),
-    ('ك', TileState.absent),
+    ('ك', TileState.correct),
     ('ت', TileState.present),
+    ('ا', TileState.absent),
     ('ب', TileState.absent),
-    ('ة', TileState.absent),
   ];
 
   @override

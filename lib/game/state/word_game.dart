@@ -15,17 +15,18 @@ import '../../core/strings.dart';
 import '../../core/theme/motion.dart';
 import '../data/dictionary.dart';
 import '../engine/evaluate.dart';
+import '../engine/game_rules.dart';
 import '../engine/keyboard_state.dart';
 import '../engine/letters.dart';
 import '../engine/models.dart';
 import 'haptics.dart';
 import 'settings_controller.dart';
 
-const int kWordLength = 5;
-const int kMaxGuesses = 6;
+export '../engine/game_rules.dart';
 
 /// Reveal choreography (must match the tile flip animation timings).
-const Duration kRevealTotal = Duration(milliseconds: 900); // 420 + 4*120
+final Duration kRevealTotal =
+    Motion.slow + Motion.flipStagger * (kWordLength - 1);
 const Duration kWinToastToStats = Duration(milliseconds: 1600);
 
 /// Motion off: no wave to make room for, keep the original delay.
@@ -33,9 +34,10 @@ const Duration kWinToastToStatsReduced = Duration(milliseconds: 1400);
 const Duration kLossToStats = Duration(milliseconds: 1000);
 
 /// Win wave: hold after the reveal, then a pop ripples across the winning
-/// row (Motion.waveStagger per tile). Total = 4×70 stagger + 220 pop.
+/// row (Motion.waveStagger per tile), then the final tile finishes its pop.
 const Duration kWinHoldToWave = Duration(milliseconds: 250);
-const Duration kWinWaveTotal = Duration(milliseconds: 500);
+final Duration kWinWaveTotal =
+    Motion.base + Motion.waveStagger * (kWordLength - 1);
 
 /// Overridden in main() with the loaded dictionary.
 final dictionaryProvider = Provider<GuessDictionary>(
@@ -189,6 +191,14 @@ abstract class WordGameNotifier extends Notifier<GameState> {
   /// Replays [guesses] onto [initial], recomputing row/key states and the
   /// finished status. Row states are never stored — only typed spellings.
   static GameState restoreBoard(GameState initial, List<String> guesses) {
+    if (!isPlayableWord(initial.word.word)) {
+      throw ArgumentError.value(
+        initial.word.word,
+        'word',
+        'Incompatible answer',
+      );
+    }
+    if (!isCompatibleBoard(guesses)) return initial;
     var s = initial;
     final target = stripMarks(s.word.word).split('');
     for (final guess in guesses.take(kMaxGuesses)) {
@@ -200,6 +210,7 @@ abstract class WordGameNotifier extends Notifier<GameState> {
         rowStates: [...s.rowStates, states],
         keyStates: updateKeyStates(s.keyStates, letters, states),
       );
+      if (states.every((t) => t == TileState.correct)) break;
     }
     if (s.rowStates.any((r) => r.every((t) => t == TileState.correct))) {
       return s.copyWith(status: GameStatus.won);
@@ -213,7 +224,12 @@ abstract class WordGameNotifier extends Notifier<GameState> {
   bool get motion => ref.read(settingsProvider).motion;
 
   void onKey(String letter) {
-    if (state.finished || state.current.length >= kWordLength) return;
+    if (!kKeyboardLetters.contains(letter) ||
+        state.finished ||
+        state.revealRow != -1 ||
+        state.current.length >= kWordLength) {
+      return;
+    }
     _startClock();
     ref.read(hapticsProvider).tap();
     state = state.copyWith(current: [...state.current, letter]);
@@ -357,6 +373,7 @@ abstract class WordGameNotifier extends Notifier<GameState> {
 
   /// Restarts the loop on a brand-new word (day rollover / rematch).
   void resetTo(DailyWord word) {
+    if (!isPlayableWord(word.word)) return;
     cancelTimers();
     _startedAtMs = null;
     state = GameState(word: word);

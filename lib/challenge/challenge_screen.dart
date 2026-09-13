@@ -16,6 +16,7 @@ import '../game/engine/letters.dart';
 import '../game/state/settings_controller.dart';
 import '../game/widgets/game_surface.dart';
 import '../game/widgets/kalimat_spinner.dart';
+import '../game/widgets/kalimat_button.dart';
 import '../game/widgets/screen_header.dart';
 import '../game/widgets/section_card.dart';
 import 'challenge_controller.dart';
@@ -52,18 +53,22 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
   /// get_challenge() is the only call that hands over the word, and it also
   /// stamps started_at — so the board is only mounted once it returns.
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _failed = false;
+    });
     final detail = await ref
         .read(challengeRepositoryProvider)
         .open(widget.challengeId);
     if (!mounted) return;
-    if (detail == null) {
+    if (detail == null ||
+        !ref.read(activeChallengeProvider.notifier).open(detail)) {
       setState(() {
         _loading = false;
         _failed = true;
       });
       return;
     }
-    ref.read(activeChallengeProvider.notifier).open(detail);
     setState(() => _loading = false);
 
     // Opened an already-played duel: go straight to the recap.
@@ -90,12 +95,14 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
     final c = context.kalimatColors;
     final detail = ref.watch(activeChallengeProvider);
 
-    ref.listen(challengeGameProvider.select((s) => s.statsDialogTick), (
-      prev,
-      next,
-    ) {
-      if (prev != null && next > prev) showChallengeResultDialog(context);
-    });
+    if (!_loading && !_failed && detail != null) {
+      ref.listen(challengeGameProvider.select((s) => s.statsDialogTick), (
+        prev,
+        next,
+      ) {
+        if (prev != null && next > prev) showChallengeResultDialog(context);
+      });
+    }
 
     final title = detail == null
         ? S.challenges
@@ -117,7 +124,15 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
                   child: _loading
                       ? const KalimatSpinner()
                       : _failed || detail == null
-                      ? const Center(child: SectionNote(S.openChallengeFailed))
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SectionNote(S.openChallengeFailed),
+                              KalimatButton(label: S.retry, onPressed: _load),
+                            ],
+                          ),
+                        )
                       : _keyboardListener(child: _Board(detail: detail)),
                 ),
               ],

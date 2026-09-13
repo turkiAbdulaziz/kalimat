@@ -28,9 +28,17 @@ class ActiveChallengeController extends Notifier<ChallengeDetail?> {
   ChallengeDetail? build() => null;
 
   /// Swaps in a duel and restarts the board on it.
-  void open(ChallengeDetail detail) {
+  bool open(ChallengeDetail detail) {
+    if (!isPlayableWord(detail.word) ||
+        [
+          detail.mine.grid,
+          detail.theirs.grid,
+        ].any((grid) => grid != null && !isCompatibleGrid(grid))) {
+      return false;
+    }
     state = detail;
     ref.invalidate(challengeGameProvider);
+    return true;
   }
 }
 
@@ -143,6 +151,6 @@ class ChallengeGameController extends WordGameNotifier {
     finished: state.finished,
     won: state.status == GameStatus.won,
     durationMs: _resultDurationMs ?? _detail.mine.durationMs,
-    grid: state.gridString,
+    grid: state.rowStates.isEmpty ? _detail.mine.grid : state.gridString,
   );
 }

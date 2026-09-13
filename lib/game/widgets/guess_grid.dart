@@ -1,4 +1,4 @@
-/// The 6×5 board. Rows shake on invalid input; the revealed row flips its
+/// The 6×4 board. Rows shake on invalid input; the revealed row flips its
 /// tiles with a 120ms stagger (index order = right-to-left under RTL).
 library;
 

@@ -34,7 +34,7 @@ Future<Widget> _app(
         DailyWord(
           date: dateOnly(DateTime.now()),
           puzzleNo: puzzleNumberFor(DateTime.now()),
-          word: 'مدرسة',
+          word: 'وردة',
           fromServer: false,
         ),
       ),
@@ -107,7 +107,7 @@ void main() {
     );
     await tester.pump();
 
-    for (final letter in ['م', 'د', 'ر', 'س', 'ة']) {
+    for (final letter in ['و', 'ر', 'د', 'ة']) {
       await tester.tap(
         find.descendant(of: find.byType(Scaffold), matching: find.text(letter)),
       );

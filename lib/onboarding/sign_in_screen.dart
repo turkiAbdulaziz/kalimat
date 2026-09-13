@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../backend/auth_repository.dart';
 import '../backend/backend_providers.dart';
@@ -50,6 +51,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final c = context.kalimatColors;
     final motion = ref.watch(settingsProvider.select((s) => s.motion));
+    final dark = Theme.brightnessOf(context) == Brightness.dark;
 
     return AuthShell(
       bottom: Text(
@@ -106,16 +108,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               ),
               const SizedBox(height: Metrics.s2),
             ],
-            KalimatButton(
-              label: S.continueWithApple,
-              variant: kGoogleSignInAvailable
-                  ? KalimatButtonVariant.secondary
-                  : KalimatButtonVariant.primary,
-              large: true,
-              block: true,
-              disabled: _busy,
-              onPressed: () =>
-                  _start(ref.read(authRepositoryProvider).linkApple),
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: SignInWithAppleButton(
+                onPressed: _busy
+                    ? null
+                    : () => _start(ref.read(authRepositoryProvider).linkApple),
+                text: S.continueWithAppleOfficial,
+                height: 52,
+                style: dark
+                    ? SignInWithAppleButtonStyle.white
+                    : SignInWithAppleButtonStyle.black,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(Metrics.rPill),
+                ),
+                iconAlignment: SignInWithAppleIconAlignment.left,
+              ),
             ),
             const SizedBox(height: Metrics.s2),
             KalimatButton(
@@ -125,6 +133,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               disabled: _busy,
               onPressed: () =>
                   ref.read(flowProvider.notifier).continueAsGuest(),
+            ),
+            const SizedBox(height: Metrics.s1),
+            Text(
+              S.continueAsGuestEnglish,
+              textAlign: TextAlign.center,
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                fontFamily: kFontUi,
+                fontSize: TypeScale.xs2,
+                fontWeight: FontWeight.w400,
+                color: c.textSubtle,
+                letterSpacing: 0,
+                height: 1.2,
+              ),
             ),
             const SizedBox(height: Metrics.s2),
             SizedBox(

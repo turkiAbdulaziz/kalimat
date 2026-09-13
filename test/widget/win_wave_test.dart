@@ -57,7 +57,7 @@ Future<(Widget, RecordingHaptics)> _app(
         DailyWord(
           date: dateOnly(DateTime.now()),
           puzzleNo: puzzleNumberFor(DateTime.now()),
-          word: 'مدرسة',
+          word: 'وردة',
           fromServer: false,
         ),
       ),
@@ -106,11 +106,11 @@ void main() {
     await tester.pumpWidget(app);
     await tester.pump();
 
-    _type(tester, 'مدرسة');
+    _type(tester, 'وردة');
     await tester.pump();
 
-    // Reveal runs 900ms; the wave holds 250ms more.
-    await tester.pump(const Duration(milliseconds: 900));
+    // Reveal runs 780ms; the wave holds 250ms more.
+    await tester.pump(kRevealTotal);
     expect(_game(tester).waveRow, -1);
     expect(haptics.successes, 0);
     await tester.pump(const Duration(milliseconds: 250));
@@ -118,11 +118,11 @@ void main() {
     expect(haptics.successes, 1);
 
     // Near the first pop's peak (~60ms in): the rightmost tile (index 0)
-    // is scaling, the leftmost (index 4, wave delay 280ms) has not started.
+    // is scaling, the leftmost (index 3, wave delay 210ms) has not started.
     await tester.pump(const Duration(milliseconds: 30));
     await tester.pump(const Duration(milliseconds: 30));
     expect(_tileScale(tester, 0), greaterThan(1.01));
-    expect(_tileScale(tester, 4), 1.0);
+    expect(_tileScale(tester, 3), 1.0);
 
     // Wave clears, stats dialog rises at 1600ms after the toast.
     await tester.pump(const Duration(milliseconds: 1300));
@@ -138,7 +138,7 @@ void main() {
     await tester.pumpWidget(app);
     await tester.pump();
 
-    _type(tester, 'مدرسة');
+    _type(tester, 'وردة');
     await tester.pump();
 
     // Reveal is synchronous with motion off; the finish already ran.
@@ -160,7 +160,7 @@ void main() {
     await tester.pump();
 
     for (var i = 0; i < 6; i++) {
-      _type(tester, 'عندما');
+      _type(tester, 'كتاب');
       await tester.pump();
     }
     expect(_game(tester).status, GameStatus.lost);
@@ -170,10 +170,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AnswerTiles), findsOneWidget);
     expect(
-      find.descendant(of: find.byType(AnswerTiles), matching: find.byType(Tile)),
-      findsNWidgets(5),
+      find.descendant(
+        of: find.byType(AnswerTiles),
+        matching: find.byType(Tile),
+      ),
+      findsNWidgets(4),
     );
     // Typing haptics fired throughout play.
-    expect(haptics.taps, 30);
+    expect(haptics.taps, 24);
   });
 }

@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../engine/models.dart';
+import '../engine/game_rules.dart';
 
 /// Player statistics. dist[i] = wins in (i+1) guesses.
 class GameStats {
@@ -36,7 +37,8 @@ class GameStats {
       streak: newStreak,
       best: newStreak > best ? newStreak : best,
       dist: [
-        for (var i = 0; i < 6; i++) dist[i] + (won && guesses == i + 1 ? 1 : 0),
+        for (var i = 0; i < kMaxGuesses; i++)
+          dist[i] + (won && guesses == i + 1 ? 1 : 0),
       ],
     );
   }
@@ -190,7 +192,7 @@ class PendingResult {
   final DateTime date;
   final bool won;
   final int? guesses; // null on loss
-  final String grid; // e.g. "01201|22222" (0=absent,1=present,2=correct)
+  final String grid; // e.g. "0120|2222" (0=absent,1=present,2=correct)
   final int? durationMs;
 
   Map<String, Object?> toJson() => {
@@ -214,6 +216,25 @@ class LocalStore {
   LocalStore(this._prefs);
 
   final SharedPreferencesWithCache _prefs;
+
+  static const _kGameplayVersion = 'gameplay_version';
+
+  /// Run before resolving the startup word or creating any game providers.
+  /// Write the marker last: interrupted/failed clearing retries next launch.
+  Future<void> migrateGameplay() async {
+    if ((_prefs.getInt(_kGameplayVersion) ?? 0) >= kGameplayVersion) return;
+    for (final key in [
+      _kWord,
+      _kBoard,
+      _kChallengeBoards,
+      _kQueue,
+      _kStats,
+      _kHelpSeen,
+    ]) {
+      await _prefs.remove(key);
+    }
+    await _prefs.setInt(_kGameplayVersion, kGameplayVersion);
+  }
 
   static const _kWord = 'cached_word';
   static const _kBoard = 'board';
@@ -242,23 +263,36 @@ class LocalStore {
       return jsonDecode(raw) as Map<String, Object?>;
     } on FormatException {
       return null;
+    } on TypeError {
+      return null;
     }
   }
 
   Future<void> _setJson(String key, Object value) =>
       _prefs.setString(key, jsonEncode(value));
 
-  DailyWord? get cachedWord {
-    final j = _json(_kWord);
-    return j == null ? null : DailyWord.fromJson(j);
+  T? _read<T>(String key, T? Function(Map<String, Object?>) decode) {
+    try {
+      final json = _json(key);
+      return json == null ? null : decode(json);
+    } on FormatException {
+      return null;
+    } on TypeError {
+      return null;
+    }
   }
+
+  DailyWord? get cachedWord => _read(_kWord, (json) {
+    final word = DailyWord.fromJson(json);
+    return isPlayableWord(word.word) ? word : null;
+  });
 
   Future<void> setCachedWord(DailyWord w) => _setJson(_kWord, w.toJson());
 
-  BoardSave? get board {
-    final j = _json(_kBoard);
-    return j == null ? null : BoardSave.fromJson(j);
-  }
+  BoardSave? get board => _read(_kBoard, (json) {
+    final saved = BoardSave.fromJson(json);
+    return isCompatibleBoard(saved.guesses) ? saved : null;
+  });
 
   Future<void> setBoard(BoardSave b) => _setJson(_kBoard, b.toJson());
 
@@ -319,7 +353,14 @@ class LocalStore {
     final out = <String, ChallengeBoardSave>{};
     j.forEach((id, value) {
       if (value is Map) {
-        out[id] = ChallengeBoardSave.fromJson(Map<String, Object?>.from(value));
+        try {
+          final saved = ChallengeBoardSave.fromJson(
+            Map<String, Object?>.from(value),
+          );
+          if (isCompatibleBoard(saved.guesses)) out[id] = saved;
+        } on TypeError {
+          // Ignore malformed saved duels.
+        }
       }
     });
     return out;
@@ -350,8 +391,11 @@ class LocalStore {
       return (jsonDecode(raw) as List)
           .cast<Map<String, Object?>>()
           .map(PendingResult.fromJson)
+          .where((result) => isCompatibleGrid(result.grid))
           .toList();
     } on FormatException {
+      return const [];
+    } on TypeError {
       return const [];
     }
   }

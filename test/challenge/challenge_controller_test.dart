@@ -63,7 +63,7 @@ ChallengeDetail _detail({
   ChallengeSide theirs = const ChallengeSide(),
 }) => ChallengeDetail(
   id: 'duel-1',
-  word: 'مدرسة',
+  word: 'وردة',
   opponentId: 'them',
   opponentName: 'ليلى',
   status: ChallengeStatus.active,
@@ -113,18 +113,18 @@ void main() {
 
   test('every guess pushes live progress to the opponent', () async {
     final (c, repo) = await _duel();
-    _submit(c, 'عندما');
-    _submit(c, 'مكتبة');
+    _submit(c, 'كتاب');
+    _submit(c, 'صباح');
     expect(repo.progress, [1, 2]);
     // A rejected word never reaches the server.
-    _submit(c, 'ززززز');
+    _submit(c, 'زززز');
     expect(repo.progress, [1, 2]);
   });
 
   test('a win submits once, with the grid and a measured clock', () async {
     final (c, repo) = await _duel();
-    _submit(c, 'عندما');
-    _submit(c, 'مدرسة');
+    _submit(c, 'كتاب');
+    _submit(c, 'وردة');
 
     expect(repo.submissions, hasLength(1));
     final sent = repo.submissions.single;
@@ -139,7 +139,7 @@ void main() {
   test('a loss submits with won=false after six guesses', () async {
     final (c, repo) = await _duel();
     for (var i = 0; i < 6; i++) {
-      _submit(c, 'عندما');
+      _submit(c, 'كتاب');
     }
     expect(repo.submissions, hasLength(1));
     expect(repo.submissions.single['won'], false);
@@ -149,7 +149,7 @@ void main() {
 
   test('daily stats and the daily result queue are untouched', () async {
     final (c, _) = await _duel();
-    _submit(c, 'مدرسة');
+    _submit(c, 'وردة');
 
     expect(c.read(challengeGameProvider).status, GameStatus.won);
     expect(c.read(statsProvider).played, 0);
@@ -160,22 +160,25 @@ void main() {
 
   test('the duel board is persisted per challenge and restored', () async {
     final (c, _) = await _duel();
-    _submit(c, 'عندما');
+    _submit(c, 'كتاب');
 
     final saved = _store.challengeBoard('duel-1');
-    expect(saved?.guesses, ['عندما']);
+    expect(saved?.guesses, ['كتاب']);
     expect(saved?.startedAtMs, isA<int>());
 
     // A fresh container over the same store rebuilds the row and its clock.
     final (c2, _) = await _duel(
       prefs: {
         'challenge_boards': jsonEncode({
-          'duel-1': {'guesses': ['عندما'], 'startedAtMs': 1000},
+          'duel-1': {
+            'guesses': ['كتاب'],
+            'startedAtMs': 1000,
+          },
         }),
       },
     );
     final restored = c2.read(challengeGameProvider);
-    expect(restored.guesses, ['عندما']);
+    expect(restored.guesses, ['كتاب']);
     expect(restored.rowStates, hasLength(1));
     expect(restored.status, GameStatus.playing);
   });
@@ -191,7 +194,7 @@ void main() {
     expect(state.finished, isTrue);
     expect(state.status, GameStatus.won);
 
-    _submit(c, 'مدرسة');
+    _submit(c, 'وردة');
     expect(repo.submissions, isEmpty);
     expect(repo.progress, isEmpty);
   });

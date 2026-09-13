@@ -3,7 +3,7 @@
 /// Each `binding.takeScreenshot(name)` in the test is captured on the device
 /// by the integration_test plugin and handed to this callback once the run is
 /// over (the callback is post-hoc, not live — so it can't shell out to
-/// `simctl` for a status-bar shot; the six frames would all show the last
+/// `simctl` for a status-bar shot; the eight frames would all show the last
 /// screen). The PNGs are the full Flutter view at device resolution —
 /// 1320×2868 on the iPhone 17 Pro Max — with the status-bar strip left to the
 /// app's own background.

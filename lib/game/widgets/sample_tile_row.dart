@@ -1,4 +1,4 @@
-/// The «كلمات» demo row: correct/correct/present/absent/correct, flipping
+/// The «كتاب» demo row: correct/present/absent/correct, flipping
 /// in once with the usual 120ms stagger when motion is on. The sign-in
 /// hero and empty states that should breathe once share it.
 library;
@@ -18,10 +18,9 @@ class SampleTileRow extends StatelessWidget {
 
   static const _cells = [
     ('ك', TileState.correct),
-    ('ل', TileState.correct),
-    ('م', TileState.present),
+    ('ت', TileState.present),
     ('ا', TileState.absent),
-    ('ت', TileState.correct),
+    ('ب', TileState.correct),
   ];
 
   @override

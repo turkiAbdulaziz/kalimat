@@ -13,7 +13,7 @@ OneDrive to carry the repo to the Mac.
 
 ## The product in one paragraph
 
-Guess the 5-letter Arabic word of the day in 6 tries. RTL everywhere, MSA copy,
+Guess the 4-letter Arabic word of the day in 6 tries. RTL everywhere, MSA copy,
 Arabic-Indic digits (٠-٩) in all UI. Lenient matching: hamza forms أ إ آ count
 as ا, ة = ه, ى = ي (target-side also ؤ→و, ئ→ي); the board shows what the player typed;
 the stored answer keeps correct spelling. Brown monochrome design (correct = dark brown,
@@ -60,7 +60,7 @@ core-library desugaring is ON in `android/app/build.gradle.kts` (required by
 flutter_local_notifications — don't remove).
 
 ```powershell
-flutter test                 # 149 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
+flutter test                 # 170 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
 flutter analyze              # clean
 flutter run --dart-define-from-file=env/dev.json    # online build (Supabase creds live in env/dev.json)
 # Windows/Android:
@@ -82,11 +82,11 @@ adb -s emulator-5554 shell am start -n com.kalimat.game/com.kalimat.kalimat.Main
 | `core/theme/motion_scope.dart` | The «حركة المربعات» gate for shared leaf widgets: `MotionScope` InheritedWidget installed once in `app.dart` (`MaterialApp.builder`, above the Navigator so dialogs inherit it), read via `context.motionEnabled` / `context.motionDuration(token)`, **defaults to true when absent** (leaf tests need no wrapper). The cut: gate translation/scale/stagger/blur; ≤140ms color/opacity crossfades and the 80ms press scale are exempt as state legibility. Board reveal/shake/wave stay gated in the state layer; `GameSurface(motion:)`/`riseRoute(motion:)` prop-drills were kept. |
 | `core/rise_route.dart` | The house screen transition (kalimat-rise: fade + 8px rise, `Motion.base`/`easeOut`; pop = sink+fade). Used by `flow/root_flow.dart`'s step switcher, both profile push sites, and the «التحدّيات» / duel-board pushes. Gated by the motion setting — off ⇒ `Duration.zero`. |
 | `game/engine/` | **Pure Dart, zero Flutter imports, fully unit-tested.** `letters.dart` (33-key rows + `normalizeLetter/Word`), `evaluate.dart` (duplicate-safe two-pass on normalized forms), `keyboard_state.dart` (upgrade-only hints keyed by canonical class — this is why أ/إ/ا color together), `puzzle_calendar.dart` (**epoch 2026-09-01 = puzzle ١**), `share_grid.dart` (RLM-prefixed 🟫🟨⬜ rows). |
-| `game/data/` | `dictionary.dart` (18.3k normalized guess set), `bundled_word_source.dart` (offline answers, same ordering as the server seed), `local_store.dart` (SharedPreferences JSON: cached word, board, **stats — local is authoritative**, settings, pending-results queue, `onboarded` flag, cached `display_name`, reminder settings, and per-duel boards keyed by challenge id — pruned to the last 10). |
-| `game/state/` | Riverpod Notifiers. `word_game.dart` holds the **shared** loop — typing, validation, reveal choreography (flip 900 ms = 420 + 4×120 stagger), win/loss sequencing incl. the **win wave** (250 ms hold → pop ripples across the winning row at 70 ms/tile via `waveRow` — duels inherit it; stats dialog at 1600 ms, or 1400 ms motion-off with no wave), the solve clock — as `WordGameNotifier`, with session hooks (`sessionWord`, `persistBoard`, `onGuessSubmitted`, `onFinished`). `game_controller.dart` is the daily session on top of it (board save, local stats, result queue, `applyServerWord` — never interrupts a game in progress) and re-exports `word_game.dart`, so `GameState`/`kWordLength`/`dictionaryProvider` still come from it. The duel session is `challenge/challenge_controller.dart`. `haptics.dart` (`hapticsProvider` → semantic `tap/success/error`, behind the «الاهتزاز» setting, fired from the notifier at visual peaks — still fires when motion is off; tests override with a recording fake). |
+| `game/data/` | `dictionary.dart` (7,918 normalized guesses), `bundled_word_source.dart` (offline answers, same ordering as the server seed), `local_store.dart` (SharedPreferences JSON: cached word, board, **stats — local is authoritative**, settings, pending-results queue, `onboarded` flag, cached `display_name`, reminder settings, and per-duel boards keyed by challenge id — pruned to the last 10). |
+| `game/state/` | Riverpod Notifiers. `word_game.dart` holds the **shared** loop — typing, validation, reveal choreography (flip 780 ms = 420 + 3×120 stagger), win/loss sequencing incl. the **win wave** (250 ms hold → pop ripples across the winning row at 70 ms/tile via `waveRow` — duels inherit it; stats dialog at 1600 ms, or 1400 ms motion-off with no wave), the solve clock — as `WordGameNotifier`, with session hooks (`sessionWord`, `persistBoard`, `onGuessSubmitted`, `onFinished`). `game_controller.dart` is the daily session on top of it (board save, local stats, result queue, `applyServerWord` — never interrupts a game in progress) and re-exports `word_game.dart`, so `GameState`/`kWordLength`/`dictionaryProvider` still come from it. The duel session is `challenge/challenge_controller.dart`. `haptics.dart` (`hapticsProvider` → semantic `tap/success/error`, behind the «الاهتزاز» setting, fired from the notifier at visual peaks — still fires when motion is off; tests override with a recording fake). |
 | `game/widgets/`, `game/dialogs/`, `game_screen.dart` | The UI. Widgets are dumb/props-only (shared set incl. `KalimatAvatar`, `KalimatInput`, `KalimatListRow`, `Wordmark`). Dialogs via `showKalimatDialog` (brown overlay + 2 px blur + rise); there is **no settings dialog** — preferences live on the profile screen, and the header's trailing avatar (not a gear) opens it. Pushed screens share `ScreenHeader` + `SectionCard`/`SectionNote`; the board itself is `GameSurface` (badge slot + grid + keyboard), mounted by both the daily screen and the duel screen. The game screen never scrolls; tiles shrink first on small screens. |
 | `flow/` | `flow_controller.dart` (`FlowStep` signin/name/game + `flowProvider`; gating: unconfigured or `onboarded` → straight to game, existing installs migrate silently; also `displayNameProvider`, sign-out clears board+identity but **keeps stats**; `deleteAccount()` calls the 0007 RPC and then wipes the device — stats, duel boards and the result queue included — before returning to sign-in), `root_flow.dart` (`home:` widget — kalimat-rise switch between steps: incoming screen fades in + rises 8px over `Motion.base`, outgoing fades in place; instant when «حركة المربعات» is off). |
-| `onboarding/` | `auth_shell.dart` (centred column, pinned bottom block), `sign_in_screen.dart` (Google/Apple/guest; inline taupe error line — new screens have no ToastSlot; the Google button renders only while `kGoogleSignInAvailable` — i.e. `GOOGLE_WEB_CLIENT_ID` is set — and Apple takes the primary slot otherwise, so a reviewer never meets a dead button), `name_screen.dart`. |
+| `onboarding/` | `auth_shell.dart` (centred column, pinned bottom block), `sign_in_screen.dart` (Google/Apple/guest; inline taupe error line — new screens have no ToastSlot; the Google button renders only while `kGoogleSignInAvailable` — i.e. `GOOGLE_WEB_CLIENT_ID` is set — and Apple takes the primary slot otherwise, so a reviewer never meets a dead button). The Apple action uses `SignInWithAppleButton` with the official logo, approved “Continue with Apple” title, black/white theme styles and a 52px capsule. «المتابعة كزائر» remains the dominant guest label, with the subtle English clarification “Continue as guest · No account required” beneath it for App Review. `name_screen.dart` follows. |
 | `profile/` | `profile_screen.dart` («حسابي», pushed with the shared rise route (`core/rise_route.dart` — sink+fade on close, instant removal on sign-out); board state survives because it lives in providers), `edit_name_dialog.dart` (tap the name), `save_progress_section.dart` (anonymous-only linking, moved from the old settings dialog, keeps the confirm-switch dialog; same Google gate), `delete_account_dialog.dart` («حذف الحساب» — the confirm behind the danger row that sits under sign-out for linked users; App Review 5.1.1(v) requires in-app deletion wherever accounts can be created), `reminder_dialog.dart` (١٢-hour steppers + ص/م). |
 | `challenge/` | Duels «التحدّيات». `models.dart` (pure Dart: `ChallengeSide/Summary/Detail`, `Friend`, and `decideOutcome` — the winner rule, kept in lockstep with the SQL), `challenge_controller.dart` (`activeChallengeProvider` + `challengeGameProvider` + `opponentSideProvider`; one duel at a time, so no family), `challenges_screen.dart` (segmented shell) → `challenges_tab.dart` / `friends_tab.dart`, `challenge_screen.dart` (the duel board), `challenge_result_dialog.dart`, plus the add-friend / pick-friend / remove-friend dialogs. |
 | `notifications/` | `notification_service.dart` (flutter_local_notifications v22 + timezone; **inexact** daily schedule — no exact-alarm permission; `supported` guard keeps it off web/desktop/tests), `reminder_controller.dart` (permission → schedule/cancel → persist). Manifest has the two receivers + POST_NOTIFICATIONS/BOOT_COMPLETED. |
@@ -100,16 +100,19 @@ shared game loop rather than forking any of them.
 
 ## Word-list pipeline
 
-`dart run tool/build_wordlists.dart` (raw inputs in git-ignored `tool/raw/`, download URLs
-in the file header). Emits `assets/words/dictionary.txt`, `tool/out/answers_candidates.txt`
-(11,251 frequency-ranked candidates with clitic flags AL/W/F/B/L/SUF), a **provisional**
-`assets/words/answers.txt` (only when missing — it will not clobber a curated list),
-`supabase/seed/daily_words_seed.sql` (same ordering ⇒ offline and online agree), and
-`supabase/seed/challenge_words_seed.sql` (2,000 duel words, **disjoint from answers.txt**
-so a duel can never spoil a future daily — regenerate both together).
-The MustafaLinux list was evaluated and **rejected** (morphologically generated junk —
-would accept nearly anything as "a word"). Sources kept: Hugo0/wordle + hermitdave
-FrequencyWords, both MIT.
+`dart run tool/build_wordlists.dart` generates the 7,918-word normalized dictionary and both SQL seeds. `--check` verifies reproducible output without writing. The source answer lists are committed: 365 daily answers in `assets/words/answers.txt` and 200 disjoint duel answers in `tool/curated/duel_answers.txt`. Generation never chooses answers or creates provisional lists. The local FrequencyWords input supplies broader guesses, supplemented by reviewed additions; the five-letter source is removed from generation. See [vocabulary policy and source hash](tool/curated/README.md).
+
+Pure-Dart `game/engine/game_rules.dart` owns four letters, six attempts, compatibility checks and gameplay version 2. `startup_word.dart` awaits the one-time gameplay reset before resolving a cached/bundled answer. Correct display spelling and lenient matching are preserved. The original September 1, 2026 epoch and daily order match SQL seeds through August 31, 2027.
+
+## Four-letter rollout (2026-09-13)
+
+The updated daily/duel UI has centered 6×4 boards with the existing 58px maximum tiles and full Arabic keyboard. Reveal is 780ms; the win wave is 430ms, both derived from four tiles. Help/demo rows, Arabic instructions, store copy and screenshot fixtures use four-letter words; the name remains «كلمات».
+
+The local migration clears cached answers, daily/duel boards, pending results, statistics and help-seen once. It preserves accounts/authentication, names, onboarding, preferences and reminders. The marker is written last; failed clearing retries at startup. Incompatible cached/server words never enter the engine. Daily play falls back to bundled words; stale duels show retry/back. Server-only finished duel grids can still be shared without stored typed guesses.
+
+[Transactional deployment and verification](supabase/FOUR_LETTER_ROLLOUT.md) documents migration 0008, backup, reset scope and updated-client requirements. Populated PostgreSQL 17.11 tests passed: reset and rollback, preserved identity/friendship/policy/RPC snapshots, four-cell result acceptance, invalid/five-cell rejection and replay protection. The production rollout, including migrations 0007 and 0008 plus the regenerated seeds, was confirmed applied by the account owner on 2026-09-13.
+
+Flutter verification: all 170 tests passed and `flutter analyze` reports no issues. Coverage includes the 16 daily/duel × light/dark × motion on/off × 320×568/430×932 layout combinations, stale-duel retry, interrupted/once-only local migration, duplicate and equivalent Arabic letters, four-cell sharing, vocabulary and every online/offline seed date. The iOS integration suite passed all eight captures at 1320×2868; every final PNG was visually reviewed.
 
 ## Supabase (LIVE since 2026-08-26)
 
@@ -327,7 +330,7 @@ place to explore a redesign. The Figma file stays as the component/variable refe
   official dark mapping), the type ramp, spacing, radii, shadows, keyboard rows and every string in
   `strings.dart` were lifted verbatim. Fonts are the real Noto Kufi Arabic / IBM Plex Sans Arabic
   via Google Fonts — nothing is substituted. Icons are the same Lucide set, drawn as stroke SVG.
-- **Sample data**: player ليلى, puzzle ٤, answer مدرسة, opponent نورة, friends سارة / عمر / خالد,
+- **Sample data**: player ليلى, puzzle ٤, answer وردة, opponent نورة, friends سارة / عمر / خالد,
   a pending request from هند, friend code ٤٨٢٩١٧, stats ٤٢ played · ٨٩٪ · streak ٧ · best ١٢.
 - **Known approximations**: the two stock Material snackbars («تم نسخ الرمز», «تعذّر إنشاء
   التحدي») — their colours come from `ColorScheme.fromSeed`, not the token set. Everything else is
@@ -398,24 +401,33 @@ flutter build ipa --release --dart-define-from-file=env/dev.json \
   `pubspec.yaml` before rebuilding. Processing takes ~10 min, then the build can be picked on
   the version page.
 - **The App Store Connect record exists**: «كلمات», `com.kalimat.game`, **app ID 6809039437**,
-  created by the account owner 2026-09-05. **No build has been uploaded yet** (as of
-  2026-09-06 00:05): the first Organizer attempt failed on a corrupted archive (gotcha 18);
-  the archive and IPA were then rebuilt clean and verified (Apple Distribution
-  `W62CSC2R8A`, applesignin entitlement, `get-task-allow` off, `DTPlatformName = iphoneos`).
+  created by the account owner 2026-09-05. The last confirmed status is that no build has been
+  uploaded. The first Organizer attempt failed on a corrupted archive (gotcha 18); a clean
+  September 6 archive then verified the Apple Distribution pipeline, but it predates the
+  four-letter rollout and the App Review sign-in changes. **Do not upload that old IPA.** Build
+  a fresh signed archive from the current tree after coordinating the server switch.
 - Google is still unconfigured: `kGoogleSignInAvailable` hides the button, so the shipped
   sign-in screen is Apple + guest. When Google credentials exist, the iOS side also needs
   `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios
   requirement) in addition to `--dart-define=GOOGLE_WEB_CLIENT_ID=…`.
+- The first-run Apple action uses the official-style `sign_in_with_apple` package control:
+  Apple logo on the left, approved “Continue with Apple” title, 52px height, and black in
+  light mode / white in dark mode. The guest action adds a smaller muted English line —
+  “Continue as guest · No account required” — while keeping «المتابعة كزائر» visually primary.
+  The three focused sign-in widget tests and the eight-frame iOS integration suite passed after
+  this change; `05-signin.png` was regenerated and visually checked on the simulator.
 
-**Screenshots** — `store/screenshots/*.png`, 1320×2868 (6.9-inch, the one size Apple requires)
+**Screenshots** — eight files in `store/screenshots/*.png`, all 1320×2868 (6.9-inch, the one size Apple requires)
 - A dedicated simulator **«Kalimat Screens»** (iPhone 17 Pro Max, iOS 26.5).
 - `integration_test/screenshots_test.dart` seeds an in-memory LocalStore per frame (player ليلى,
-  answer مدرسة, the canvas's sample stats) and pumps the real app unconfigured; each
+  answer وردة, the canvas's sample stats) and pumps the real app unconfigured; each
   `binding.takeScreenshot()` is captured on the device and written by
   `test_driver/integration_test.dart` after the run. The frames are the full Flutter view —
   the status-bar strip shows the app's own background, no clock/battery (Apple doesn't require
-  one). Not part of `flutter test` (integration tests need a device). ~30 s once the debug
-  build is cached.
+  one). Frames 07 and 08 use the real duel screen with a fake repository and cover light/dark
+  motion-off states. Not part of `flutter test` (integration tests need a device). The final
+  eight-frame run passed after the debug build was cached, and all PNGs were reviewed. The
+  sign-in frame includes the official Apple control and English guest clarification.
 ```
 udid=$(xcrun simctl list devices | grep 'Kalimat Screens' | grep -oE '[0-9A-F-]{36}')
 xcrun simctl boot $udid
@@ -424,7 +436,7 @@ flutter drive --driver=test_driver/integration_test.dart \
 ```
 - **Gotcha (cost one run):** the extended driver's `onScreenshot` callback is *post-hoc* — it
   receives all captures after the last test — so shelling out to `simctl io screenshot` from it
-  for status-bar shots yields six copies of the final screen. Live host-side capture would need
+  for status-bar shots yields eight copies of the final screen. Live host-side capture would need
   a flutter_driver-style app entry (`enableFlutterDriverExtension`) driven step by step.
 
 **Store copy & legal** — `store/`
@@ -439,7 +451,7 @@ flutter drive --driver=test_driver/integration_test.dart \
 
 **Still on the store side (needs the account owner)**: the app record exists; what remains is
 to paste `listing.md` and the screenshots into it, host the two pages and paste their URLs,
-upload the build, run `0007_delete_account.sql`, turn on the Apple provider in Supabase with
+upload the build, turn on the Apple provider in Supabase with
 `com.kalimat.game` in its Client IDs, and TestFlight once on a real iPhone. Code-side, the only
 open item is the in-app privacy-policy link, which waits for the hosted URL. STATUS.md keeps
 the live checklist.
