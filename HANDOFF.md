@@ -413,14 +413,15 @@ flutter build ipa --release --dart-define-from-file=env/dev.json \
   Sign in with Apple entitlement. Xcode Organizer was opened on this fresh archive, but it was not
   uploaded. Build 1 remains valid only while App Store
   Connect has not accepted another build 1; otherwise bump `pubspec.yaml` to `1.0.0+2` and rebuild.
-  On **2026-09-15**, the working tree fixed inconsistent result colors between light and dark mode:
-  correct/present had exchanged their dark/light visual roles. Result fills now keep one identity
-  across themes (correct brown-700, present brown-400, absent taupe-500), with per-state text colors
-  that clear the large-text contrast threshold. All 173 tests, `flutter analyze`, deterministic
-  word-list verification, and the eight-frame iOS integration capture passed; the regenerated
-  screenshots were visually reviewed. The existing IPA predates this fix, so **rebuild before
-  uploading**. The release commit and its preceding local commits have **not been pushed**; `main`
-  was nine commits ahead of `origin/main` before this uncommitted color fix.
+  On **2026-09-15**, commit `8ba49c8` (`Fix cross-theme letter state colors`) fixed inconsistent
+  result colors between light and dark mode: correct/present had exchanged their dark/light visual
+  roles. Result fills now keep one identity across themes (correct brown-700, present brown-400,
+  absent taupe-500), with per-state text colors that clear the large-text contrast threshold. All
+  173 tests, `flutter analyze`, deterministic word-list verification, and the eight-frame iOS
+  integration capture passed; the regenerated screenshots were visually reviewed. The existing
+  IPA predates this fix, so **rebuild before uploading**. Commit `8ba49c8` and all preceding local
+  work were pushed; `main`, `origin/main`, and `origin/HEAD` are synchronized at `8ba49c8`. The
+  local untracked `.codex/` directory was deliberately excluded.
 - Google is still unconfigured: `kGoogleSignInAvailable` hides the button, so the shipped
   sign-in screen is Apple + guest. When Google credentials exist, the iOS side also needs
   `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios
