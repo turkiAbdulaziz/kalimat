@@ -1,7 +1,7 @@
 /// Color tokens (tokens/colors.css) encoded as a ThemeExtension.
 ///
 /// The palette is a single brown hue plus one desaturated taupe; game state
-/// is communicated by brown value (dark = correct), never by red/green.
+/// is communicated by stable state colors (dark = correct), never by red/green.
 /// Shadows are warm brown in light mode and black alphas in dark mode.
 library;
 
@@ -60,7 +60,9 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
     required this.tileCorrect,
     required this.tilePresent,
     required this.tileAbsent,
-    required this.tileTextOnState,
+    required this.tileTextCorrect,
+    required this.tileTextPresent,
+    required this.tileTextAbsent,
     required this.keyBg,
     required this.keyBgHover,
     required this.keyText,
@@ -96,7 +98,9 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
   final Color tileCorrect;
   final Color tilePresent;
   final Color tileAbsent;
-  final Color tileTextOnState;
+  final Color tileTextCorrect;
+  final Color tileTextPresent;
+  final Color tileTextAbsent;
   final Color keyBg;
   final Color keyBgHover;
   final Color keyText;
@@ -133,7 +137,9 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
     tileCorrect: BrownRamp.b700,
     tilePresent: BrownRamp.b400,
     tileAbsent: BrownRamp.t500,
-    tileTextOnState: BrownRamp.b0,
+    tileTextCorrect: BrownRamp.b0,
+    tileTextPresent: BrownRamp.b900,
+    tileTextAbsent: BrownRamp.b900,
     keyBg: BrownRamp.b200,
     keyBgHover: BrownRamp.b300,
     keyText: BrownRamp.b900,
@@ -155,7 +161,7 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
   );
 
   /// Dark mode («خلفية بنية غامقة») — the official [data-theme="dark"] mapping
-  /// from tokens/colors.css. Tile states sit one rung lighter than light mode;
+  /// from tokens/colors.css. Gameplay state colors stay fixed across themes;
   /// shadows switch to black alphas.
   factory KalimatColors.dark() => const KalimatColors(
     surfacePage: BrownRamp.b950,
@@ -180,10 +186,12 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
     accentSoft: BrownRamp.b800,
     tileEmptyBorder: BrownRamp.b800,
     tileFilledBorder: BrownRamp.b600,
-    tileCorrect: BrownRamp.b500,
-    tilePresent: BrownRamp.b700,
-    tileAbsent: BrownRamp.t600,
-    tileTextOnState: BrownRamp.b0,
+    tileCorrect: BrownRamp.b700,
+    tilePresent: BrownRamp.b400,
+    tileAbsent: BrownRamp.t500,
+    tileTextCorrect: BrownRamp.b0,
+    tileTextPresent: BrownRamp.b900,
+    tileTextAbsent: BrownRamp.b900,
     keyBg: BrownRamp.b800,
     keyBgHover: BrownRamp.b700,
     keyText: BrownRamp.b100,
@@ -237,7 +245,9 @@ class KalimatColors extends ThemeExtension<KalimatColors> {
       tileCorrect: l(tileCorrect, other.tileCorrect),
       tilePresent: l(tilePresent, other.tilePresent),
       tileAbsent: l(tileAbsent, other.tileAbsent),
-      tileTextOnState: l(tileTextOnState, other.tileTextOnState),
+      tileTextCorrect: l(tileTextCorrect, other.tileTextCorrect),
+      tileTextPresent: l(tileTextPresent, other.tileTextPresent),
+      tileTextAbsent: l(tileTextAbsent, other.tileTextAbsent),
       keyBg: l(keyBg, other.keyBg),
       keyBgHover: l(keyBgHover, other.keyBgHover),
       keyText: l(keyText, other.keyText),

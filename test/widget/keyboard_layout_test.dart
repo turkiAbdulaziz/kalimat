@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kalimat/core/strings.dart';
+import 'package:kalimat/core/theme/kalimat_colors.dart';
 import 'package:kalimat/core/theme/kalimat_theme.dart';
 import 'package:kalimat/game/engine/letters.dart';
 import 'package:kalimat/game/engine/models.dart';
 import 'package:kalimat/game/widgets/keyboard.dart';
+import 'package:kalimat/game/widgets/key_cap.dart';
 
-Widget _wrap(Widget child) => MaterialApp(
-  theme: kalimatTheme(Brightness.light),
-  home: Directionality(
-    textDirection: TextDirection.rtl,
-    child: Scaffold(body: child),
-  ),
-);
+Widget _wrap(Widget child, {Brightness brightness = Brightness.light}) =>
+    MaterialApp(
+      theme: kalimatTheme(brightness),
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(body: child),
+      ),
+    );
+
+BoxDecoration _keyDecoration(WidgetTester tester, String label) {
+  final key = find.ancestor(
+    of: find.text(label),
+    matching: find.byType(KeyCap),
+  );
+  final container = tester.widget<AnimatedContainer>(
+    find.descendant(of: key, matching: find.byType(AnimatedContainer)),
+  );
+  return container.decoration! as BoxDecoration;
+}
 
 void main() {
   testWidgets('keyboard renders all 33 letters plus enter/delete', (
@@ -82,4 +96,43 @@ void main() {
     expect(find.text('إ'), findsOneWidget);
     expect(find.text('ا'), findsOneWidget);
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('${brightness.name} keys match board state colors', (
+      tester,
+    ) async {
+      final colors = brightness == Brightness.dark
+          ? KalimatColors.dark()
+          : KalimatColors.light();
+      await tester.pumpWidget(
+        _wrap(
+          GameKeyboard(
+            letterStates: {
+              normalizeLetter('ا'): TileState.correct,
+              normalizeLetter('ح'): TileState.present,
+              normalizeLetter('ج'): TileState.absent,
+            },
+          ),
+          brightness: brightness,
+        ),
+      );
+      await tester.pump();
+
+      expect(_keyDecoration(tester, 'ا').color, colors.tileCorrect);
+      expect(_keyDecoration(tester, 'ح').color, colors.tilePresent);
+      expect(_keyDecoration(tester, 'ج').color, colors.tileAbsent);
+      expect(
+        tester.widget<Text>(find.text('ا')).style!.color,
+        colors.tileTextCorrect,
+      );
+      expect(
+        tester.widget<Text>(find.text('ح')).style!.color,
+        colors.tileTextPresent,
+      );
+      expect(
+        tester.widget<Text>(find.text('ج')).style!.color,
+        colors.tileTextAbsent,
+      );
+    });
+  }
 }

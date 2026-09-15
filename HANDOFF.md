@@ -60,7 +60,7 @@ core-library desugaring is ON in `android/app/build.gradle.kts` (required by
 flutter_local_notifications — don't remove).
 
 ```powershell
-flutter test                 # 170 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
+flutter test                 # 173 tests (engine + data + state + widget + flow), all green — MUST run unconfigured
 flutter analyze              # clean
 flutter run --dart-define-from-file=env/dev.json    # online build (Supabase creds live in env/dev.json)
 # Windows/Android:
@@ -112,7 +112,7 @@ The local migration clears cached answers, daily/duel boards, pending results, s
 
 [Transactional deployment and verification](supabase/FOUR_LETTER_ROLLOUT.md) documents migration 0008, backup, reset scope and updated-client requirements. Populated PostgreSQL 17.11 tests passed: reset and rollback, preserved identity/friendship/policy/RPC snapshots, four-cell result acceptance, invalid/five-cell rejection and replay protection. The production rollout, including migrations 0007 and 0008 plus the regenerated seeds, was confirmed applied by the account owner on 2026-09-13.
 
-Flutter verification: all 170 tests passed and `flutter analyze` reports no issues. Coverage includes the 16 daily/duel × light/dark × motion on/off × 320×568/430×932 layout combinations, stale-duel retry, interrupted/once-only local migration, duplicate and equivalent Arabic letters, four-cell sharing, vocabulary and every online/offline seed date. The iOS integration suite passed all eight captures at 1320×2868; every final PNG was visually reviewed.
+Flutter verification: all 173 tests passed and `flutter analyze` reports no issues. Coverage includes the 16 daily/duel × light/dark × motion on/off × 320×568/430×932 layout combinations, stale-duel retry, interrupted/once-only local migration, duplicate and equivalent Arabic letters, four-cell sharing, vocabulary, every online/offline seed date, and cross-theme result-color identity/contrast. The iOS integration suite passed all eight captures at 1320×2868; every final PNG was visually reviewed.
 
 ## Supabase (LIVE since 2026-08-26)
 
@@ -404,17 +404,23 @@ flutter build ipa --release --dart-define-from-file=env/dev.json \
   created by the account owner 2026-09-05. The last confirmed status is that no build has been
   uploaded. The first Organizer attempt failed on a corrupted archive (gotcha 18); the obsolete
   September 6 artifacts were replaced on **2026-09-13** after the production four-letter rollout.
-  The current release source is commit `c5b1273` (`Release four-letter gameplay and App Store
+  The last signed release source was commit `c5b1273` (`Release four-letter gameplay and App Store
   updates`): 170 tests passed, `flutter analyze` was clean, and deterministic word-list generation
   matched. The documented release-build command then produced a fresh
   `build/ios/archive/Runner.xcarchive` and `build/ios/ipa/kalimat.ipa` (24,025,724 bytes), version
   **1.0.0 (1)**. The exported IPA passed ZIP integrity validation and is distribution-signed for
   team `W62CSC2R8A`, bundle `com.kalimat.game`, with `get-task-allow=false`, beta reports and the
-  Sign in with Apple entitlement. Xcode Organizer was opened on this fresh archive; **upload is
-  the next action and is not yet confirmed complete**. Build 1 remains valid only while App Store
+  Sign in with Apple entitlement. Xcode Organizer was opened on this fresh archive, but it was not
+  uploaded. Build 1 remains valid only while App Store
   Connect has not accepted another build 1; otherwise bump `pubspec.yaml` to `1.0.0+2` and rebuild.
-  The release commit and its preceding local commits have **not been pushed**; after committing
-  this handoff checkpoint, `main` is nine commits ahead of `origin/main`.
+  On **2026-09-15**, the working tree fixed inconsistent result colors between light and dark mode:
+  correct/present had exchanged their dark/light visual roles. Result fills now keep one identity
+  across themes (correct brown-700, present brown-400, absent taupe-500), with per-state text colors
+  that clear the large-text contrast threshold. All 173 tests, `flutter analyze`, deterministic
+  word-list verification, and the eight-frame iOS integration capture passed; the regenerated
+  screenshots were visually reviewed. The existing IPA predates this fix, so **rebuild before
+  uploading**. The release commit and its preceding local commits have **not been pushed**; `main`
+  was nine commits ahead of `origin/main` before this uncommitted color fix.
 - Google is still unconfigured: `kGoogleSignInAvailable` hides the button, so the shipped
   sign-in screen is Apple + guest. When Google credentials exist, the iOS side also needs
   `GIDClientID` and a reversed-client-ID URL scheme in `Info.plist` (google_sign_in_ios

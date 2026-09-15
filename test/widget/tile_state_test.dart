@@ -5,13 +5,14 @@ import 'package:kalimat/core/theme/kalimat_theme.dart';
 import 'package:kalimat/game/engine/models.dart';
 import 'package:kalimat/game/widgets/tile.dart';
 
-Widget _wrap(Widget child) => MaterialApp(
-  theme: kalimatTheme(Brightness.light),
-  home: Directionality(
-    textDirection: TextDirection.rtl,
-    child: Scaffold(body: Center(child: child)),
-  ),
-);
+Widget _wrap(Widget child, {Brightness brightness = Brightness.light}) =>
+    MaterialApp(
+      theme: kalimatTheme(brightness),
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(body: Center(child: child)),
+      ),
+    );
 
 BoxDecoration _decorationOf(WidgetTester tester) {
   final container = tester.widget<Container>(
@@ -20,32 +21,89 @@ BoxDecoration _decorationOf(WidgetTester tester) {
   return container.decoration! as BoxDecoration;
 }
 
+BoxDecoration _decorationForLetter(WidgetTester tester, String letter) {
+  final tile = find.ancestor(
+    of: find.text(letter),
+    matching: find.byType(Tile),
+  );
+  final container = tester.widget<Container>(
+    find.descendant(of: tile, matching: find.byType(Container)),
+  );
+  return container.decoration! as BoxDecoration;
+}
+
+double _contrast(Color foreground, Color background) {
+  final lighter = foreground.computeLuminance() + 0.05;
+  final darker = background.computeLuminance() + 0.05;
+  return lighter > darker ? lighter / darker : darker / lighter;
+}
+
 void main() {
   final colors = KalimatColors.light();
 
-  testWidgets('correct tile: brown-700 fill, white text', (tester) async {
-    await tester.pumpWidget(
-      _wrap(const Tile(letter: 'م', state: TileState.correct)),
+  test('result palette keeps one identity across themes', () {
+    final dark = KalimatColors.dark();
+    expect(dark.tileCorrect, colors.tileCorrect);
+    expect(dark.tilePresent, colors.tilePresent);
+    expect(dark.tileAbsent, colors.tileAbsent);
+    expect(dark.tileTextCorrect, colors.tileTextCorrect);
+    expect(dark.tileTextPresent, colors.tileTextPresent);
+    expect(dark.tileTextAbsent, colors.tileTextAbsent);
+    expect(
+      colors.tileCorrect.computeLuminance(),
+      lessThan(colors.tilePresent.computeLuminance()),
     );
-    final deco = _decorationOf(tester);
-    expect(deco.color, colors.tileCorrect);
-    final text = tester.widget<Text>(find.text('م'));
-    expect(text.style!.color, colors.tileTextOnState);
   });
 
-  testWidgets('present tile: brown-400 fill', (tester) async {
-    await tester.pumpWidget(
-      _wrap(const Tile(letter: 'ك', state: TileState.present)),
+  test('all evaluated letter foregrounds have large-text contrast', () {
+    expect(
+      _contrast(colors.tileTextCorrect, colors.tileCorrect),
+      greaterThan(3),
     );
-    expect(_decorationOf(tester).color, colors.tilePresent);
+    expect(
+      _contrast(colors.tileTextPresent, colors.tilePresent),
+      greaterThan(3),
+    );
+    expect(_contrast(colors.tileTextAbsent, colors.tileAbsent), greaterThan(3));
   });
 
-  testWidgets('absent tile: taupe-500 fill', (tester) async {
-    await tester.pumpWidget(
-      _wrap(const Tile(letter: 'ت', state: TileState.absent)),
-    );
-    expect(_decorationOf(tester).color, colors.tileAbsent);
-  });
+  for (final brightness in Brightness.values) {
+    testWidgets('${brightness.name} evaluated tiles use semantic colors', (
+      tester,
+    ) async {
+      final themeColors = brightness == Brightness.dark
+          ? KalimatColors.dark()
+          : KalimatColors.light();
+      await tester.pumpWidget(
+        _wrap(
+          const Row(
+            children: [
+              Tile(letter: 'م', state: TileState.correct),
+              Tile(letter: 'ك', state: TileState.present),
+              Tile(letter: 'ت', state: TileState.absent),
+            ],
+          ),
+          brightness: brightness,
+        ),
+      );
+
+      expect(_decorationForLetter(tester, 'م').color, themeColors.tileCorrect);
+      expect(_decorationForLetter(tester, 'ك').color, themeColors.tilePresent);
+      expect(_decorationForLetter(tester, 'ت').color, themeColors.tileAbsent);
+      expect(
+        tester.widget<Text>(find.text('م')).style!.color,
+        themeColors.tileTextCorrect,
+      );
+      expect(
+        tester.widget<Text>(find.text('ك')).style!.color,
+        themeColors.tileTextPresent,
+      );
+      expect(
+        tester.widget<Text>(find.text('ت')).style!.color,
+        themeColors.tileTextAbsent,
+      );
+    });
+  }
 
   testWidgets('empty tile: transparent with brown-300 border', (tester) async {
     await tester.pumpWidget(_wrap(const Tile()));
@@ -83,7 +141,10 @@ void main() {
     double scale() => tester
         .widget<Transform>(
           find
-              .descendant(of: find.byType(Tile), matching: find.byType(Transform))
+              .descendant(
+                of: find.byType(Tile),
+                matching: find.byType(Transform),
+              )
               .first,
         )
         .transform

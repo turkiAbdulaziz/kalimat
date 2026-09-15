@@ -50,7 +50,13 @@ class _KeyCapState extends State<KeyCap> {
             _ => colors.tileAbsent,
           }
         : (widget.wide ? colors.keyWideBg : colors.keyBg);
-    final fg = isStated ? colors.tileTextOnState : colors.keyText;
+    final fg = isStated
+        ? switch (state) {
+            TileState.correct => colors.tileTextCorrect,
+            TileState.present => colors.tileTextPresent,
+            _ => colors.tileTextAbsent,
+          }
+        : colors.keyText;
 
     final cap = AnimatedScale(
       scale: _held && !widget.disabled ? .94 : 1,

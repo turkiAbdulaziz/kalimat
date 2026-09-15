@@ -70,7 +70,7 @@ class _ChallengeRowState extends State<ChallengeRow> {
             ? c.tileCorrect
             : c.surfaceSunken,
         widget.outcome == ChallengeOutcome.won
-            ? c.tileTextOnState
+            ? c.tileTextCorrect
             : c.textMuted,
       ),
     };

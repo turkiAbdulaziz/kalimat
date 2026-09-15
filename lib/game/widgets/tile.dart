@@ -106,17 +106,17 @@ class _TileState extends State<Tile> with TickerProviderStateMixin {
     TileState.correct => (
       bg: c.tileCorrect,
       border: c.tileCorrect,
-      text: c.tileTextOnState,
+      text: c.tileTextCorrect,
     ),
     TileState.present => (
       bg: c.tilePresent,
       border: c.tilePresent,
-      text: c.tileTextOnState,
+      text: c.tileTextPresent,
     ),
     TileState.absent => (
       bg: c.tileAbsent,
       border: c.tileAbsent,
-      text: c.tileTextOnState,
+      text: c.tileTextAbsent,
     ),
   };
 

@@ -3,9 +3,9 @@ import React from "react";
 const TILE_STATE_STYLES = {
   empty:   { background: "var(--tile-empty-bg)", borderColor: "var(--tile-empty-border)", color: "var(--text-body)" },
   filled:  { background: "var(--tile-empty-bg)", borderColor: "var(--tile-filled-border)", color: "var(--text-body)" },
-  correct: { background: "var(--tile-correct-bg)", borderColor: "var(--tile-correct-border)", color: "var(--tile-text-on-state)" },
-  present: { background: "var(--tile-present-bg)", borderColor: "var(--tile-present-border)", color: "var(--tile-text-on-state)" },
-  absent:  { background: "var(--tile-absent-bg)", borderColor: "var(--tile-absent-border)", color: "var(--tile-text-on-state)" }
+  correct: { background: "var(--tile-correct-bg)", borderColor: "var(--tile-correct-border)", color: "var(--tile-text-correct)" },
+  present: { background: "var(--tile-present-bg)", borderColor: "var(--tile-present-border)", color: "var(--tile-text-present)" },
+  absent:  { background: "var(--tile-absent-bg)", borderColor: "var(--tile-absent-border)", color: "var(--tile-text-absent)" }
 };
 
 export function Tile({ letter = "", state = "empty", size, animate = false, revealDelay = 0, style, ...rest }) {

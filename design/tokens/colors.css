@@ -57,7 +57,9 @@
 --tile-present-border:var(--brown-400);
 --tile-absent-bg:var(--taupe-500);
 --tile-absent-border:var(--taupe-500);
---tile-text-on-state:#FFFDFA;
+--tile-text-correct:var(--brown-0);
+--tile-text-present:var(--brown-900);
+--tile-text-absent:var(--brown-900);
 
 /* --- keyboard --- */
 --key-bg:var(--brown-200);
@@ -95,12 +97,7 @@
 
 --tile-empty-border:var(--brown-800);
 --tile-filled-border:var(--brown-600);
---tile-correct-bg:var(--brown-500);
---tile-correct-border:var(--brown-500);
---tile-present-bg:var(--brown-700);
---tile-present-border:var(--brown-700);
---tile-absent-bg:var(--taupe-600);
---tile-absent-border:var(--taupe-600);
+/* Result colors are identity tokens: never remap them by theme. */
 
 --key-bg:var(--brown-800);
 --key-bg-hover:var(--brown-700);

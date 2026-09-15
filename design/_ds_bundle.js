@@ -622,6 +622,12 @@ const KEYCAP_STATE_BG = {
   present: "var(--tile-present-bg)",
   absent: "var(--tile-absent-bg)"
 };
+const KEYCAP_STATE_FG = {
+  idle: "var(--key-text)",
+  correct: "var(--tile-text-correct)",
+  present: "var(--tile-text-present)",
+  absent: "var(--tile-text-absent)"
+};
 function KeyCap({
   label,
   state = "idle",
@@ -644,7 +650,7 @@ function KeyCap({
     border: "none",
     borderRadius: "var(--radius-key)",
     background: wide && !isStated ? "var(--key-wide-bg)" : KEYCAP_STATE_BG[state],
-    color: isStated ? "var(--tile-text-on-state)" : "var(--key-text)",
+    color: KEYCAP_STATE_FG[state],
     fontFamily: "var(--font-ui)",
     fontSize: wide ? "var(--text-xs)" : "var(--text-lg)",
     fontWeight: "var(--weight-semibold)",
@@ -732,17 +738,17 @@ const TILE_STATE_STYLES = {
   correct: {
     background: "var(--tile-correct-bg)",
     borderColor: "var(--tile-correct-border)",
-    color: "var(--tile-text-on-state)"
+    color: "var(--tile-text-correct)"
   },
   present: {
     background: "var(--tile-present-bg)",
     borderColor: "var(--tile-present-border)",
-    color: "var(--tile-text-on-state)"
+    color: "var(--tile-text-present)"
   },
   absent: {
     background: "var(--tile-absent-bg)",
     borderColor: "var(--tile-absent-border)",
-    color: "var(--tile-text-on-state)"
+    color: "var(--tile-text-absent)"
   }
 };
 function Tile({

@@ -1,6 +1,6 @@
 # كلمات (Kalimat) — Status & Next Steps
 
-_Last updated: 2026-09-13. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
+_Last updated: 2026-09-15. Companion to [HANDOFF.md](HANDOFF.md) (architecture, gotchas, how to run)._
 
 ## ✅ Done
 
@@ -168,7 +168,15 @@ no new curves. Plan: `~/.claude/plans/streamed-tickling-papert.md` (Mac).
       but those artifacts predate the four-letter rollout and App Review sign-in changes. Build
       fresh artifacts from the current tree; see HANDOFF → "Build & upload" and "Waiting on you" №5.
 
-**Suite: 170 tests green · `flutter analyze` clean.** (engine + LocalStore
+### Cross-theme result colors  *(fixed 2026-09-15)*
+- [x] Correct, present and absent fills now keep the same semantic identity in light and dark mode;
+      correct stays dark brown, present light brown and absent taupe on both board tiles and keys.
+- [x] Per-state foreground tokens raise every evaluated Arabic letter above 3:1 contrast; regression
+      tests cover both brightnesses, board/key equality, semantic ordering and contrast.
+- [x] All eight iOS screenshot fixtures regenerated and visually reviewed. The existing signed IPA
+      predates this fix and must be rebuilt before upload.
+
+**Suite: 173 tests green · `flutter analyze` clean.** (engine + LocalStore
 persistence + GameController use cases + duel winner-rule matrix + duel session +
 rise-transition, motion-gate/primitives, win-wave, «التحدّيات», delete-account dialog widget
 tests + flow incl. account deletion)
@@ -213,7 +221,8 @@ tests + flow incl. account deletion)
       four-letter server switch deployed, run the signed build command in HANDOFF →
       "Build & upload", then use Organizer or Transporter (or the hands-off upload export).
       Pick the build on the version page once processing finishes (~10 min). Later uploads need
-      `1.0.0+2`, `+3`… in pubspec.
+      `1.0.0+2`, `+3`… in pubspec. The current signed IPA predates the 2026-09-15 color fix;
+      rebuild it before upload.
    5. **TestFlight yourself first** on a real iPhone: sign in with Apple → name → play → «حسابي»
       → «حذف الحساب». Then *Submit for Review*.
 

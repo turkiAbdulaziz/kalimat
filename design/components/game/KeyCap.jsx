@@ -7,6 +7,13 @@ const KEYCAP_STATE_BG = {
   absent: "var(--tile-absent-bg)"
 };
 
+const KEYCAP_STATE_FG = {
+  idle: "var(--key-text)",
+  correct: "var(--tile-text-correct)",
+  present: "var(--tile-text-present)",
+  absent: "var(--tile-text-absent)"
+};
+
 export function KeyCap({ label, state = "idle", wide = false, onPress, disabled = false, children }) {
   const [held, setHeld] = React.useState(false);
   const isStated = state !== "idle";
@@ -20,7 +27,7 @@ export function KeyCap({ label, state = "idle", wide = false, onPress, disabled 
     border: "none",
     borderRadius: "var(--radius-key)",
     background: wide && !isStated ? "var(--key-wide-bg)" : KEYCAP_STATE_BG[state],
-    color: isStated ? "var(--tile-text-on-state)" : "var(--key-text)",
+    color: KEYCAP_STATE_FG[state],
     fontFamily: "var(--font-ui)",
     fontSize: wide ? "var(--text-xs)" : "var(--text-lg)",
     fontWeight: "var(--weight-semibold)",
